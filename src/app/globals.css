@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+:root {
+  --background: hsl(210 20% 98%); /* background-light #f3f4f6 approx */
+  --foreground: hsl(220 13% 18%); /* gray-800 */
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(220 13% 18%);
+  
+  --primary: hsl(86 78% 27%); /* #4d7c0f */
+  --primary-foreground: hsl(0 0% 100%);
+  --primary-dark: hsl(92 60% 15%); /* #365314 */
+  
+  --secondary: hsl(210 40% 96.1%);
+  --secondary-foreground: hsl(222.2 47.4% 11.2%);
+  --muted: hsl(210 40% 96.1%);
+  --muted-foreground: hsl(215.4 16.3% 46.9%);
+  
+  --border: hsl(214.3 31.8% 91.4%);
+  --input: hsl(214.3 31.8% 91.4%);
+  --ring: hsl(86 78% 27%);
+  
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: hsl(220 39% 11%); /* #111827 */
+  --foreground: hsl(210 20% 98%); /* gray-100 */
+  --card: hsl(217 33% 17%); /* #1f2937 surface-dark */
+  --card-foreground: hsl(210 20% 98%);
+  
+  --primary: hsl(86 78% 27%);
+  --primary-foreground: hsl(0 0% 100%);
+  
+  --secondary: hsl(217.2 32.6% 17.5%);
+  --secondary-foreground: hsl(210 40% 98%);
+  
+  --muted: hsl(217.2 32.6% 17.5%);
+  --muted-foreground: hsl(215 20.2% 65.1%);
+  
+  --border: hsl(217.2 32.6% 17.5%);
+  --input: hsl(217.2 32.6% 17.5%);
+  --ring: hsl(86 78% 27%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius: var(--radius);
+  
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-playfair);
+  
+  --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes fadeInUpRight {
+  from {
+    opacity: 0;
+    transform: translate(25%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(25%, 0);
+  }
+}
+
+/* Custom utilities for animations */
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+.animate-fade-in-up.delay-200 {
+  animation-delay: 0.2s;
+}
+
+/* 
+   Since we defined keyframes globally, we can also use Tailwind 4 ability 
+   but for now keeping standard CSS class logic for specific keyframes 
+   that depend on specific translates (like -50% vs 25%) used in the example.
+*/
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-playfair), serif;
+}
