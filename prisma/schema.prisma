@@ -9,6 +9,24 @@ datasource db {
   provider = "postgresql"
 }
 
+// ข้อมูลจังหวัด
+model Province {
+  provinceId     Int    @id
+  provinceNameEn String @unique
+}
+
+// ข้อมูลพืช
+model Plant {
+  plantId     String @id
+  plantNameEn String
+}
+
+// ข้อมูลศัตรูพืช
+model Pest {
+  pestId     String @id
+  pestNameEn String
+}
+
 // ตารางหลักสำหรับเก็บรายงานการพบศัตรูพืช
 model PestReport {
   id        String   @id @default(cuid())
@@ -18,11 +36,9 @@ model PestReport {
   // ข้อมูลพื้นที่และพืช
   province String
   plantId  String // ID อ้างอิงประเภทพืช
-  plant    String // ชื่อพืช (เช่น ข้าว)
 
   // ข้อมูลศัตรูพืช
   pestId String // ID อ้างอิงศัตรูพืช
-  pest   String // ชื่อศัตรูพืช/โรค (เช่น เพลี้ยกระโดดสีน้ำตาล)
 
   // ข้อมูลเวลา
   reportedAt   DateTime @default(now())
