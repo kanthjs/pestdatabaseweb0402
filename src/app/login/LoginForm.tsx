@@ -80,7 +80,7 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
                 ) : (
                     <>
                         <span className="material-icons-outlined text-lg">login</span>
-                        Sign In
+                        Log In
                     </>
                 )}
             </button>

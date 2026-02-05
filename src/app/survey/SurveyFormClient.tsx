@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Switch } from "@/components/ui/switch";
+import { createClient } from "@/lib/supabase/client";
+import { submitPestReport } from "./actions";
+import { useRouter } from "next/navigation";
 
 // Dynamic import for the Map component to avoid SSR errors
 const ReportMap = dynamic(() => import("@/components/ReportMap"), {
@@ -107,6 +110,9 @@ export default function SurveyFormClient({
         reporterPhone: "",
         reporterRole: "",
     });
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const router = useRouter();
 
     const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
     const progressPercent = ((currentStepIndex + 1) / STEPS.length) * 100;
@@ -132,9 +138,66 @@ export default function SurveyFormClient({
         }
     };
 
-    const handleSubmit = () => {
-        console.log("Submitting form data:", formData);
-        // TODO: Add server action call here
+    const uploadImages = async (): Promise<string[]> => {
+        if (selectedFiles.length === 0) return [];
+
+        const supabase = createClient();
+        const uploadPromises = selectedFiles.map(async (file) => {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('pestPics')
+                .upload(filePath, file);
+
+            if (uploadError) {
+                console.error("Error uploading image:", uploadError);
+                throw uploadError;
+            }
+
+            const { data } = supabase.storage
+                .from('pestPics')
+                .getPublicUrl(filePath);
+
+            return data.publicUrl;
+        });
+
+        return Promise.all(uploadPromises);
+    };
+
+    const handleSubmit = async () => {
+        if (isSubmitting) return;
+
+        try {
+            setIsSubmitting(true);
+
+            // 1. Upload Images
+            const uploadedUrls = await uploadImages();
+
+            // 2. Prepare submission data
+            const submissionData = {
+                ...formData,
+                imageUrls: uploadedUrls
+            };
+
+            console.log("Submitting form data:", submissionData);
+
+            // 3. Submit to Server Action
+            const result = await submitPestReport(submissionData);
+
+            if (result.success) {
+                // Redirect to dashboard or success page
+                router.push("/dashboard?success=true");
+            } else {
+                alert("Failed to submit report. Please try again.");
+                setIsSubmitting(false);
+            }
+        } catch (error) {
+            console.error("Submission error:", error);
+            alert("An error occurred during submission.");
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -543,6 +606,7 @@ export default function SurveyFormClient({
                                                                     const newFiles = Array.from(e.target.files);
                                                                     const newUrls = newFiles.map(file => URL.createObjectURL(file));
 
+                                                                    setSelectedFiles(prev => [...prev, ...newFiles]);
                                                                     setFormData(prev => ({
                                                                         ...prev,
                                                                         imageUrls: [...prev.imageUrls, ...newUrls],
@@ -570,6 +634,7 @@ export default function SurveyFormClient({
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => {
+                                                                        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
                                                                         setFormData(prev => ({
                                                                             ...prev,
                                                                             imageUrls: prev.imageUrls.filter((_, i) => i !== index),
@@ -756,9 +821,19 @@ export default function SurveyFormClient({
                                         <Button
                                             className="grow sm:grow-0 px-10 h-12 rounded-full bg-cta text-cta-foreground hover:opacity-90 shadow-lg shadow-orange-500/20 transition-all font-bold"
                                             onClick={handleSubmit}
+                                            disabled={isSubmitting}
                                         >
-                                            Submit Report
-                                            <span className="material-icons-outlined ml-2">check</span>
+                                            {isSubmitting ? (
+                                                <span className="flex items-center">
+                                                    <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
+                                                    Submitting...
+                                                </span>
+                                            ) : (
+                                                <>
+                                                    Submit Report
+                                                    <span className="material-icons-outlined ml-2">check</span>
+                                                </>
+                                            )}
                                         </Button>
                                     )}
                                 </div>

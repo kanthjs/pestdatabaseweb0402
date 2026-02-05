@@ -20,7 +20,7 @@ export default function LoginPage({
                         </span>
                     </Link>
                     <p className="text-muted-foreground mt-2">
-                        Sign in to access expert features
+                        Log in to access expert features
                     </p>
                 </div>
 

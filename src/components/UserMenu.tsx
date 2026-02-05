@@ -36,13 +36,21 @@ export default function UserMenu() {
 
     if (!user) {
         return (
-            <Link
-                href="/login"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors text-sm"
-            >
-                <span className="material-icons-outlined text-lg">login</span>
-                <span className="hidden sm:inline">Sign In</span>
-            </Link>
+            <div className="flex items-center gap-2">
+                <Link
+                    href="/login"
+                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors px-3 py-2"
+                >
+                    Log In
+                </Link>
+                <Link
+                    href="/survey"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cta text-cta-foreground font-medium hover:opacity-90 transition-all shadow-md shadow-orange-500/20 hover:scale-105 active:scale-95 text-sm"
+                >
+                    <span className="material-icons-outlined text-lg">add_a_photo</span>
+                    <span className="hidden sm:inline">Report Pest</span>
+                </Link>
+            </div>
         );
     }
 
@@ -80,6 +88,14 @@ export default function UserMenu() {
                     >
                         <span className="material-icons-outlined text-lg">dashboard</span>
                         Dashboard
+                    </Link>
+                    <Link
+                        href="/my-reports"
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        <span className="material-icons-outlined text-lg">description</span>
+                        My Reports
                     </Link>
                     <Link
                         href="/expert/review"
