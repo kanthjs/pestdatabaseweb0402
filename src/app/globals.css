@@ -26,11 +26,20 @@
   --background: var(--cream-bg);
   --foreground: var(--fresh-charcoal);
 
+  --card: var(--cream-bg);
+  --card-foreground: var(--fresh-charcoal);
+
+  --popover: var(--cream-bg);
+  --popover-foreground: var(--fresh-charcoal);
+
   --primary: var(--fresh-forest);
   --primary-foreground: 0 0% 100%;
 
   --secondary: var(--fresh-leaf);
   --secondary-foreground: 0 0% 100%;
+
+  --muted: 165 20% 95%;
+  --muted-foreground: 165 10% 45%;
 
   --accent: var(--fresh-orange);
   --accent-foreground: 0 0% 100%;
@@ -38,6 +47,10 @@
   /* เส้นขอบ: ใช้สีเขียวของแบรนด์แบบจางมากๆ */
   --border: 165 20% 90%;
   --input: 165 20% 90%;
+  --ring: var(--fresh-forest);
+
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
 
   --radius: 0.5rem;
 

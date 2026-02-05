@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Switch } from "@/components/ui/switch";
 
 // Dynamic import for the Map component to avoid SSR errors
 const ReportMap = dynamic(() => import("@/components/ReportMap"), {
@@ -49,14 +50,35 @@ interface PestReportFormData {
     filedAffectedArea: number;
     incidencePercent: number;
     severityPercent: number;
+    imageUrls: string[];
+    imageTitles: string[];
+    isAnonymous: boolean;
+    reporterFirstName: string;
+    reporterLastName: string;
+    reporterPhone: string;
+    reporterRole: string;
 }
 
-// 4 Step configuration
+// Reporter Roles
+const REPORTER_ROLES = [
+    { id: "REP001", label: "Farmer (เกษตรกร)" },
+    { id: "REP002", label: "Agriculture Volunteer (อาสาสมัครเกษตร)" },
+    { id: "REP003", label: "Agricultural Extension Officer (เจ้าหน้าที่ส่งเสริมการเกษตร)" },
+    { id: "REP004", label: "Rice Research Center Staff (เจ้าหน้าที่ศูนย์วิจัยข้าว)" },
+    { id: "REP005", label: "Government Officials (เจ้าหน้าที่ราชการ)" },
+    { id: "REP006", label: "Community Leader (ผู้นำชุมชน)" },
+    { id: "REP007", label: "University Researcher (อาจารย์มหาวิทยาลัย)" },
+    { id: "REP008", label: "Student (นักศึกษา)" },
+    { id: "REP009", label: "Not Specified (ไม่ระบุ)" },
+];
+
+// 5 Step configuration
 const STEPS = [
     { id: "location", label: "Location", icon: "location_on" },
     { id: "plant", label: "Plant", icon: "grass" },
-    { id: "pest", label: "Pest", icon: "bug_report" }, // แยกออกมาเป็น step ใหม่
+    { id: "pest", label: "Pest", icon: "bug_report" },
     { id: "issue", label: "Issue Details", icon: "pest_control" },
+    { id: "reporter", label: "Reporter", icon: "person" },
 ] as const;
 
 type StepId = (typeof STEPS)[number]["id"];
@@ -77,6 +99,13 @@ export default function SurveyFormClient({
         filedAffectedArea: 0,
         incidencePercent: 0,
         severityPercent: 0,
+        imageUrls: [],
+        imageTitles: [],
+        isAnonymous: false,
+        reporterFirstName: "",
+        reporterLastName: "",
+        reporterPhone: "",
+        reporterRole: "",
     });
 
     const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
@@ -137,7 +166,7 @@ export default function SurveyFormClient({
                     </nav>
                     <Separator orientation="vertical" className="h-8 border-border" />
                     <ThemeToggle />
-                    <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-white dark:border-border shadow-sm cursor-pointer hover:ring-2 ring-primary ring-offset-2 transition-all bg-muted" />
+                    <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-background dark:border-border shadow-sm cursor-pointer hover:ring-2 ring-primary ring-offset-2 transition-all bg-muted" />
                 </div>
                 <button className="md:hidden p-2 text-muted-foreground">
                     <span className="material-icons-outlined text-2xl">menu</span>
@@ -365,11 +394,11 @@ export default function SurveyFormClient({
                                                     onChange={() => handleInputChange("pestId", pest.pestId)}
                                                     className="peer sr-only"
                                                 />
-                                                <div className={`flex items-center gap-4 p-5 rounded-xl border-2 transition-all duration-300 peer-checked:translate-x-2 ${formData.pestId === pest.pestId
+                                                <div className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300 peer-checked:scale-[1.02] ${formData.pestId === pest.pestId
                                                     ? "border-primary bg-primary/5 text-primary shadow-lg shadow-primary/5"
                                                     : "border-border bg-card text-muted-foreground hover:border-secondary/50 hover:bg-muted/30"
                                                     }`}>
-                                                    <div className={`size-10 rounded-lg flex items-center justify-center transition-colors ${formData.pestId === pest.pestId ? "bg-primary text-primary-foreground" : "bg-muted group-hover:bg-secondary/10 group-hover:text-secondary"}`}>
+                                                    <div className={`size-10 rounded-xl flex items-center justify-center transition-colors ${formData.pestId === pest.pestId ? "bg-primary text-primary-foreground" : "bg-muted group-hover:bg-secondary/10 group-hover:text-secondary"}`}>
                                                         <span className="material-icons-outlined text-xl">bug_report</span>
                                                     </div>
                                                     <span className="text-sm font-bold">{pest.pestNameEn}</span>
@@ -476,23 +505,212 @@ export default function SurveyFormClient({
                                             </div>
                                         </div>
 
+                                        {/* Image Upload Section */}
+                                        <div className="col-span-1 md:col-span-2 space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                                                    Photo Evidence
+                                                </Label>
+                                                <span className="text-xs text-muted-foreground">
+                                                    {formData.imageUrls.length} images selected
+                                                </span>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {/* Upload Button Area */}
+                                                <div className="col-span-1 md:col-span-2">
+                                                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-muted/30 hover:border-primary/50 transition-all group">
+                                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                            <div className="bg-primary/5 p-3 rounded-full mb-3 group-hover:bg-primary/10 transition-colors">
+                                                                <span className="material-icons-outlined text-primary text-2xl">
+                                                                    add_a_photo
+                                                                </span>
+                                                            </div>
+                                                            <p className="mb-1 text-sm text-muted-foreground font-medium">
+                                                                <span className="font-bold text-primary">Click to upload</span> or drag and drop
+                                                            </p>
+                                                            <p className="text-xs text-muted-foreground/70">
+                                                                SVG, PNG, JPG or GIF (max. 5MB)
+                                                            </p>
+                                                        </div>
+                                                        <input
+                                                            type="file"
+                                                            className="hidden"
+                                                            multiple
+                                                            accept="image/*"
+                                                            onChange={(e) => {
+                                                                if (e.target.files && e.target.files.length > 0) {
+                                                                    const newFiles = Array.from(e.target.files);
+                                                                    const newUrls = newFiles.map(file => URL.createObjectURL(file));
+
+                                                                    setFormData(prev => ({
+                                                                        ...prev,
+                                                                        imageUrls: [...prev.imageUrls, ...newUrls],
+                                                                        imageTitles: [...prev.imageTitles, ...new Array(newUrls.length).fill("")]
+                                                                    }));
+                                                                }
+                                                            }}
+                                                        />
+                                                    </label>
+                                                </div>
+
+                                                {/* Image Previews */}
+                                                {formData.imageUrls.map((url, index) => (
+                                                    <div key={index} className="relative group flex gap-4 p-3 rounded-xl border border-border bg-card hover:shadow-md transition-all">
+                                                        <div className="relative size-20 shrink-0 rounded-lg overflow-hidden bg-muted">
+                                                            <img
+                                                                src={url}
+                                                                alt={`Evidence ${index + 1}`}
+                                                                className="object-cover w-full h-full"
+                                                            />
+                                                        </div>
+                                                        <div className="flex-1 space-y-2 min-w-0">
+                                                            <div className="flex items-center justify-between">
+                                                                <Label className="text-xs font-bold text-muted-foreground">Caption</Label>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setFormData(prev => ({
+                                                                            ...prev,
+                                                                            imageUrls: prev.imageUrls.filter((_, i) => i !== index),
+                                                                            imageTitles: prev.imageTitles.filter((_, i) => i !== index)
+                                                                        }));
+                                                                    }}
+                                                                    className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                                                                    title="Remove image"
+                                                                >
+                                                                    <span className="material-icons-outlined text-lg">close</span>
+                                                                </button>
+                                                            </div>
+                                                            <Input
+                                                                type="text"
+                                                                placeholder="Describe this photo..."
+                                                                className="h-8 text-sm rounded-lg border-border bg-background"
+                                                                value={formData.imageTitles[index]}
+                                                                onChange={(e) => {
+                                                                    const newTitles = [...formData.imageTitles];
+                                                                    newTitles[index] = e.target.value;
+                                                                    setFormData(prev => ({
+                                                                        ...prev,
+                                                                        imageTitles: newTitles
+                                                                    }));
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
                                         {/* Tip Callout */}
-                                        <div className="col-span-1 md:col-span-2 mt-2 pt-6 border-t">
-                                            <Card className="bg-yellow-50 dark:bg-yellow-900/10 border-yellow-100 dark:border-yellow-900/30">
+                                        <div className="col-span-1 md:col-span-2 mt-2 pt-6 border-t border-border">
+                                            <Card className="bg-accent/10 dark:bg-accent/5 border-accent/20 dark:border-accent/15">
                                                 <CardContent className="flex items-center gap-4 p-4">
-                                                    <div className="bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded-full text-yellow-700 dark:text-yellow-500">
+                                                    <div className="bg-accent/20 dark:bg-accent/15 p-2 rounded-xl text-accent">
                                                         <span className="material-icons-outlined">
                                                             lightbulb
                                                         </span>
                                                     </div>
                                                     <div className="flex-1">
-                                                        <p className="text-sm font-medium text-yellow-800 dark:text-yellow-400">
-                                                            Tip: Accurate assessment helps us deploy the right
-                                                            solutions.
+                                                        <p className="text-sm font-medium text-foreground dark:text-accent">
+                                                            Tip: Clear photos help experts verify the pest type accurately.
                                                         </p>
                                                     </div>
                                                 </CardContent>
                                             </Card>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </>
+                        )}
+                        {/* ===== STEP 5: Reporter ===== */}
+                        {currentStep === "reporter" && (
+                            <>
+                                <CardHeader className="flex flex-row items-center gap-4 pb-4 border-b border-border">
+                                    <div className="bg-secondary/10 p-2.5 rounded-xl text-secondary">
+                                        <span className="material-icons-outlined text-2xl">person</span>
+                                    </div>
+                                    <div>
+                                        <CardTitle className="text-xl font-display text-primary">Reporter Information</CardTitle>
+                                        <p className="text-sm text-muted-foreground mt-0.5">Who is reporting this outbreak?</p>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="pt-8">
+                                    <div className="space-y-8">
+                                        {/* Anonymous Toggle */}
+                                        <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/20">
+                                            <div className="space-y-0.5">
+                                                <Label className="text-base font-bold text-primary">Report Anonymously</Label>
+                                                <p className="text-sm text-muted-foreground">
+                                                    Hide your identity from the public report.
+                                                </p>
+                                            </div>
+                                            <Switch
+                                                checked={formData.isAnonymous}
+                                                onCheckedChange={(checked) => {
+                                                    setFormData((prev) => ({
+                                                        ...prev,
+                                                        isAnonymous: checked,
+                                                        reporterFirstName: checked ? "" : prev.reporterFirstName,
+                                                        reporterLastName: checked ? "" : prev.reporterLastName,
+                                                        reporterPhone: checked ? "" : prev.reporterPhone,
+                                                        reporterRole: checked ? "" : prev.reporterRole,
+                                                    }));
+                                                }}
+                                            />
+                                        </div>
+
+                                        {/* Reporter Fields */}
+                                        <div className={`grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 transition-all duration-300 ${formData.isAnonymous ? "opacity-50 pointer-events-none grayscale" : ""}`}>
+                                            <div className="space-y-3">
+                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">First Name</Label>
+                                                <Input
+                                                    disabled={formData.isAnonymous}
+                                                    value={formData.reporterFirstName}
+                                                    onChange={(e) => handleInputChange("reporterFirstName", e.target.value)}
+                                                    className="h-12 rounded-xl border-border bg-background"
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Last Name</Label>
+                                                <Input
+                                                    disabled={formData.isAnonymous}
+                                                    value={formData.reporterLastName}
+                                                    onChange={(e) => handleInputChange("reporterLastName", e.target.value)}
+                                                    className="h-12 rounded-xl border-border bg-background"
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Phone Number</Label>
+                                                <Input
+                                                    disabled={formData.isAnonymous}
+                                                    value={formData.reporterPhone}
+                                                    onChange={(e) => handleInputChange("reporterPhone", e.target.value)}
+                                                    className="h-12 rounded-xl border-border bg-background"
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Role</Label>
+                                                <div className="relative">
+                                                    <select
+                                                        title="Select reporter role"
+                                                        disabled={formData.isAnonymous}
+                                                        value={formData.reporterRole}
+                                                        onChange={(e) => handleInputChange("reporterRole", e.target.value)}
+                                                        className="w-full h-12 px-4 rounded-xl border border-border bg-background appearance-none outline-none disabled:cursor-not-allowed"
+                                                    >
+                                                        <option value="">Select your role</option>
+                                                        {REPORTER_ROLES.map((role) => (
+                                                            <option key={role.id} value={role.id}>
+                                                                {role.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
+                                                        <span className="material-icons-outlined">expand_more</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </CardContent>

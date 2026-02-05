@@ -10,6 +10,7 @@ description: Next.js 16 Agricultural Pest Survey Application with Prisma 7 + Pos
 **RicePestNet** is a web-based agricultural pest and disease monitoring system designed for Thailand. It enables farmers and agronomists to submit pest sighting reports, track pest outbreaks geographically, and access management strategies to protect rice harvests.
 
 ### Core Purpose
+
 - **Pest Reporting**: Collect field reports on pest sightings with geolocation, severity, and incidence data
 - **Data Visualization**: Map-based outbreak tracking and analytics (planned)
 - **Expert Network**: Connect users with local agronomists (planned)
@@ -85,6 +86,7 @@ pestdatabaseweb0402/
 ### Models
 
 #### Province
+
 ```prisma
 model Province {
   provinceId     Int    @id
@@ -93,6 +95,7 @@ model Province {
 ```
 
 #### Plant
+
 ```prisma
 model Plant {
   plantId     String @id
@@ -101,6 +104,7 @@ model Plant {
 ```
 
 #### Pest
+
 ```prisma
 model Pest {
   pestId     String @id
@@ -109,6 +113,7 @@ model Pest {
 ```
 
 #### PestReport (Main Entity)
+
 ```prisma
 model PestReport {
   id                String   @id @default(cuid())
@@ -138,6 +143,7 @@ model PestReport {
 ```
 
 ### Master Data (Seed)
+
 - **77 Thai provinces** with English names, codes, and region info
 - **4 plant types**: Rice, Corn, Cassava, Sugarcane
 - **4 pests/diseases**: BPH, Spot, Pink, Rice Blast
@@ -165,6 +171,7 @@ npm run lint
 ```
 
 ### Docker Database
+
 ```bash
 # Start PostgreSQL container
 docker-compose up -d
@@ -178,6 +185,7 @@ docker-compose up -d
 ## ⚠️ Critical Implementation Notes
 
 ### 1. Prisma 7 Configuration
+
 **IMPORTANT**: This project uses Prisma 7 which has breaking changes from earlier versions:
 
 - **No `url` in schema.prisma**: The datasource URL is configured in `prisma.config.ts`, NOT in `schema.prisma`
@@ -199,6 +207,7 @@ datasource db {
 ```
 
 ### 2. Prisma Client Initialization
+
 ```typescript
 // src/lib/prisma.ts - CORRECT pattern for Prisma 7
 import { PrismaClient } from "@prisma/client";
@@ -212,6 +221,7 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
 ```
 
 ### 3. Server Components vs Client Components
+
 - **Server Components** (`page.tsx`): Fetch data with Prisma, pass to Client Components
 - **Client Components** (`SurveyFormClient.tsx`): Handle interactivity, forms, state
 
@@ -227,7 +237,9 @@ export default async function SurveyPage() {
 ```
 
 ### 4. Field Naming Convention
+
 All database fields use **English names** with specific casing:
+
 - `provinceNameEn` (not `provinceName` or `province_name`)
 - `plantNameEn` (not `plantName`)
 - `pestNameEn` (not `pestName`)
@@ -235,7 +247,9 @@ All database fields use **English names** with specific casing:
 - `symptomOnSet` (camelCase)
 
 ### 5. Form Data Fields
+
 The survey form (`PestReportFormData`) matches Prisma schema:
+
 ```typescript
 interface PestReportFormData {
   province: string;        // Province name (not ID)
@@ -248,57 +262,165 @@ interface PestReportFormData {
   incidencePercent: number;
   severityPercent: number;
 }
-```
 
----
 
-## 🎨 Styling Guidelines
+## 🎨 Design System & Styling
 
-### CSS Variables (Light/Dark mode)
+### Theme: "Organic White Theme"
+The application uses a carefully curated organic aesthetic with nature-inspired colors:
+
+**Core Color Palette:**
 ```css
 :root {
-  --primary: hsl(86 78% 27%);         /* Green: #4d7c0f */
-  --primary-dark: hsl(92 60% 15%);    /* Dark green: #365314 */
-  --background: hsl(210 20% 98%);     /* Light background */
-  --card: hsl(0 0% 100%);
+  /* Organic Background */
+  --cream-bg: 45 30% 98%;           /* #FDFCF9 - Warm cream background */
+  
+  /* Primary: Deep Forest Green */
+  --fresh-forest: 165 35% 15%;      /* #152B25 - Headers, primary elements */
+  --primary-foreground: 0 0% 100%;
+  
+  /* Secondary: Fresh Leaf Green */
+  --fresh-leaf: 115 40% 45%;        /* #4BAF47 - Icons, accents */
+  --secondary-foreground: 0 0% 100%;
+  
+  /* CTA: Warm Orange */
+  --fresh-orange: 20 90% 60%;       /* #F37335 - Call-to-action buttons */
+  --cta-foreground: 0 0% 100%;
+  
+  /* Text: Soft Charcoal */
+  --fresh-charcoal: 165 10% 25%;    /* #3A4442 - Body text */
+  
+  /* Borders & Inputs */
+  --border: 165 20% 90%;            /* Soft green tint */
+  --input: 165 20% 90%;
 }
 
 .dark {
-  --background: hsl(220 39% 11%);     /* #111827 */
-  --card: hsl(217 33% 17%);           /* #1f2937 */
+  /* Forest Night Theme */
+  --background: 165 40% 10%;        /* Very dark forest green */
+  --foreground: 50 27% 96%;         /* Cream text */
+  --primary: 118 42% 48%;           /* Leaf green for visibility */
+  --border: 165 30% 20%;
 }
 ```
 
+### Typography
+
+**Primary Font**: Noto Sans Thai
+
+- Supports Thai and Latin scripts
+- All weights (100-900) included
+- Applied to body, headings, and all UI elements
+
+```tsx
+// Configuration in layout.tsx
+const noto_sans_thai = Noto_Sans_Thai({
+  subsets: ["thai", "latin"],
+  variable: "--font-noto-sans-thai",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
+});
+```
+
+### UI Component Standards
+
+**Border Radius:**
+
+- Cards: `rounded-2xl` (16px)
+- Buttons: `rounded-full` for CTAs, `rounded-xl` for standard buttons
+- Inputs: `rounded-xl` (12px)
+- Icons: `rounded-xl` for icon containers
+
+**Spacing:**
+
+- Form fields: `space-y-3` between label and input
+- Grid gaps: `gap-4` for standard layouts, `gap-6` for feature sections
+
+**Shadows:**
+
+- Primary CTAs: `shadow-lg shadow-orange-500/20`
+- Cards: `shadow-xl shadow-black/5`
+- Hover states: `hover:shadow-lg`
+
 ### Icons
+
 Uses **Google Material Icons (Outlined)**:
+
 ```html
 <span className="material-icons-outlined">agriculture</span>
 ```
-Icons are loaded via Google Fonts CDN in `layout.tsx`.
 
-### Fonts
-- **Body**: Inter (--font-sans)
-- **Display**: Playfair Display (--font-display)
+Icons are loaded via Google Fonts CDN in `layout.tsx`.
 
 ---
 
 ## 🔄 Multi-Step Form Flow
 
-The Survey Form has 3 steps:
+The Survey Form has **4 steps**:
 
-1. **Location** (`location`)
-   - Province selection (dropdown from database)
-   - Latitude/Longitude (manual or GPS auto-detect)
+### 1. Location (`location`)
 
-2. **Plant** (`plant`)
-   - Plant type selection (radio cards from database)
-   - Pest/Disease selection (radio cards from database)
+- **Province**: Dropdown selection (77 Thai provinces from database)
+- **Latitude/Longitude**: Auto-populated via GPS or manual entry
+- **Map Preview**: Interactive Leaflet map with draggable marker
+- **GPS Button**: One-click geolocation with `navigator.geolocation`
 
-3. **Issue** (`issue`)
-   - Symptom onset date
-   - Affected area (ไร่)
-   - Incidence percent (slider 0-100%)
-   - Severity percent (slider with Low/Medium/High presets)
+**UI Components:**
+
+- `rounded-xl` dropdown with `border-border`
+- GPS button with `my_location` icon
+- Lat/Long display in `font-mono` style with `bg-muted/30` background
+
+### 2. Plant (`plant`)
+
+- **Plant Type Selection**: Radio cards with icons (Rice, Corn, Cassava, Sugarcane)
+- **Pest/Disease Selection**: See step 3 below
+
+**UI Pattern:**
+
+```tsx
+<label className="cursor-pointer group">
+  <input type="radio" className="peer sr-only" />
+  <div className="peer-checked:border-primary peer-checked:bg-primary/5">
+    {/* Plant card with icon and name */}
+  </div>
+</label>
+```
+
+### 3. Pest (`pest`)
+
+- **Pest Selection**: Radio cards with pest names from database (BPH, Spot, Pink, Rice Blast)
+- Horizontal layout with `border-border` and `hover:bg-muted/30`
+
+### 4. Issue Details (`issue`)
+
+- **Symptom Onset Date**: Date picker with calendar icon
+- **Affected Area**: Number input with "Rai" suffix
+- **Incidence Percent**: Number input (0-100%) with `%` suffix
+- **Severity Percent**: Number input (0-100%) with `%` suffix
+
+**Current Field Structure** (as of latest update):
+
+```tsx
+{/* All percentage fields use consistent pattern */}
+<div className="relative">
+  <Input
+    type="number"
+    placeholder="0"
+    className="h-12 pr-12 rounded-xl border-border bg-background"
+    value={formData.incidencePercent || ""}
+  />
+  <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+    %
+  </div>
+</div>
+```
+
+**Navigation:**
+
+- Back button: `ghost` variant with `west` icon
+- Next/Submit: Primary CTA with `bg-cta` and `east`/`check` icons
+- Steps tracker: Visual progress indicator with `rounded-2xl` step containers
 
 ---
 
@@ -310,16 +432,46 @@ The Survey Form has 3 steps:
 4. **Check field names carefully** - They're camelCase with "En" suffix for English names
 5. **Seed data uses Thai province names in some places** - Be careful when matching
 
----
+## 📋 Feature Status & Roadmap
 
-## 📋 TODO / Planned Features
+### ✅ Completed Features
 
-1. **Server Action Integration**: Complete `createPestReport` action connection
-2. **Image Upload**: Implement photo upload for pest evidence
-3. **Map Integration**: Leaflet/Mapbox for location selection and visualization
-4. **Dashboard**: Analytics and report management
-5. **Authentication**: User login and role-based access
-6. **Expert Verification**: Expert review workflow for reports
+1. **Multi-Step Survey Form**: 4-step wizard with validation and progress tracking
+2. **Map Integration**: Leaflet map with GPS auto-detection and draggable marker
+3. **Database Schema**: Prisma 7 with PostgreSQL (77 provinces, plants, pests)
+4. **Organic White Theme**: Complete design system with light/dark mode support
+5. **Thai Font Support**: Noto Sans Thai for proper Thai character rendering
+6. **Responsive UI**: Mobile-first design with organic shapes and animations
+7. **Server Actions**: `createPestReport` action for form submission
+
+### 🚧 In Progress
+
+1. **Image Upload**: Photo upload for pest evidence documentation
+2. **Form Validation**: Enhanced client-side and server-side validation with Zod
+
+### 📅 Planned Features
+
+1. **Dashboard**:
+   - Report management interface
+   - Analytics and visualization
+   - Export functionality
+
+2. **Authentication**:
+   - User login and registration
+   - Role-based access control (Farmer, Expert, Admin)
+
+3. **Expert Verification**:
+   - Expert review workflow for submitted reports
+   - Comment and feedback system
+
+4. **Advanced Mapping**:
+   - Heat maps for pest outbreak density
+   - Historical data overlay
+   - Cluster visualization
+
+5. **Notifications**:
+   - Alert system for nearby outbreaks
+   - Expert response notifications
 
 ---
 

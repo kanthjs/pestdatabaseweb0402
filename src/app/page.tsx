@@ -194,7 +194,7 @@ export default function HomePage() {
           {/* Alert Card 1 */}
           <div className="absolute top-1/4 left-1/4 transform -translate-x-1/2 bg-card p-4 rounded-xl shadow-xl shadow-black/5 border border-border max-w-xs hidden lg:block animate-fade-in-up backdrop-blur-sm bg-opacity-95">
             <div className="flex items-start gap-3">
-              <div className="bg-red-50 p-2.5 rounded-full text-red-600">
+              <div className="bg-destructive/10 p-2.5 rounded-xl text-destructive">
                 <span className="material-icons-outlined text-xl">warning</span>
               </div>
               <div>

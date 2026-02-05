@@ -111,6 +111,18 @@ const pests = [
   { pestId: "DIS001", pestNameTh: "โรคไหม้ข้าว", pestNameEn: "Rice Blast" },
 ]
 
+export const reporterRoles = [
+  { reporterId: "REP001", labelTH: "เกษตรกร", labelEN: "Farmer" },
+  { reporterId: "REP002", labelTH: "อาสาสมัครเกษตร", labelEN: "Agriculture Volunteer" },
+  { reporterId: "REP003", labelTH: "เจ้าหน้าที่ส่งเสริมการเกษตร", labelEN: "Agricultural Extension Officer" },
+  { reporterId: "REP004", labelTH: "เจ้าหน้าที่ศูนย์วิจัยข้าว", labelEN: "Rice Research Center Staff" },
+  { reporterId: "REP005", labelTH: "เจ้าหน้าที่ราชการ", labelEN: "Government Officials" },
+  { reporterId: "REP006", labelTH: "ผู้นำชุมชน", labelEN: "Community Leader" },
+  { reporterId: "REP007", labelTH: "อาจารย์มหาวิทยาลัย", labelEN: "University Researcher" },
+  { reporterId: "REP008", labelTH: "นักศึกษ", labelEN: "Student" },
+  { reporterId: "REP009", labelTH: "ไม่ระบุ", labelEN: "Not Specified" },
+];
+
 async function main() {
   console.log('กำลังเริ่มทำการ Seed ข้อมูล...')
 

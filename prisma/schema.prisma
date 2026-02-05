@@ -53,9 +53,16 @@ model PestReport {
   latitude  Float
   longitude Float
 
-  // ข้อมูลรูปภาพ (เก็บเป็น Array ของ String)
-  imageUrls   String[]
-  imageTitles String[]
+ // ข้อมูลรูปภาพ (รองรับไม่เกิน 2 รูปตาม UI)
+  imageUrls    String[] // เก็บ URL จาก Cloud Storage
+  imageCaptions String[] // เก็บ Caption ที่ผู้ใช้เขียน
+
+  // ข้อมูลผู้รายงาน (Anonymous Support)
+isAnonymous   Boolean  @default(false)
+  reporterFirstName  String?  // ชื่อ
+  reporterLastName  String?  // นามสกุล
+  reporterPhone String?  // เบอร์ติดต่อ
+  reporterRoles  String?  // บทบาท (เช่น เกษตรกร, เจ้าหน้าที่)
 
   // การทำ Index เพื่อให้ค้นหาข้อมูลตามจังหวัดหรือศัตรูพืชได้เร็วขึ้น
   @@index([province])
