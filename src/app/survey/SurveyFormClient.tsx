@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+
+// Dynamic import for the Map component to avoid SSR errors
+const ReportMap = dynamic(() => import("@/components/ReportMap"), {
+    ssr: false,
+    loading: () => <div className="h-[300px] w-full bg-muted animate-pulse rounded-lg flex items-center justify-center text-muted-foreground">Loading Map...</div>
+});
 
 // Types for the props from database
 interface Province {
@@ -44,11 +51,12 @@ interface PestReportFormData {
     severityPercent: number;
 }
 
-// Step configuration
+// 4 Step configuration
 const STEPS = [
     { id: "location", label: "Location", icon: "location_on" },
     { id: "plant", label: "Plant", icon: "grass" },
-    { id: "issue", label: "Issue", icon: "pest_control" },
+    { id: "pest", label: "Pest", icon: "bug_report" }, // แยกออกมาเป็น step ใหม่
+    { id: "issue", label: "Issue Details", icon: "pest_control" },
 ] as const;
 
 type StepId = (typeof STEPS)[number]["id"];
@@ -254,7 +262,7 @@ export default function SurveyFormClient({
                                         </div>
 
                                         {/* GPS Button */}
-                                        <div className="col-span-1 md:col-span-2">
+                                        <div className="col-span-1 md:col-span-2 space-y-4">
                                             <Button
                                                 type="button"
                                                 variant="outline"
@@ -276,6 +284,24 @@ export default function SurveyFormClient({
                                                 </span>
                                                 Use Current Location
                                             </Button>
+
+                                            {/* Map Integration */}
+                                            {(formData.latitude !== 0 || formData.longitude !== 0) && (
+                                                <div className="space-y-2 animate-in fade-in slide-in-from-top-4 duration-500">
+                                                    <Label className="text-sm text-muted-foreground font-normal">Location Preview</Label>
+                                                    <ReportMap
+                                                        latitude={formData.latitude}
+                                                        longitude={formData.longitude}
+                                                        onLocationChange={(lat, lng) => {
+                                                            setFormData(prev => ({
+                                                                ...prev,
+                                                                latitude: lat,
+                                                                longitude: lng
+                                                            }));
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </CardContent>
@@ -289,89 +315,62 @@ export default function SurveyFormClient({
                                     <div className="bg-primary/20 p-2 rounded-lg text-primary">
                                         <span className="material-icons-outlined">grass</span>
                                     </div>
-                                    <CardTitle className="text-xl">Plant Information</CardTitle>
+                                    <CardTitle className="text-xl">Plant Selection</CardTitle>
                                 </CardHeader>
                                 <CardContent className="pt-6">
-                                    <div className="grid grid-cols-1 gap-y-6">
-                                        {/* Plant Selection - From Database */}
-                                        <div className="space-y-3">
-                                            <Label className="text-base font-medium">
-                                                Select Plant
-                                            </Label>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                                {plants.map((plant) => (
-                                                    <label key={plant.plantId} className="cursor-pointer">
-                                                        <input
-                                                            type="radio"
-                                                            name="plant"
-                                                            value={plant.plantId}
-                                                            checked={formData.plantId === plant.plantId}
-                                                            onChange={() => {
-                                                                handleInputChange("plantId", plant.plantId);
-                                                            }}
-                                                            className="peer sr-only"
-                                                        />
-                                                        <div
-                                                            className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-all hover:bg-gray-100 dark:hover:bg-gray-700
-                                ${formData.plantId === plant.plantId
-                                                                    ? "border-primary bg-primary/10 text-primary"
-                                                                    : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
-                                                                }`}
-                                                        >
-                                                            <span className="material-icons-outlined text-2xl mb-2">
-                                                                grass
-                                                            </span>
-                                                            <span className="text-sm font-medium text-center">
-                                                                {plant.plantNameEn}
-                                                            </span>
-                                                        </div>
-                                                    </label>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        {/* Pest Selection - From Database */}
-                                        <div className="space-y-3 pt-4 border-t">
-                                            <Label className="text-base font-medium">
-                                                Select Pest/Disease
-                                            </Label>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                {pests.map((pest) => (
-                                                    <label key={pest.pestId} className="cursor-pointer">
-                                                        <input
-                                                            type="radio"
-                                                            name="pest"
-                                                            value={pest.pestId}
-                                                            checked={formData.pestId === pest.pestId}
-                                                            onChange={() => {
-                                                                handleInputChange("pestId", pest.pestId);
-                                                            }}
-                                                            className="peer sr-only"
-                                                        />
-                                                        <div
-                                                            className={`flex items-center gap-3 p-4 rounded-lg border transition-all hover:bg-gray-100 dark:hover:bg-gray-700
-                                ${formData.pestId === pest.pestId
-                                                                    ? "border-primary bg-primary/10 text-primary"
-                                                                    : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
-                                                                }`}
-                                                        >
-                                                            <span className="material-icons-outlined text-xl">
-                                                                bug_report
-                                                            </span>
-                                                            <span className="text-sm font-medium">
-                                                                {pest.pestNameEn}
-                                                            </span>
-                                                        </div>
-                                                    </label>
-                                                ))}
-                                            </div>
-                                        </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        {plants.map((plant) => (
+                                            <label key={plant.plantId} className="cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="plant"
+                                                    value={plant.plantId}
+                                                    checked={formData.plantId === plant.plantId}
+                                                    onChange={() => handleInputChange("plantId", plant.plantId)}
+                                                    className="peer sr-only"
+                                                />
+                                                <div className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-all hover:bg-gray-100 dark:hover:bg-gray-700 ${formData.plantId === plant.plantId ? "border-primary bg-primary/10 text-primary" : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"}`}>
+                                                    <span className="material-icons-outlined text-2xl mb-2">grass</span>
+                                                    <span className="text-sm font-medium text-center">{plant.plantNameEn}</span>
+                                                </div>
+                                            </label>
+                                        ))}
                                     </div>
                                 </CardContent>
                             </>
                         )}
-
-                        {/* ===== STEP 3: Issue ===== */}
+                        {/* ===== STEP 3: Pest ===== */}
+                        {currentStep === "pest" && (
+                            <>
+                                <CardHeader className="flex flex-row items-center gap-3 pb-4 border-b">
+                                    <div className="bg-primary/20 p-2 rounded-lg text-primary">
+                                        <span className="material-icons-outlined">bug_report</span>
+                                    </div>
+                                    <CardTitle className="text-xl">Pest & Disease</CardTitle>
+                                </CardHeader>
+                                <CardContent className="pt-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {pests.map((pest) => (
+                                            <label key={pest.pestId} className="cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="pest"
+                                                    value={pest.pestId}
+                                                    checked={formData.pestId === pest.pestId}
+                                                    onChange={() => handleInputChange("pestId", pest.pestId)}
+                                                    className="peer sr-only"
+                                                />
+                                                <div className={`flex items-center gap-3 p-4 rounded-lg border transition-all hover:bg-gray-100 dark:hover:bg-gray-700 ${formData.pestId === pest.pestId ? "border-primary bg-primary/10 text-primary" : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"}`}>
+                                                    <span className="material-icons-outlined text-xl">bug_report</span>
+                                                    <span className="text-sm font-medium">{pest.pestNameEn}</span>
+                                                </div>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </>
+                        )}
+                        {/* ===== STEP 4: Issue ===== */}
                         {currentStep === "issue" && (
                             <>
                                 <CardHeader className="flex flex-row items-center gap-3 pb-4 border-b">
