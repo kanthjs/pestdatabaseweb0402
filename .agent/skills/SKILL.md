@@ -152,8 +152,8 @@ model PestReport {
 ### Master Data (Seed)
 
 - **77 Thai provinces** with English names, codes, and region info
-- **4 plant types**: Rice, Corn, Cassava, Sugarcane
-- **4 pests/diseases**: BPH, Spot, Pink, Rice Blast
+- **2 plant types**: Rice, Corn
+- **28 pests/diseases**: Expanded list including Brown Planthopper, Rice Blast Disease, Golden Apple Snail, etc. (IDs PST001-PST028)
 
 ---
 
