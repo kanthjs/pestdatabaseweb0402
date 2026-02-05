@@ -51,7 +51,7 @@ interface PestReportFormData {
     incidencePercent: number;
     severityPercent: number;
     imageUrls: string[];
-    imageTitles: string[];
+    imageCaptions: string[];
     isAnonymous: boolean;
     reporterFirstName: string;
     reporterLastName: string;
@@ -100,7 +100,7 @@ export default function SurveyFormClient({
         incidencePercent: 0,
         severityPercent: 0,
         imageUrls: [],
-        imageTitles: [],
+        imageCaptions: [],
         isAnonymous: false,
         reporterFirstName: "",
         reporterLastName: "",
@@ -546,7 +546,7 @@ export default function SurveyFormClient({
                                                                     setFormData(prev => ({
                                                                         ...prev,
                                                                         imageUrls: [...prev.imageUrls, ...newUrls],
-                                                                        imageTitles: [...prev.imageTitles, ...new Array(newUrls.length).fill("")]
+                                                                        imageCaptions: [...prev.imageCaptions, ...new Array(newUrls.length).fill("")]
                                                                     }));
                                                                 }
                                                             }}
@@ -573,7 +573,7 @@ export default function SurveyFormClient({
                                                                         setFormData(prev => ({
                                                                             ...prev,
                                                                             imageUrls: prev.imageUrls.filter((_, i) => i !== index),
-                                                                            imageTitles: prev.imageTitles.filter((_, i) => i !== index)
+                                                                            imageCaptions: prev.imageCaptions.filter((_, i) => i !== index)
                                                                         }));
                                                                     }}
                                                                     className="text-muted-foreground hover:text-destructive transition-colors p-1"
@@ -586,13 +586,13 @@ export default function SurveyFormClient({
                                                                 type="text"
                                                                 placeholder="Describe this photo..."
                                                                 className="h-8 text-sm rounded-lg border-border bg-background"
-                                                                value={formData.imageTitles[index]}
+                                                                value={formData.imageCaptions[index]}
                                                                 onChange={(e) => {
-                                                                    const newTitles = [...formData.imageTitles];
-                                                                    newTitles[index] = e.target.value;
+                                                                    const newCaptions = [...formData.imageCaptions];
+                                                                    newCaptions[index] = e.target.value;
                                                                     setFormData(prev => ({
                                                                         ...prev,
-                                                                        imageTitles: newTitles
+                                                                        imageCaptions: newCaptions
                                                                     }));
                                                                 }}
                                                             />

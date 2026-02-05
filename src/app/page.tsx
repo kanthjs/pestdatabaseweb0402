@@ -141,7 +141,7 @@ export default function HomePage() {
               </Link>
               <Link
                 className="flex items-center justify-center px-8 py-3.5 border border-border text-base font-medium rounded-full text-foreground bg-card hover:bg-muted transition-all shadow-sm hover:shadow-md"
-                href="#"
+                href="/dashboard"
               >
                 <span className="material-icons-outlined mr-2">dashboard</span>
                 Manage Dashboard

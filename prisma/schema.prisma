@@ -27,6 +27,30 @@ model Pest {
   pestNameEn String
 }
 
+// สถานะการตรวจสอบรายงาน
+enum ReportStatus {
+  PENDING // รอการตรวจสอบ
+  VERIFIED // ผ่านการตรวจสอบแล้ว
+  REJECTED // ถูกปฏิเสธ
+}
+
+// บทบาทผู้ใช้งาน
+enum UserRole {
+  ADMIN // ผู้ดูแลระบบ
+  EXPERT // ผู้เชี่ยวชาญ
+  USER // ผู้ใช้ทั่วไป
+}
+
+// โปรไฟล์ผู้ใช้ (เชื่อมกับ Supabase Auth)
+model UserProfile {
+  id        String   @id // Supabase auth.users UUID
+  email     String   @unique
+  role      UserRole @default(USER)
+  fullName  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // ตารางหลักสำหรับเก็บรายงานการพบศัตรูพืช
 model PestReport {
   id        String   @id @default(cuid())
@@ -53,18 +77,25 @@ model PestReport {
   latitude  Float
   longitude Float
 
- // ข้อมูลรูปภาพ (รองรับไม่เกิน 2 รูปตาม UI)
-  imageUrls    String[] // เก็บ URL จาก Cloud Storage
+  // ข้อมูลรูปภาพ (รองรับไม่เกิน 2 รูปตาม UI)
+  imageUrls     String[] // เก็บ URL จาก Cloud Storage
   imageCaptions String[] // เก็บ Caption ที่ผู้ใช้เขียน
 
   // ข้อมูลผู้รายงาน (Anonymous Support)
-isAnonymous   Boolean  @default(false)
-  reporterFirstName  String?  // ชื่อ
-  reporterLastName  String?  // นามสกุล
-  reporterPhone String?  // เบอร์ติดต่อ
-  reporterRoles  String?  // บทบาท (เช่น เกษตรกร, เจ้าหน้าที่)
+  isAnonymous       Boolean @default(false)
+  reporterFirstName String? // ชื่อ
+  reporterLastName  String? // นามสกุล
+  reporterPhone     String? // เบอร์ติดต่อ
+  reporterRoles     String? // บทบาท (เช่น เกษตรกร, เจ้าหน้าที่)
+
+  // Verification Status (สถานะการตรวจสอบ)
+  status          ReportStatus @default(PENDING)
+  verifiedAt      DateTime? // วันที่ตรวจสอบ
+  verifiedBy      String? // ชื่อผู้ตรวจสอบ
+  rejectionReason String? // เหตุผลที่ปฏิเสธ
 
   // การทำ Index เพื่อให้ค้นหาข้อมูลตามจังหวัดหรือศัตรูพืชได้เร็วขึ้น
   @@index([province])
   @@index([pestId])
+  @@index([status])
 }

@@ -25,9 +25,9 @@ description: Next.js 16 Agricultural Pest Survey Application with Prisma 7 + Pos
 | **Framework** | Next.js (App Router) | 16.1.6 |
 | **Language** | TypeScript | 5.9.3 |
 | **React** | React 19 | 19.2.3 |
-| **Database** | PostgreSQL | Docker |
+| **Database** | PostgreSQL | Supabase |
 | **ORM** | Prisma Client | 7.3.0 |
-| **DB Adapter** | @prisma/adapter-pg | 7.3.0 |
+| **Auth** | Supabase Auth (@supabase/ssr) | Latest |
 | **Styling** | Tailwind CSS v4 | 4.x |
 | **UI Components** | Radix UI + shadcn/ui | Latest |
 | **Forms** | React Hook Form + Zod | 7.71.1 / 4.3.6 |
@@ -39,58 +39,57 @@ description: Next.js 16 Agricultural Pest Survey Application with Prisma 7 + Pos
 
 ```
 pestdatabaseweb0402/
-├── .env                          # Environment variables (DATABASE_URL)
-├── docker-compose.yml            # PostgreSQL container config
-├── package.json                  # Dependencies & scripts
-├── prisma.config.ts              # Prisma 7 config (migrations, seed)
-├── tsconfig.json                 # TypeScript configuration
+├── .env                          # Environment variables (DB URLs, Supabase Keys)
+├── middleware.ts                 # Next.js Middleware (Auth session refresh/protection)
+├── prisma.config.ts              # Prisma 7 config
 │
 ├── prisma/
-│   ├── schema.prisma             # Database schema (Province, Plant, Pest, PestReport)
-│   ├── seed.ts                   # Database seeding (77 Thai provinces, plants, pests)
-│   └── migrations/               # Migration history
+│   ├── schema.prisma             # Schema (PestReport, UserProfile, Enums)
+│   └── seed.ts                   # Seed data (Provinces, Plants, Pests, Sample Reports)
 │
 ├── src/
-│   ├── app/                      # Next.js App Router
-│   │   ├── layout.tsx            # Root layout (fonts, metadata)
-│   │   ├── page.tsx              # Landing page (homepage)
-│   │   ├── globals.css           # Global styles + CSS variables
-│   │   ├── action.tsx            # Server Actions (createPestReport)
-│   │   └── survey/
-│   │       ├── page.tsx          # Survey page (Server Component - fetches master data)
-│   │       └── SurveyFormClient.tsx  # Multi-step form (Client Component)
+│   ├── app/                      
+│   │   ├── dashboard/            # Public Dashboard (Verified reports only)
+│   │   ├── expert/review/        # Expert Verification Queue (EXPERT/ADMIN only)
+│   │   ├── login/                # Auth: SignIn (Server Actions)
+│   │   ├── signup/               # Auth: SignUp (Server Actions)
+│   │   ├── survey/               # Report submission form
+│   │   ├── action.tsx            # Report submission server action
+│   │   └── page.tsx              # Landing Page
 │   │
-│   ├── components/ui/            # shadcn/ui components
-│   │   ├── avatar.tsx
-│   │   ├── badge.tsx
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── input.tsx
-│   │   ├── label.tsx
-│   │   ├── separator.tsx
-│   │   └── sheet.tsx
+│   ├── components/
+│   │   ├── ui/                   # shadcn/ui components
+│   │   └── UserMenu.tsx          # Auth-aware navigation menu
 │   │
 │   ├── lib/
-│   │   ├── prisma.ts             # Prisma singleton with pg adapter
-│   │   └── utils.ts              # cn() utility for class merging
+│   │   ├── prisma.ts             # Prisma singleton
+│   │   └── supabase/             # Supabase Auth utilities
+│   │       ├── client.ts         # Browser client
+│   │       ├── server.ts         # Server client
+│   │       └── middleware.ts     # Middleware session logic
 │   │
-│   └── generated/                # (Prisma generated types)
-│
-└── public/                       # Static assets
+│   └── generated/                # Auto-generated Prisma types
 ```
 
 ---
 
 ## 🗃️ Database Schema
 
+### Enums
+
+- **ReportStatus**: `PENDING`, `VERIFIED`, `REJECTED`
+- **UserRole**: `ADMIN`, `EXPERT`, `USER`
+
 ### Models
 
-#### Province
+#### UserProfile (Linked to Supabase Auth)
 
 ```prisma
-model Province {
-  provinceId     Int    @id
-  provinceNameEn String @unique
+model UserProfile {
+  id        String   @id // Supabase auth.users UUID
+  email     String   @unique
+  role      UserRole @default(USER)
+  fullName  String?
 }
 ```
 
@@ -112,7 +111,7 @@ model Pest {
 }
 ```
 
-#### PestReport (Main Entity)
+#### PestReport (Updated with Verification)
 
 ```prisma
 model PestReport {
@@ -137,8 +136,14 @@ model PestReport {
   imageUrls         String[]
   imageTitles       String[]
 
+  status          ReportStatus @default(PENDING)
+  verifiedAt      DateTime?
+  verifiedBy      String?
+  rejectionReason String?
+  
   @@index([province])
   @@index([pestId])
+  @@index([status])
 }
 ```
 
@@ -196,7 +201,7 @@ docker-compose up -d
 // ❌ WRONG (Old Prisma)
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")  // DO NOT ADD THIS
+  url       = env("DATABASE_URL")  // DO NOT ADD THIS
 }
 
 // ✅ CORRECT (Prisma 7)
@@ -262,14 +267,16 @@ interface PestReportFormData {
   incidencePercent: number;
   severityPercent: number;
 }
-
+```
 
 ## 🎨 Design System & Styling
 
 ### Theme: "Organic White Theme"
+
 The application uses a carefully curated organic aesthetic with nature-inspired colors:
 
 **Core Color Palette:**
+
 ```css
 :root {
   /* Organic Background */
@@ -432,46 +439,41 @@ The Survey Form has **4 steps**:
 4. **Check field names carefully** - They're camelCase with "En" suffix for English names
 5. **Seed data uses Thai province names in some places** - Be careful when matching
 
+## 🔐 Access Control & Verification
+
+### Roles & Permissions
+
+- **Anonymous/USER**: Submit reports (default `PENDING`), view `VERIFIED` dashboard.
+- **EXPERT/ADMIN**: Access `/expert/review`, verify/reject reports, view all reports.
+
+### Authentication Flow
+
+Uses `@supabase/ssr` for cookie-based auth.
+
+- **Middleware**: Refreshes sessions and protects `/expert/*` routes.
+- **Server Actions**: `login`, `signup`, `signout`, `getCurrentUser`.
+
+---
+
 ## 📋 Feature Status & Roadmap
 
 ### ✅ Completed Features
 
-1. **Multi-Step Survey Form**: 4-step wizard with validation and progress tracking
-2. **Map Integration**: Leaflet map with GPS auto-detection and draggable marker
-3. **Database Schema**: Prisma 7 with PostgreSQL (77 provinces, plants, pests)
-4. **Organic White Theme**: Complete design system with light/dark mode support
-5. **Thai Font Support**: Noto Sans Thai for proper Thai character rendering
-6. **Responsive UI**: Mobile-first design with organic shapes and animations
-7. **Server Actions**: `createPestReport` action for form submission
+1. **Multi-Step Survey Form**: 4-step wizard with geolocation.
+2. **Verification Workflow**: Expert review queue with Verify/Reject actions.
+3. **Filtered Dashboard**: Public view showing only verified pest reports.
+4. **Access Control System**: Supabase Auth integration with role-based routing.
+5. **Organic White Theme**: Consistent premium aesthetic across all pages.
 
 ### 🚧 In Progress
 
-1. **Image Upload**: Photo upload for pest evidence documentation
-2. **Form Validation**: Enhanced client-side and server-side validation with Zod
+1. **User Role Management**: Admin UI to promote users to EXPERT role.
+2. **Advanced Analytics**: Trend charts and regional outbreak comparison.
 
 ### 📅 Planned Features
 
-1. **Dashboard**:
-   - Report management interface
-   - Analytics and visualization
-   - Export functionality
-
-2. **Authentication**:
-   - User login and registration
-   - Role-based access control (Farmer, Expert, Admin)
-
-3. **Expert Verification**:
-   - Expert review workflow for submitted reports
-   - Comment and feedback system
-
-4. **Advanced Mapping**:
-   - Heat maps for pest outbreak density
-   - Historical data overlay
-   - Cluster visualization
-
-5. **Notifications**:
-   - Alert system for nearby outbreaks
-   - Expert response notifications
+1. **Real-time Alerts**: Notify users when pests are detected in their province.
+2. **Export Tools**: CSV/PDF export for expert analysis.
 
 ---
 
