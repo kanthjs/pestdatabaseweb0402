@@ -104,6 +104,35 @@ When running locally seeded data:
 | **Expert** | <expert@demo.com> | password123 |
 | **User** | <user@demo.com> | password123 |
 
+## 🗂️ Database Schema Updates
+
+Follow these best practices when updating the database schema using Prisma:
+
+1. **Modify the Schema**: Update your models in `prisma/schema.prisma`.
+2. **Create a Migration**:
+
+   ```bash
+   # Generates a SQL migration file and applies it to your local DB
+   npx prisma migrate dev --name describe_your_change
+   ```
+
+   *Always use `migrate dev` instead of `db push` for development to maintain a clear history of changes.*
+3. **Synchronize Types**:
+   The Prisma Client is usually updated automatically after a migration. If not, run:
+
+   ```bash
+   npx prisma generate
+   ```
+
+4. **Update Seed Data**:
+   If your schema changes affect master data or sample reports, update `prisma/seed.ts` and re-seed:
+
+   ```bash
+   npx prisma db seed
+   ```
+
+5. **Typescript Errors**: Restart your IDE or the Next.js dev server if you notice stale type errors after a schema change.
+
 ## 📦 Project Structure
 
 ```
