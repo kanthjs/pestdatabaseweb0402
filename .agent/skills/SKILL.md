@@ -187,6 +187,21 @@ docker-compose up -d
 # Credentials: myuser/mypassword/mydb
 ```
 
+## 🔧 Database Migration Lifecycle
+
+### Development Workflow
+
+1. **Model Change**: Update `prisma/schema.prisma`.
+2. **Migration**: `npx prisma migrate dev --name <change_name>`.
+3. **Verification**: `npx prisma studio`.
+4. **Seeding**: `npx prisma db seed` (if master data changed).
+
+### ⚠️ Cautions & Best Practices
+
+- **Production**: Use `npx prisma migrate deploy`. Never use `dev` on production.
+- **Field Renaming**: Be careful; Prisma might drop the column and recreate it, causing data loss. Manual SQL modification in the migration file may be needed for complex renames.
+- **No `url` in Schema**: Remember Prisma 7 uses `prisma.config.ts`.
+
 ---
 
 ## ⚠️ Critical Implementation Notes

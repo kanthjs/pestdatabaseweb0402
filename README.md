@@ -104,34 +104,42 @@ When running locally seeded data:
 | **Expert** | <expert@demo.com> | password123 |
 | **User** | <user@demo.com> | password123 |
 
-## 🗂️ Database Schema Updates
+## 🗂️ Database Schema Updates (การจัดการฐานข้อมูล)
 
 Follow these best practices when updating the database schema using Prisma:
 
-1. **Modify the Schema**: Update your models in `prisma/schema.prisma`.
-2. **Create a Migration**:
+### 1. Modify the Schema (แก้ไขไฟล์ Schema)
 
-   ```bash
-   # Generates a SQL migration file and applies it to your local DB
-   npx prisma migrate dev --name describe_your_change
-   ```
+Update your models in `prisma/schema.prisma`.
 
-   *Always use `migrate dev` instead of `db push` for development to maintain a clear history of changes.*
-3. **Synchronize Types**:
-   The Prisma Client is usually updated automatically after a migration. If not, run:
+### 2. Create and Apply Migration (การทำ Migration)
 
-   ```bash
-   npx prisma generate
-   ```
+Use this command in development to generate a SQL migration file and update your local database:
 
-4. **Update Seed Data**:
-   If your schema changes affect master data or sample reports, update `prisma/seed.ts` and re-seed:
+```bash
+npx prisma migrate dev --name describe_your_change
+```
 
-   ```bash
-   npx prisma db seed
-   ```
+- `--name`: Give your migration a clear name (e.g., `add_user_role`, `init_pest_table`).
+- **What happens?**: Prisma generating a SQL file in `/prisma/migrations` and applies it to your DB immediately.
 
-5. **Typescript Errors**: Restart your IDE or the Next.js dev server if you notice stale type errors after a schema change.
+### 3. Verify with Prisma Studio (ตรวจสอบผลลัพธ์)
+
+Open the browser-based GUI to view and edit your data:
+
+```bash
+npx prisma studio
+```
+
+### ⚠️ Critical Cautions (ข้อควรระวัง)
+
+- **Production Environment**: **NEVER** use `prisma migrate dev` on a production server. Use `npx prisma migrate deploy` instead. This applies existing migrations without deleting data.
+- **Renaming Fields**: Renaming a field might be treated as "Delete old field + Create new field" by Prisma, which **deletes data** in that column. Always check the generated SQL file before applying if you have existing data.
+- **Master Data**: If your changes affect master data (Provinces, Pests), update `prisma/seed.ts` and run:
+
+  ```bash
+  npx prisma db seed
+  ```
 
 ## 📦 Project Structure
 
