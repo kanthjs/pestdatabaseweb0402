@@ -16,6 +16,8 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/theme-provider";
 
+import QueryProvider from "@/components/providers/QueryProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,14 +31,16 @@ export default function RootLayout({
       <body
         className={`${noto_sans_thai.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );
