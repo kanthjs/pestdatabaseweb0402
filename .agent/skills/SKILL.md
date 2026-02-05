@@ -50,15 +50,17 @@ pestdatabaseweb0402/
 ├── src/
 │   ├── app/                      
 │   │   ├── dashboard/            # Public Dashboard (Verified reports only)
+│   │   │   ├── components/       # Analytics charts, Map, Filter
+│   │   │   └── actions.ts        # Dashboard metrics aggregation
 │   │   ├── expert/review/        # Expert Verification Queue (EXPERT/ADMIN only)
 │   │   ├── login/                # Auth: SignIn (Server Actions)
 │   │   ├── signup/               # Auth: SignUp (Server Actions)
 │   │   ├── survey/               # Report submission form
-│   │   ├── action.tsx            # Report submission server action
 │   │   └── page.tsx              # Landing Page
 │   │
 │   ├── components/
-│   │   ├── ui/                   # shadcn/ui components
+│   │   ├── ui/                   # shadcn/ui components (including chart)
+│   │   ├── providers/            # QueryProvider for TanStack Query
 │   │   └── UserMenu.tsx          # Auth-aware navigation menu
 │   │
 │   ├── lib/
@@ -439,6 +441,30 @@ The Survey Form has **4 steps**:
 4. **Check field names carefully** - They're camelCase with "En" suffix for English names
 5. **Seed data uses Thai province names in some places** - Be careful when matching
 
+6. **TanStack Query & Hydration Management**
+
+To prevent "Hydration Mismatch" errors and enable real-time updates:
+
+- **QueryProvider**: Must wrap the application in `layout.tsx`.
+- **Client-Side Initialization**: States like default date ranges that depend on `new Date()` should be initialized in a `useEffect` on mount.
+- **Polling**: Use `refetchInterval` in `useQuery` for live dashboard data.
+
+```tsx
+// DashboardClient.tsx pattern
+const [date, setDate] = useState<DateRange | undefined>();
+
+useEffect(() => {
+  setDate({ from: subDays(new Date(), 30), to: new Date() });
+}, []);
+
+const { data } = useQuery({
+  queryKey: ['metrics', date],
+  queryFn: () => getMetrics(date),
+  enabled: !!date, // Wait for client mount
+  refetchInterval: 30000,
+});
+```
+
 ## 🔐 Access Control & Verification
 
 ### Roles & Permissions
@@ -461,14 +487,17 @@ Uses `@supabase/ssr` for cookie-based auth.
 
 1. **Multi-Step Survey Form**: 4-step wizard with geolocation.
 2. **Verification Workflow**: Expert review queue with Verify/Reject actions.
-3. **Filtered Dashboard**: Public view showing only verified pest reports.
+3. **Advanced Analytics Dashboard**: Public view showing ONLY verified reports with:
+   - **Interactive Map**: Markers colored by severity and dynamic heatmap layer.
+   - **Analytics Charts**: Area charts for trends, Donut charts for pest distribution.
+   - **Real-time Updates**: TanStack Query polling every 30s.
 4. **Access Control System**: Supabase Auth integration with role-based routing.
 5. **Organic White Theme**: Consistent premium aesthetic across all pages.
 
 ### 🚧 In Progress
 
 1. **User Role Management**: Admin UI to promote users to EXPERT role.
-2. **Advanced Analytics**: Trend charts and regional outbreak comparison.
+2. **Performance Optimization**: Server-side caching for heavy aggregation queries.
 
 ### 📅 Planned Features
 

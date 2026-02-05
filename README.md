@@ -14,12 +14,13 @@ RicePestNet enables farmers and agricultural experts to collaborate in tracking 
 
 ## 🚀 Key Features
 
-- **Multi-Step Survey Form**: Intuitive wizard with GPS auto-location and map previews.
-- **Role-Based Access Control**:
-  - **USER/Anonymous**: Submit reports, view public dashboard.
-  - **EXPERT/ADMIN**: Verify reports, manage outbreak data.
-- **Interactive Dashboard**: Filterable stats by province, pest type, and severity.
-- **Organic White Theme**: Premium, nature-inspired design system.
+- **Advanced Analytics Dashboard**: Real-time visualization of pest outbreaks with:
+  - **Interactive Map**: Marker clustering and heatmap layers using Leaflet.
+  - **Trend Analysis**: Area, Donut, and Bar charts for pest ranking and geographic distribution.
+  - **Live Updates**: Automatic background polling for the latest verification data.
+  - **Date Filtering**: Dynamic data selection across custom time ranges.
+- **Expert Verification**: Agronomists review and verify reports to ensure data accuracy.
+- **Organic White Theme**: Premium, nature-inspired design system with dark mode support.
 - **Thai Language Support**: Built-in support for Thai provinces and master data.
 
 ## 🛠️ Technology Stack
@@ -34,6 +35,8 @@ RicePestNet enables farmers and agricultural experts to collaborate in tracking 
 | **Styling** | Tailwind CSS v4 |
 | **UI Components** | shadcn/ui + Radix UI |
 | **State Mgt** | TanStack Query |
+| **Charts** | Recharts (via shadcn/ui chart) |
+| **Maps** | Leaflet + Leaflet.heat |
 
 ## 🏗️ Getting Started
 
