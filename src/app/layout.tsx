@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google"; // Updated fonts
+import { Noto_Sans_Thai } from "next/font/google"; // Import Noto Sans Thai
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
+const noto_sans_thai = Noto_Sans_Thai({
+  subsets: ["thai", "latin"],
+  variable: "--font-noto-sans-thai",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -19,20 +14,29 @@ export const metadata: Metadata = {
   description: "Safeguarding Rice Harvests Together",
 };
 
+import { ThemeProvider } from "@/components/theme-provider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
       </head>
       <body
-        className={`${inter.variable} ${playfair.variable} antialiased bg-gray-100 dark:bg-gray-900`}
+        className={`${noto_sans_thai.variable} antialiased`}
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

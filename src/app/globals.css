@@ -1,66 +1,118 @@
 @import "tailwindcss";
 
 :root {
-  --background: hsl(210 20% 98%); /* background-light #f3f4f6 approx */
-  --foreground: hsl(220 13% 18%); /* gray-800 */
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(220 13% 18%);
-  
-  --primary: hsl(86 78% 27%); /* #4d7c0f */
-  --primary-foreground: hsl(0 0% 100%);
-  --primary-dark: hsl(92 60% 15%); /* #365314 */
-  
-  --secondary: hsl(210 40% 96.1%);
-  --secondary-foreground: hsl(222.2 47.4% 11.2%);
-  --muted: hsl(210 40% 96.1%);
-  --muted-foreground: hsl(215.4 16.3% 46.9%);
-  
-  --border: hsl(214.3 31.8% 91.4%);
-  --input: hsl(214.3 31.8% 91.4%);
-  --ring: hsl(86 78% 27%);
-  
+  /* --- 1. FreshField Reference Palette --- */
+  /* พื้นหลัง: สีครีมสว่างมาก (ให้ความรู้สึก Organic กว่าสีขาวบริสุทธิ์) */
+  --cream-bg: 45 30% 98%;
+  /* #FDFCF9 */
+
+  /* สีหลัก: เขียวเข้มจัด (ใช้สำหรับ Headings และปุ่มหลัก) */
+  --fresh-forest: 165 35% 15%;
+  /* #152B25 */
+
+  /* สีรอง: เขียวใบไม้สด (ใช้สำหรับไอคอน หรือจุดเน้นเล็กๆ) */
+  --fresh-leaf: 115 40% 45%;
+  /* #4BAF47 */
+
+  /* สีเน้น: ส้มสว่าง (สำหรับปุ่ม Call to Action ที่ต้องการให้เด่น) */
+  --fresh-orange: 20 90% 60%;
+  /* #F37335 */
+
+  /* ตัวอักษรเนื้อหา: เทาเข้มเกือบดำ (เพื่อให้อ่านง่ายแต่ไม่แข็งเท่าดำสนิท) */
+  --fresh-charcoal: 165 10% 25%;
+  /* #3A4442 */
+
+  /* --- 2. Semantic Mappings (สั่งให้ระบบใช้สีตาม Ref) --- */
+  --background: var(--cream-bg);
+  --foreground: var(--fresh-charcoal);
+
+  --primary: var(--fresh-forest);
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: var(--fresh-leaf);
+  --secondary-foreground: 0 0% 100%;
+
+  --accent: var(--fresh-orange);
+  --accent-foreground: 0 0% 100%;
+
+  /* เส้นขอบ: ใช้สีเขียวของแบรนด์แบบจางมากๆ */
+  --border: 165 20% 90%;
+  --input: 165 20% 90%;
+
   --radius: 0.5rem;
+
+  /* Custom Variables */
+  --cta: var(--fresh-orange);
+  --cta-foreground: 0 0% 100%;
 }
 
 .dark {
-  --background: hsl(220 39% 11%); /* #111827 */
-  --foreground: hsl(210 20% 98%); /* gray-100 */
-  --card: hsl(217 33% 17%); /* #1f2937 surface-dark */
-  --card-foreground: hsl(210 20% 98%);
-  
-  --primary: hsl(86 78% 27%);
-  --primary-foreground: hsl(0 0% 100%);
-  
-  --secondary: hsl(217.2 32.6% 17.5%);
-  --secondary-foreground: hsl(210 40% 98%);
-  
-  --muted: hsl(217.2 32.6% 17.5%);
-  --muted-foreground: hsl(215 20.2% 65.1%);
-  
-  --border: hsl(217.2 32.6% 17.5%);
-  --input: hsl(217.2 32.6% 17.5%);
-  --ring: hsl(86 78% 27%);
+  /* Adapted Dark Mode (Forest Night Theme) */
+  --background: 165 40% 10%;
+  /* Very dark forest green */
+  --foreground: 50 27% 96%;
+  /* Cream text */
+
+  --card: 165 35% 13%;
+  --card-foreground: 50 27% 96%;
+
+  --popover: 165 35% 13%;
+  --popover-foreground: 50 27% 96%;
+
+  --primary: 118 42% 48%;
+  /* Leaf green becomes primary in dark mode for visibility */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 165 35% 25%;
+  --secondary-foreground: 0 0% 100%;
+
+  --muted: 165 30% 20%;
+  --muted-foreground: 165 10% 70%;
+
+  --accent: 20 90% 60%;
+  /* Use orange in dark mode too for accent */
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 20 88% 58%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 165 30% 20%;
+  --input: 165 30% 20%;
+  --ring: 118 42% 48%;
+
+  --cta: 20 90% 60%;
+  --cta-foreground: 0 0% 100%;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-cta: hsl(var(--cta));
+  --color-cta-foreground: hsl(var(--cta-foreground));
+
   --radius: var(--radius);
-  
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-playfair);
-  
+
+  --font-sans: var(--font-noto-sans-thai);
+  --font-display: var(--font-noto-sans-thai);
+
   --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
 }
 
@@ -69,6 +121,7 @@
     opacity: 0;
     transform: translate(-50%, 20px);
   }
+
   to {
     opacity: 1;
     transform: translate(-50%, 0);
@@ -80,32 +133,50 @@
     opacity: 0;
     transform: translate(25%, 20px);
   }
+
   to {
     opacity: 1;
     transform: translate(25%, 0);
   }
 }
 
-/* Custom utilities for animations */
+/* Custom utilities */
 .animate-fade-in-up {
   animation: fadeInUp 0.8s ease-out forwards;
 }
-.animate-fade-in-up.delay-200 {
-  animation-delay: 0.2s;
-}
-
-/* 
-   Since we defined keyframes globally, we can also use Tailwind 4 ability 
-   but for now keeping standard CSS class logic for specific keyframes 
-   that depend on specific translates (like -50% vs 25%) used in the example.
-*/
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), sans-serif;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-noto-sans-thai), sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6, .font-display {
-  font-family: var(--font-playfair), serif;
+/* Headings use Forest Green (Primary) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-display {
+  font-family: var(--font-noto-sans-thai), sans-serif;
+  color: hsl(var(--primary));
+}
+
+/* Override for dark mode to ensure readability if primary changes */
+.dark h1,
+.dark h2,
+.dark h3 {
+  color: hsl(var(--foreground));
+  /* Or keep it Leaf Green/Primary depending on preference */
+}
+
+/* Button CTA Utility */
+.btn-cta {
+  background-color: hsl(var(--cta));
+  color: hsl(var(--cta-foreground));
+}
+
+.btn-cta:hover {
+  opacity: 0.9;
 }
