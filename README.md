@@ -1,36 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RicePestNet 🌾
 
-## Getting Started
+A modern, mobile-first agricultural pest and disease monitoring system for Thailand. Built with Next.js 16, Supabase, and Prisma 7.
 
-First, run the development server:
+![RicePestNet Dashboard](/public/dashboard-preview.png)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🎯 Project Overview
+
+RicePestNet enables farmers and agricultural experts to collaborate in tracking pest outbreaks. The system facilitates:
+
+- **Real-time Reporting**: Farmers can submit geotagged pest sighting reports.
+- **Expert Verification**: Agronomists review and verify reports to ensure data accuracy.
+- **Public Dashboard**: Visualizes verified outbreaks to help communities take preventive action.
+
+## 🚀 Key Features
+
+- **Multi-Step Survey Form**: Intuitive wizard with GPS auto-location and map previews.
+- **Role-Based Access Control**:
+  - **USER/Anonymous**: Submit reports, view public dashboard.
+  - **EXPERT/ADMIN**: Verify reports, manage outbreak data.
+- **Interactive Dashboard**: Filterable stats by province, pest type, and severity.
+- **Organic White Theme**: Premium, nature-inspired design system.
+- **Thai Language Support**: Built-in support for Thai provinces and master data.
+
+## 🛠️ Technology Stack
+
+| Category | Technology |
+|----------|------------|
+| **Framework** | Next.js 16 (App Router) |
+| **Language** | TypeScript |
+| **Database** | PostgreSQL (Supabase Local/Cloud) |
+| **ORM** | Prisma Client 7 |
+| **Auth** | Supabase Auth (`@supabase/ssr`) |
+| **Styling** | Tailwind CSS v4 |
+| **UI Components** | shadcn/ui + Radix UI |
+| **State Mgt** | TanStack Query |
+
+## 🏗️ Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- Docker Desktop (for local database)
+- Supabase CLI (`npm install -g supabase`)
+
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/yourusername/ricepestnet.git
+   cd ricepestnet
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Start Local Supabase**
+
+   ```bash
+   npx supabase start
+   ```
+
+4. **Setup Environment Variables**
+   Copy `.env.example` to `.env` (or use the configured values from Supabase start output):
+
+   ```env
+   DATABASE_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+   DIRECT_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+   NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:54321"
+   NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
+   ```
+
+5. **Initialize Database**
+
+   ```bash
+   # Push schema to local database
+   npx prisma db push
+
+   # Seed initial data (Provinces, Plants, Pests)
+   npx prisma db seed
+   ```
+
+6. **Run Development Server**
+
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) to view the app.
+
+## 🧪 Testing Accounts
+
+When running locally seeded data:
+
+| Role | Email | Password |
+|------|-------|----------|
+| **Expert** | <expert@demo.com> | password123 |
+| **User** | <user@demo.com> | password123 |
+
+## 📦 Project Structure
+
+```
+├── prisma/               # Database schema & seeds
+├── public/               # Static assets
+├── src/
+│   ├── app/              # Next.js Pages & Layouts
+│   │   ├── dashboard/    # Public analytics
+│   │   ├── expert/       # Protected expert routes
+│   │   ├── login/        # Auth pages
+│   │   └── survey/       # Report submission
+│   ├── components/       # Reusable UI components
+│   ├── lib/              # Utilities (Prisma, Supabase)
+└── supabase/             # Local Supabase config
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📄 License
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License.
