@@ -71,7 +71,7 @@ model PestReport {
   symptomOnSet DateTime // วันที่เริ่มพบอาการ
 
   // ข้อมูลเชิงปริมาณ (ใช้ Float เพื่อความแม่นยำในการคำนวณ)
-  filedAffectedArea Float // พื้นที่ที่ได้รับผลกระทบ (ไร่)
+  fieldAffectedArea Float // พื้นที่ที่ได้รับผลกระทบ (ไร่)
   incidencePercent  Float // เปอร์เซ็นต์การระบาด (0-100)
   severityPercent   Float // เปอร์เซ็นต์ความรุนแรง (0-100)
 

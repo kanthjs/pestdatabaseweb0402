@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { markNotificationSchema } from "@/lib/validation";
 import { NextResponse } from "next/server";
 
 // GET: Fetch unread notifications
@@ -33,7 +34,6 @@ export async function GET() {
 
         return NextResponse.json(notifications);
     } catch (error) {
-        console.error("Failed to fetch notifications:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -48,7 +48,19 @@ export async function POST(request: Request) {
     }
 
     try {
-        const { id, markAll } = await request.json();
+        const body = await request.json();
+        
+        // Validate input with Zod
+        const validationResult = markNotificationSchema.safeParse(body);
+        
+        if (!validationResult.success) {
+            return NextResponse.json(
+                { error: "Invalid input", details: validationResult.error.issues },
+                { status: 400 }
+            );
+        }
+
+        const { id, markAll } = validationResult.data;
 
         if (markAll) {
             await prisma.notification.updateMany({
@@ -64,7 +76,6 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Failed to update notification:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

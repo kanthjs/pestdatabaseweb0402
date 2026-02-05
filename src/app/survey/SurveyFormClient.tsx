@@ -50,7 +50,7 @@ interface PestReportFormData {
     plantId: string;
     pestId: string;
     symptomOnSet: string;
-    filedAffectedArea: number;
+    fieldAffectedArea: number;
     incidencePercent: number;
     severityPercent: number;
     imageUrls: string[];
@@ -99,7 +99,7 @@ export default function SurveyFormClient({
         plantId: "",
         pestId: "",
         symptomOnSet: new Date().toISOString().split("T")[0],
-        filedAffectedArea: 0,
+        fieldAffectedArea: 0,
         incidencePercent: 0,
         severityPercent: 0,
         imageUrls: [],
@@ -508,10 +508,10 @@ export default function SurveyFormClient({
                                                     step="0.1"
                                                     placeholder="0.0"
                                                     className="h-12 pr-16 rounded-xl border-border bg-background focus:ring-primary/20"
-                                                    value={formData.filedAffectedArea || ""}
+                                                    value={formData.fieldAffectedArea || ""}
                                                     onChange={(e) =>
                                                         handleInputChange(
-                                                            "filedAffectedArea",
+                                                            "fieldAffectedArea",
                                                             parseFloat(e.target.value) || 0
                                                         )
                                                     }

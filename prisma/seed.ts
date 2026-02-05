@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, ReportStatus } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
 import 'dotenv/config'
@@ -200,7 +200,7 @@ async function main() {
       plantId: "PLT001",
       pestId: "PST001", // เพลี้ยกระโดดสีน้ำตาล
       symptomOnSet: new Date('2026-01-10'),
-      filedAffectedArea: 15.0,
+      fieldAffectedArea: 15.0,
       incidencePercent: 30,
       severityPercent: 20,
       latitude: 14.0208,
@@ -212,14 +212,14 @@ async function main() {
       reporterLastName: "ใจดี",
       reporterPhone: "081-234-5678",
       reporterRoles: "REP001",
-      status: "VERIFIED",
+      status: ReportStatus.VERIFIED,
     },
     {
       province: "พระนครศรีอยุธยา",
       plantId: "PLT001",
       pestId: "PST013", // หอยเชอรี่
       symptomOnSet: new Date('2026-01-15'),
-      filedAffectedArea: 5.5,
+      fieldAffectedArea: 5.5,
       incidencePercent: 50,
       severityPercent: 40,
       latitude: 14.3532,
@@ -231,14 +231,14 @@ async function main() {
       reporterLastName: "รักนา",
       reporterPhone: "082-345-6789",
       reporterRoles: "REP001",
-      status: "VERIFIED",
+      status: ReportStatus.VERIFIED,
     },
     {
       province: "สุพรรณบุรี",
       plantId: "PLT001",
       pestId: "PST003", // โรคไหม้ข้าว
       symptomOnSet: new Date('2026-01-20'),
-      filedAffectedArea: 25.0,
+      fieldAffectedArea: 25.0,
       incidencePercent: 60,
       severityPercent: 50,
       latitude: 14.4742,
@@ -250,14 +250,14 @@ async function main() {
       reporterLastName: "ขยันยิ่ง",
       reporterPhone: "083-456-7890",
       reporterRoles: "REP002",
-      status: "VERIFIED",
+      status: ReportStatus.VERIFIED,
     },
     {
       province: "นครสวรรค์",
       plantId: "PLT001",
       pestId: "PST004", // หนอนกอข้าว
       symptomOnSet: new Date('2026-01-25'),
-      filedAffectedArea: 10.0,
+      fieldAffectedArea: 10.0,
       incidencePercent: 20,
       severityPercent: 15,
       latitude: 15.7048,
@@ -269,14 +269,14 @@ async function main() {
       reporterLastName: "รุ่งเรือง",
       reporterPhone: "084-567-8901",
       reporterRoles: "REP001",
-      status: "VERIFIED",
+      status: ReportStatus.VERIFIED,
     },
     {
       province: "ชัยนาท",
       plantId: "PLT001",
       pestId: "PST009", // โรคขอบใบแห้ง
       symptomOnSet: new Date('2026-01-28'),
-      filedAffectedArea: 40.0,
+      fieldAffectedArea: 40.0,
       incidencePercent: 45,
       severityPercent: 30,
       latitude: 15.1851,
@@ -288,14 +288,14 @@ async function main() {
       reporterLastName: "เกษตรดี",
       reporterPhone: "085-678-9012",
       reporterRoles: "REP001",
-      status: "VERIFIED",
+      status: ReportStatus.VERIFIED,
     },
     {
       province: "พิจิตร",
       plantId: "PLT001",
       pestId: "PST027", // หนูนา
       symptomOnSet: new Date('2026-02-01'),
-      filedAffectedArea: 8.0,
+      fieldAffectedArea: 8.0,
       incidencePercent: 15,
       severityPercent: 10,
       latitude: 16.4404,
@@ -307,14 +307,14 @@ async function main() {
       reporterLastName: "คงมั่น",
       reporterPhone: "086-789-0123",
       reporterRoles: "REP001",
-      status: "VERIFIED",
+      status: ReportStatus.VERIFIED,
     },
     {
       province: "ขอนแก่น",
       plantId: "PLT001",
       pestId: "PST014", // บั่ว
       symptomOnSet: new Date('2026-02-02'),
-      filedAffectedArea: 12.0,
+      fieldAffectedArea: 12.0,
       incidencePercent: 35,
       severityPercent: 25,
       latitude: 16.4322,
@@ -326,14 +326,14 @@ async function main() {
       reporterLastName: "มีทรัพย์",
       reporterPhone: "087-890-1234",
       reporterRoles: "REP002",
-      status: "VERIFIED",
+      status: ReportStatus.VERIFIED,
     },
     {
       province: "อุบลราชธานี",
       plantId: "PLT001",
       pestId: "PST021", // โรคกาบใบแห้ง
       symptomOnSet: new Date('2026-02-03'),
-      filedAffectedArea: 30.0,
+      fieldAffectedArea: 30.0,
       incidencePercent: 55,
       severityPercent: 40,
       latitude: 15.2287,
@@ -345,14 +345,14 @@ async function main() {
       reporterLastName: "งามดี",
       reporterPhone: "088-901-2345",
       reporterRoles: "REP001",
-      status: "VERIFIED",
+      status: ReportStatus.VERIFIED,
     },
     {
       province: "ร้อยเอ็ด",
       plantId: "PLT001",
       pestId: "PST007", // แมลงสิง
       symptomOnSet: new Date('2026-02-04'),
-      filedAffectedArea: 18.0,
+      fieldAffectedArea: 18.0,
       incidencePercent: 40,
       severityPercent: 20,
       latitude: 16.0544,
@@ -364,14 +364,14 @@ async function main() {
       reporterLastName: "สีสด",
       reporterPhone: "089-012-3456",
       reporterRoles: "REP001",
-      status: "VERIFIED",
+      status: ReportStatus.VERIFIED,
     },
     {
       province: "ฉะเชิงเทรา",
       plantId: "PLT001",
       pestId: "PST005", // เพลี้ยไฟข้าว
       symptomOnSet: new Date('2026-02-05'),
-      filedAffectedArea: 22.0,
+      fieldAffectedArea: 22.0,
       incidencePercent: 70,
       severityPercent: 50,
       latitude: 13.6904,
@@ -383,7 +383,7 @@ async function main() {
       reporterLastName: "สว่างจิต",
       reporterPhone: "080-123-4567",
       reporterRoles: "REP001",
-      status: "PENDING",
+      status: ReportStatus.PENDING,
     }
   ];
 

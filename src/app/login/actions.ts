@@ -4,19 +4,28 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { rateLimiters } from "@/lib/rate-limit";
 
 export async function login(formData: FormData) {
+    const email = formData.get("email") as string;
+    
+    // Rate limiting check
+    const rateLimitResult = rateLimiters.auth(`login:${email}`);
+    if (!rateLimitResult.success) {
+        return { success: false, message: rateLimitResult.error };
+    }
+
     const supabase = await createClient();
 
     const data = {
-        email: formData.get("email") as string,
+        email,
         password: formData.get("password") as string,
     };
 
     const { error } = await supabase.auth.signInWithPassword(data);
 
     if (error) {
-        return { success: false, message: error.message };
+        return { success: false, message: "Invalid email or password" };
     }
 
     revalidatePath("/", "layout");
@@ -24,9 +33,16 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
+    const email = formData.get("email") as string;
+    
+    // Rate limiting check
+    const rateLimitResult = rateLimiters.auth(`signup:${email}`);
+    if (!rateLimitResult.success) {
+        return { success: false, message: rateLimitResult.error };
+    }
+
     const supabase = await createClient();
 
-    const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const fullName = formData.get("fullName") as string;
 
@@ -56,7 +72,10 @@ export async function signup(formData: FormData) {
                 },
             });
         } catch (e) {
+            // Error creating user profile - log in development only
+        if (process.env.NODE_ENV === "development") {
             console.error("Error creating user profile:", e);
+        }
         }
     }
 

@@ -10,7 +10,7 @@ CREATE TABLE "PestReport" (
     "pest" TEXT NOT NULL,
     "reportedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "symptomOnSet" TIMESTAMP(3) NOT NULL,
-    "filedAffectedArea" DOUBLE PRECISION NOT NULL,
+    "fieldAffectedArea" DOUBLE PRECISION NOT NULL,
     "incidencePercent" DOUBLE PRECISION NOT NULL,
     "severityPercent" DOUBLE PRECISION NOT NULL,
     "latitude" DOUBLE PRECISION NOT NULL,

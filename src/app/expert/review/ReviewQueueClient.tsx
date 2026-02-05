@@ -10,7 +10,7 @@ interface PestReport {
     plantId: string;
     pestId: string;
     symptomOnSet: Date;
-    filedAffectedArea: number;
+    fieldAffectedArea: number;
     incidencePercent: number;
     severityPercent: number;
     latitude: number;
@@ -265,7 +265,7 @@ export default function ReviewQueueClient({ reports }: ReviewQueueClientProps) {
                                         Area Affected
                                     </p>
                                     <p className="text-2xl font-bold text-foreground">
-                                        {selectedReport.filedAffectedArea}
+                                        {selectedReport.fieldAffectedArea}
                                     </p>
                                     <p className="text-xs text-muted-foreground">Rai</p>
                                 </div>

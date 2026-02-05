@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { startOfDay, subDays, format, differenceInDays } from "date-fns";
+import { unstable_cache } from "next/cache";
 
 export interface DashboardMetrics {
     totalVerified: {
@@ -63,11 +64,10 @@ const pestNames: Record<string, string> = {
     DIS001: "โรคไหม้ข้าว",
 };
 
-export async function getDashboardMetrics(
-    startDate: Date,
-    endDate: Date
-): Promise<DashboardMetrics> {
-    const verifiedStatus = "VERIFIED";
+// Cached version of getDashboardMetrics - revalidates every 60 seconds
+export const getDashboardMetrics = unstable_cache(
+    async (startDate: Date, endDate: Date): Promise<DashboardMetrics> => {
+        const verifiedStatus = "VERIFIED";
 
     // 1. Key Metrics queries
     // Current Period
@@ -80,7 +80,7 @@ export async function getDashboardMetrics(
             id: true,
             pestId: true,
             province: true,
-            filedAffectedArea: true,
+            fieldAffectedArea: true,
             severityPercent: true,
             incidencePercent: true,
             reportedAt: true,
@@ -100,7 +100,7 @@ export async function getDashboardMetrics(
             status: verifiedStatus,
             reportedAt: { gte: prevStartDate, lte: prevEndDate },
         },
-        select: { id: true, filedAffectedArea: true },
+        select: { id: true, fieldAffectedArea: true },
     });
 
     // --- Calculate Metric 1: Total Verified ---
@@ -111,8 +111,8 @@ export async function getDashboardMetrics(
         : Math.round(((totalVerifiedCount - prevVerifiedCount) / prevVerifiedCount) * 100);
 
     // --- Calculate Metric 2: Total Area ---
-    const totalAreaValue = currentReports.reduce((sum, r) => sum + r.filedAffectedArea, 0);
-    const prevAreaValue = prevReports.reduce((sum, r) => sum + r.filedAffectedArea, 0);
+    const totalAreaValue = currentReports.reduce((sum, r) => sum + r.fieldAffectedArea, 0);
+    const prevAreaValue = prevReports.reduce((sum, r) => sum + r.fieldAffectedArea, 0);
     const areaTrend = prevAreaValue === 0
         ? 100
         : Math.round(((totalAreaValue - prevAreaValue) / prevAreaValue) * 100);
@@ -148,7 +148,7 @@ export async function getDashboardMetrics(
         }
         provinceStats[r.province].count += 1;
         provinceStats[r.province].severity += r.severityPercent;
-        provinceStats[r.province].totalArea += r.filedAffectedArea;
+        provinceStats[r.province].totalArea += r.fieldAffectedArea;
     });
 
     let hotZoneProvince = "";
@@ -207,7 +207,7 @@ export async function getDashboardMetrics(
     currentReports.forEach(r => {
         if (!pestStats[r.pestId]) pestStats[r.pestId] = { freq: 0, area: 0, sev: 0, inc: 0 };
         pestStats[r.pestId].freq += 1;
-        pestStats[r.pestId].area += r.filedAffectedArea;
+        pestStats[r.pestId].area += r.fieldAffectedArea;
         pestStats[r.pestId].sev += r.severityPercent;
         pestStats[r.pestId].inc += r.incidencePercent;
     });
@@ -241,14 +241,17 @@ export async function getDashboardMetrics(
         pestName: pestNames[r.pestId] || r.pestId
     }));
 
-    return {
-        totalVerified: { count: totalVerifiedCount, trend: verifiedTrend },
-        totalArea: { value: totalAreaValue, trend: areaTrend },
-        topPest,
-        hotZone,
-        trendData,
-        pestRanking,
-        geoData,
-        mapData
-    };
-}
+        return {
+            totalVerified: { count: totalVerifiedCount, trend: verifiedTrend },
+            totalArea: { value: totalAreaValue, trend: areaTrend },
+            topPest,
+            hotZone,
+            trendData,
+            pestRanking,
+            geoData,
+            mapData
+        };
+    },
+    ["dashboard-metrics"],
+    { revalidate: 60 } // Revalidate every 60 seconds
+);

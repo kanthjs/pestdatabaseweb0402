@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import ReviewQueueClient from "./ReviewQueueClient";
 import { getCurrentUser } from "@/app/login/actions";
+import { ReportStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +46,7 @@ export default async function ExpertReviewPage() {
     // Fetch pending reports from database
     const pendingReports = await prisma.pestReport.findMany({
         where: {
-            status: "PENDING",
+            status: ReportStatus.PENDING,
         },
         orderBy: {
             createdAt: "desc",

@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { ReportStatus } from "@prisma/client";
+import { rateLimiters } from "@/lib/rate-limit";
 
 interface PestReportSubmission {
     province: string;
@@ -12,7 +14,7 @@ interface PestReportSubmission {
     plantId: string;
     pestId: string;
     symptomOnSet: string;
-    filedAffectedArea: number;
+    fieldAffectedArea: number;
     incidencePercent: number;
     severityPercent: number;
     imageUrls: string[];
@@ -24,9 +26,23 @@ interface PestReportSubmission {
     reporterRole: string;
 }
 
+// Helper to log errors only in development
+function logError(message: string, error: unknown) {
+    if (process.env.NODE_ENV === "development") {
+        console.error(message, error);
+    }
+}
+
 export async function submitPestReport(data: PestReportSubmission) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
+
+    // Rate limiting check - by user ID or IP
+    const rateLimitKey = user?.id || "anonymous";
+    const rateLimitResult = rateLimiters.survey(`submit:${rateLimitKey}`);
+    if (!rateLimitResult.success) {
+        return { success: false, error: rateLimitResult.error };
+    }
 
     try {
         const report = await prisma.pestReport.create({
@@ -37,7 +53,7 @@ export async function submitPestReport(data: PestReportSubmission) {
                 plantId: data.plantId,
                 pestId: data.pestId,
                 symptomOnSet: new Date(data.symptomOnSet),
-                filedAffectedArea: data.filedAffectedArea,
+                fieldAffectedArea: data.fieldAffectedArea,
                 incidencePercent: data.incidencePercent,
                 severityPercent: data.severityPercent,
                 imageUrls: data.imageUrls,
@@ -47,7 +63,7 @@ export async function submitPestReport(data: PestReportSubmission) {
                 reporterLastName: data.isAnonymous ? null : data.reporterLastName,
                 reporterPhone: data.isAnonymous ? null : data.reporterPhone,
                 reporterRoles: data.isAnonymous ? null : data.reporterRole,
-                status: "PENDING", // Default status
+                status: ReportStatus.PENDING, // Default status
                 reporterUserId: user?.id,
                 reporterEmail: user?.email,
             },
@@ -56,7 +72,7 @@ export async function submitPestReport(data: PestReportSubmission) {
         revalidatePath("/dashboard");
         return { success: true, reportId: report.id };
     } catch (error) {
-        console.error("Failed to submit report:", error);
+        logError("Failed to submit report:", error);
         return { success: false, error: "Failed to submit report" };
     }
 }

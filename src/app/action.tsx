@@ -14,7 +14,7 @@ export async function createPestReport(formData: any) {
         pest: formData.pest,
         pestId: formData.pestId,
         symptomOnSet: new Date(formData.symptomOnSet), // แปลงวันที่
-        filedAffectedArea: parseFloat(formData.filedAffectedArea),
+        fieldAffectedArea: parseFloat(formData.fieldAffectedArea),
         incidencePercent: parseFloat(formData.incidencePercent),
         severityPercent: parseFloat(formData.severityPercent),
         latitude: parseFloat(formData.latitude),
