@@ -68,7 +68,7 @@ async function getPestNamesMap(): Promise<Record<string, string>> {
 // Cached version of getDashboardMetrics - revalidates every 60 seconds
 export const getDashboardMetrics = unstable_cache(
     async (startDate: Date, endDate: Date): Promise<DashboardMetrics> => {
-        const verifiedStatus = "VERIFIED";
+        const verifiedStatus = "APPROVED";
 
         // 0. Fetch Pest Names (Lookup)
         const pestNames = await getPestNamesMap();

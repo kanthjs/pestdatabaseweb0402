@@ -28,9 +28,16 @@ model Pest {
 }
 
 // สถานะการตรวจสอบรายงาน
+enum ExpertStatus {
+  PENDING // รอการตรวจสอบ
+  APPROVED // ผ่านการตรวจสอบแล้ว
+  REJECTED // ถูกปฏิเสธ
+}
+
+// สถานะการตรวจสอบรายงาน
 enum ReportStatus {
   PENDING // รอการตรวจสอบ
-  VERIFIED // ผ่านการตรวจสอบแล้ว
+  APPROVED // ผ่านการตรวจสอบแล้ว
   REJECTED // ถูกปฏิเสธ
 }
 
@@ -43,14 +50,24 @@ enum UserRole {
 
 // โปรไฟล์ผู้ใช้ (เชื่อมกับ Supabase Auth)
 model UserProfile {
-  id            String         @id // Supabase auth.users UUID
-  email         String         @unique
-  role          UserRole       @default(USER)
-  fullName      String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  pestReports   PestReport[]
-  notifications Notification[]
+  id              String         @id // Supabase auth.users UUID
+  userName        String         @unique
+  email           String         @unique
+  role            UserRole       @default(USER)
+  firstName       String?
+  lastName        String?
+  phone           String?
+  occupationRoles String?
+  expertRequest   ExpertStatus @default(PENDING)
+  address         String?
+  province        String?
+  district        String?
+  subDistrict     String?
+  zipCode         String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  pestReports     PestReport[]
+  notifications   Notification[]
 }
 
 // ตารางหลักสำหรับเก็บรายงานการพบศัตรูพืช
@@ -88,7 +105,7 @@ model PestReport {
   reporterFirstName String? // ชื่อ (สำหรับ Anonymous หรือเลือกแสดงชื่อ)
   reporterLastName  String? // นามสกุล
   reporterPhone     String? // เบอร์ติดต่อ
-  reporterRoles     String? // บทบาท
+  occupationRoles   String? // บทบาท
 
   // Registered User Link
   reporterUserId String? // Link to UserProfile if registered

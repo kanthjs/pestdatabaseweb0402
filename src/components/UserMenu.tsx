@@ -119,6 +119,14 @@ export default function UserMenu({ user, isLoading = false }: UserMenuProps) {
                             My Reports
                         </Link>
                         <Link
+                            href="/profile"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            <span className="material-icons-outlined text-lg">account_circle</span>
+                            Profile
+                        </Link>
+                        <Link
                             href="/expert/review"
                             className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
                             onClick={() => setIsOpen(false)}

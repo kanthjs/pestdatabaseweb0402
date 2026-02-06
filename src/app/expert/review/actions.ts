@@ -16,14 +16,14 @@ export async function verifyReport(reportId: string, verifiedBy: string = "Exper
         await prisma.pestReport.update({
             where: { id: reportId },
             data: {
-                status: ReportStatus.VERIFIED,
+                status: ReportStatus.APPROVED,
                 verifiedAt: new Date(),
                 verifiedBy: verifiedBy,
             },
         });
 
         revalidatePath("/expert/review");
-        return { success: true, message: "Report verified successfully" };
+        return { success: true, message: "Report approved successfully" };
     } catch (error) {
         logError("Error verifying report:", error);
         return { success: false, message: "Failed to verify report" };

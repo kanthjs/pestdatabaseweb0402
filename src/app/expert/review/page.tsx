@@ -60,7 +60,7 @@ export default async function ExpertReviewPage() {
     });
 
     const pendingCount = counts.find((c) => c.status === "PENDING")?._count ?? 0;
-    const verifiedCount = counts.find((c) => c.status === "VERIFIED")?._count ?? 0;
+    const approvedCount = counts.find((c) => c.status === "APPROVED")?._count ?? 0;
     const rejectedCount = counts.find((c) => c.status === "REJECTED")?._count ?? 0;
 
     return (
@@ -123,10 +123,10 @@ export default async function ExpertReviewPage() {
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">
-                                    Verified
+                                    Approved
                                 </p>
                                 <p className="text-3xl font-bold text-secondary">
-                                    {verifiedCount}
+                                    {approvedCount}
                                 </p>
                             </div>
                         </div>

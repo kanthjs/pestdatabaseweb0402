@@ -21,7 +21,7 @@ interface PestReport {
     reporterFirstName: string | null;
     reporterLastName: string | null;
     reporterPhone: string | null;
-    reporterRoles: string | null;
+    occupationRoles: string | null;
     status: string;
 }
 
@@ -175,7 +175,7 @@ export default function ReviewQueueClient({ reports }: ReviewQueueClientProps) {
                                                 <span className="material-icons-outlined text-base">
                                                     check
                                                 </span>
-                                                Verify
+                                                Approve
                                             </button>
                                             <button
                                                 onClick={(e) => {
@@ -340,9 +340,9 @@ export default function ReviewQueueClient({ reports }: ReviewQueueClientProps) {
                                             </span>
                                         </p>
                                         <p>
-                                            <span className="text-muted-foreground">Role:</span>{" "}
+                                            <span className="text-muted-foreground">Occupation:</span>{" "}
                                             <span className="text-foreground">
-                                                {selectedReport.reporterRoles || "N/A"}
+                                                {selectedReport.occupationRoles || "N/A"}
                                             </span>
                                         </p>
                                     </div>
@@ -376,9 +376,9 @@ export default function ReviewQueueClient({ reports }: ReviewQueueClientProps) {
                                 ) : (
                                     <>
                                         <span className="material-icons-outlined text-base">
-                                            verified
+                                            check_circle
                                         </span>
-                                        Verify Report
+                                        Approve Report
                                     </>
                                 )}
                             </button>

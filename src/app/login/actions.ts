@@ -8,7 +8,7 @@ import { rateLimiters } from "@/lib/rate-limit";
 
 export async function login(formData: FormData) {
     const email = formData.get("email") as string;
-    
+
     // Rate limiting check
     const rateLimitResult = rateLimiters.auth(`login:${email}`);
     if (!rateLimitResult.success) {
@@ -28,13 +28,15 @@ export async function login(formData: FormData) {
         return { success: false, message: "Invalid email or password" };
     }
 
+    const redirectTo = (formData.get("redirectTo") as string) || "/dashboard";
+
     revalidatePath("/", "layout");
-    redirect("/dashboard");
+    redirect(redirectTo);
 }
 
 export async function signup(formData: FormData) {
     const email = formData.get("email") as string;
-    
+
     // Rate limiting check
     const rateLimitResult = rateLimiters.auth(`signup:${email}`);
     if (!rateLimitResult.success) {
@@ -44,14 +46,18 @@ export async function signup(formData: FormData) {
     const supabase = await createClient();
 
     const password = formData.get("password") as string;
-    const fullName = formData.get("fullName") as string;
+    const firstName = formData.get("firstName") as string;
+    const lastName = formData.get("lastName") as string;
+    const phone = formData.get("phone") as string;
 
     const { data: authData, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
             data: {
-                full_name: fullName,
+                full_name: `${firstName} ${lastName}`.trim(),
+                first_name: firstName,
+                last_name: lastName,
             },
         },
     });
@@ -67,15 +73,17 @@ export async function signup(formData: FormData) {
                 data: {
                     id: authData.user.id,
                     email: email,
-                    fullName: fullName,
+                    firstName: firstName,
+                    lastName: lastName,
+                    phone: phone,
                     role: "USER",
                 },
             });
         } catch (e) {
             // Error creating user profile - log in development only
-        if (process.env.NODE_ENV === "development") {
-            console.error("Error creating user profile:", e);
-        }
+            if (process.env.NODE_ENV === "development") {
+                console.error("Error creating user profile:", e);
+            }
         }
     }
 
@@ -106,6 +114,10 @@ export async function getCurrentUser() {
     return {
         ...user,
         role: profile?.role || "USER",
-        fullName: profile?.fullName,
+        firstName: profile?.firstName,
+        lastName: profile?.lastName,
+        fullName: profile ? `${profile.firstName} ${profile.lastName}`.trim() : user.user_metadata?.full_name,
+        phone: profile?.phone,
+        occupationRoles: profile?.occupationRoles,
     };
 }

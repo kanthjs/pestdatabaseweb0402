@@ -44,6 +44,65 @@ export async function submitPestReport(data: PestReportSubmission) {
         return { success: false, error: rateLimitResult.error };
     }
 
+    // If user is logged in, ensure their profile exists in our database
+    let effectiveUserId = user?.id;
+    if (user) {
+        try {
+            let profile = await prisma.userProfile.findUnique({
+                where: { id: user.id },
+            });
+
+            if (!profile && user.email) {
+                // Try to find by email in case user was created with different id
+                profile = await prisma.userProfile.findUnique({
+                    where: { email: user.email },
+                });
+            }
+
+            if (!profile) {
+                // If profile is missing (e.g. database was reset), create it on the fly
+                const fullName = user.user_metadata?.full_name || "";
+                const nameParts = fullName.split(" ");
+                const firstName = user.user_metadata?.first_name || nameParts[0] || user.email?.split("@")[0] || "User";
+                const lastName = user.user_metadata?.last_name || nameParts.slice(1).join(" ") || "";
+                const userName = user.email 
+                    ? user.email.split('@')[0] + '_' + Date.now().toString(36)
+                    : 'user_' + Date.now().toString(36);
+
+                try {
+                    profile = await prisma.userProfile.create({
+                        data: {
+                            id: user.id,
+                            userName,
+                            email: user.email || "",
+                            firstName: firstName,
+                            lastName: lastName,
+                            role: "USER",
+                        },
+                    });
+                } catch (createError: any) {
+                    // If unique constraint fails on email, the profile already exists with different id
+                    if (createError.code === "P2002" && user.email) {
+                        profile = await prisma.userProfile.findUnique({
+                            where: { email: user.email },
+                        });
+                    } else {
+                        throw createError;
+                    }
+                }
+            }
+
+            // If profile exists with different id, use that id for the report
+            if (profile && profile.id !== user.id) {
+                effectiveUserId = profile.id;
+            }
+        } catch (profileError) {
+            logError("Failed to sync user profile:", profileError);
+            // Return error instead of continuing, as we need a valid profile
+            return { success: false, error: "Failed to sync user profile" };
+        }
+    }
+
     try {
         const report = await prisma.pestReport.create({
             data: {
@@ -62,9 +121,9 @@ export async function submitPestReport(data: PestReportSubmission) {
                 reporterFirstName: data.isAnonymous ? null : data.reporterFirstName,
                 reporterLastName: data.isAnonymous ? null : data.reporterLastName,
                 reporterPhone: data.isAnonymous ? null : data.reporterPhone,
-                reporterRoles: data.isAnonymous ? null : data.reporterRole,
+                occupationRoles: data.isAnonymous ? null : data.reporterRole,
                 status: ReportStatus.PENDING, // Default status
-                reporterUserId: user?.id,
+                reporterUserId: effectiveUserId,
                 reporterEmail: user?.email,
             },
         });

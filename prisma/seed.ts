@@ -1,4 +1,4 @@
-import { PrismaClient, ReportStatus } from '@prisma/client'
+import { PrismaClient, ReportStatus, UserRole, ExpertStatus } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
 import 'dotenv/config'
@@ -136,16 +136,16 @@ const pests = [
   { pestId: "PST028", pestNameTh: "โรคกาบใบเน่า", pestNameEn: "Sheath Rot" },
 ];
 
-export const reporterRoles = [
-  { reporterId: "REP001", labelTH: "เกษตรกร", labelEN: "Farmer" },
-  { reporterId: "REP002", labelTH: "อาสาสมัครเกษตร", labelEN: "Agriculture Volunteer" },
-  { reporterId: "REP003", labelTH: "เจ้าหน้าที่ส่งเสริมการเกษตร", labelEN: "Agricultural Extension Officer" },
-  { reporterId: "REP004", labelTH: "เจ้าหน้าที่ศูนย์วิจัยข้าว", labelEN: "Rice Research Center Staff" },
-  { reporterId: "REP005", labelTH: "เจ้าหน้าที่ราชการ", labelEN: "Government Officials" },
-  { reporterId: "REP006", labelTH: "ผู้นำชุมชน", labelEN: "Community Leader" },
-  { reporterId: "REP007", labelTH: "อาจารย์มหาวิทยาลัย", labelEN: "University Researcher" },
-  { reporterId: "REP008", labelTH: "นักศึกษ", labelEN: "Student" },
-  { reporterId: "REP009", labelTH: "ไม่ระบุ", labelEN: "Not Specified" },
+export const occupationRoles = [
+  { reporterId: "OCC001", labelTH: "เกษตรกร", labelEN: "Farmer" },
+  { reporterId: "OCC002", labelTH: "อาสาสมัครเกษตร", labelEN: "Agriculture Volunteer" },
+  { reporterId: "OCC003", labelTH: "เจ้าหน้าที่ส่งเสริมการเกษตร", labelEN: "Agricultural Extension Officer" },
+  { reporterId: "OCC004", labelTH: "เจ้าหน้าที่ศูนย์วิจัยข้าว", labelEN: "Rice Research Center Staff" },
+  { reporterId: "OCC005", labelTH: "เจ้าหน้าที่ราชการ", labelEN: "Government Officials" },
+  { reporterId: "OCC006", labelTH: "ผู้นำชุมชน", labelEN: "Community Leader" },
+  { reporterId: "OCC007", labelTH: "อาจารย์มหาวิทยาลัย", labelEN: "University Researcher" },
+  { reporterId: "OCC008", labelTH: "นักศึกษ", labelEN: "Student" },
+  { reporterId: "OCC009", labelTH: "ไม่ระบุ", labelEN: "Not Specified" },
 ];
 
 async function main() {
@@ -211,7 +211,7 @@ async function main() {
       reporterFirstName: "สมชาย",
       reporterLastName: "ใจดี",
       reporterPhone: "081-234-5678",
-      reporterRoles: "REP001",
+      occupationRoles: "OCC001",
       status: ReportStatus.VERIFIED,
     },
     {
@@ -230,7 +230,7 @@ async function main() {
       reporterFirstName: "สมหญิง",
       reporterLastName: "รักนา",
       reporterPhone: "082-345-6789",
-      reporterRoles: "REP001",
+      occupationRoles: "OCC001",
       status: ReportStatus.VERIFIED,
     },
     {
@@ -249,7 +249,7 @@ async function main() {
       reporterFirstName: "มานะ",
       reporterLastName: "ขยันยิ่ง",
       reporterPhone: "083-456-7890",
-      reporterRoles: "REP002",
+      occupationRoles: "OCC002",
       status: ReportStatus.VERIFIED,
     },
     {
@@ -268,7 +268,7 @@ async function main() {
       reporterFirstName: "วิชัย",
       reporterLastName: "รุ่งเรือง",
       reporterPhone: "084-567-8901",
-      reporterRoles: "REP001",
+      occupationRoles: "OCC001",
       status: ReportStatus.VERIFIED,
     },
     {
@@ -287,7 +287,7 @@ async function main() {
       reporterFirstName: "ปราณี",
       reporterLastName: "เกษตรดี",
       reporterPhone: "085-678-9012",
-      reporterRoles: "REP001",
+      occupationRoles: "OCC001",
       status: ReportStatus.VERIFIED,
     },
     {
@@ -306,7 +306,7 @@ async function main() {
       reporterFirstName: "บุญส่ง",
       reporterLastName: "คงมั่น",
       reporterPhone: "086-789-0123",
-      reporterRoles: "REP001",
+      occupationRoles: "OCC001",
       status: ReportStatus.VERIFIED,
     },
     {
@@ -325,7 +325,7 @@ async function main() {
       reporterFirstName: "ทองดี",
       reporterLastName: "มีทรัพย์",
       reporterPhone: "087-890-1234",
-      reporterRoles: "REP002",
+      occupationRoles: "OCC002",
       status: ReportStatus.VERIFIED,
     },
     {
@@ -344,7 +344,7 @@ async function main() {
       reporterFirstName: "สายใจ",
       reporterLastName: "งามดี",
       reporterPhone: "088-901-2345",
-      reporterRoles: "REP001",
+      occupationRoles: "OCC001",
       status: ReportStatus.VERIFIED,
     },
     {
@@ -363,7 +363,7 @@ async function main() {
       reporterFirstName: "กานดา",
       reporterLastName: "สีสด",
       reporterPhone: "089-012-3456",
-      reporterRoles: "REP001",
+      occupationRoles: "OCC001",
       status: ReportStatus.VERIFIED,
     },
     {
@@ -382,10 +382,83 @@ async function main() {
       reporterFirstName: "อนุชิต",
       reporterLastName: "สว่างจิต",
       reporterPhone: "080-123-4567",
-      reporterRoles: "REP001",
+      occupationRoles: "OCC001",
       status: ReportStatus.PENDING,
     }
   ];
+
+  // Seed UserProfile
+  const seedUserProfile = [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      userName: "REP001",
+      email: "reporter1@demo.com",
+      firstName: "Reporter",
+      lastName: "One",
+      phone: "1234567890",
+      occupationRoles: "OCC001",
+      expertRequest: ExpertStatus.PENDING,
+      address: "123 Main St",
+      province: "Bangkok",
+      district: "Bangkok",
+      subDistrict: "Bangkok",
+      zipCode: "10110",
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440002",
+      userName: "REP002",
+      email: "reporter2@demo.com",
+      firstName: "Reporter",
+      lastName: "Two",
+      phone: "0987654321",
+      occupationRoles: "OCC001",
+      expertRequest: ExpertStatus.PENDING,
+      address: "123 Main St",
+      province: "Bangkok",
+      district: "Bangkok",
+      subDistrict: "Bangkok",
+      zipCode: "10110",
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440003",
+      userName: "EXP001",
+      email: "expert1@demo.com",
+      firstName: "Expert",
+      lastName: "One",
+      phone: "1234567890",
+      occupationRoles: "OCC007",
+      expertRequest: ExpertStatus.APPROVED,
+      address: "123 Main St",
+      province: "Bangkok",
+      district: "Bangkok",
+      subDistrict: "Bangkok",
+      zipCode: "10110",
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440004",
+      userName: "USER001",
+      email: "user1@demo.com",
+      firstName: "User",
+      lastName: "One",
+      phone: "1234567890",
+      occupationRoles: "OCC009",
+      expertRequest: ExpertStatus.PENDING,
+      address: "123 Main St",
+      province: "Bangkok",
+      district: "Bangkok",
+      subDistrict: "Bangkok",
+      zipCode: "10110",
+    },
+  ];
+
+  console.log('Seeding user profiles...')
+  await prisma.userProfile.deleteMany()
+  for (const profile of seedUserProfile) {
+    await prisma.userProfile.create({
+      data: profile
+    })
+  }
+  console.log(`Seeded ${seedUserProfile.length} user profiles`)
 
   console.log('Seeding pest reports...')
   for (const data of seedData) {

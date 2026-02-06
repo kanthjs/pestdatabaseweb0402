@@ -95,7 +95,7 @@ export function NotificationBell() {
                                                 }`}
                                         >
                                             <div className="flex gap-3">
-                                                <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${n.type === "VERIFIED" ? "bg-green-500" :
+                                                <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${n.type === "APPROVED" ? "bg-green-500" :
                                                     n.type === "REJECTED" ? "bg-destructive" : "bg-blue-500"
                                                     }`} />
                                                 <div className="space-y-1">

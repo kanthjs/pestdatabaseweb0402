@@ -27,20 +27,54 @@ export default function SignupForm() {
                 </div>
             )}
 
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label
+                        htmlFor="firstName"
+                        className="block text-sm font-medium text-foreground mb-2"
+                    >
+                        First Name
+                    </label>
+                    <input
+                        id="firstName"
+                        name="firstName"
+                        type="text"
+                        required
+                        className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                        placeholder="John"
+                    />
+                </div>
+                <div>
+                    <label
+                        htmlFor="lastName"
+                        className="block text-sm font-medium text-foreground mb-2"
+                    >
+                        Last Name
+                    </label>
+                    <input
+                        id="lastName"
+                        name="lastName"
+                        type="text"
+                        required
+                        className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                        placeholder="Doe"
+                    />
+                </div>
+            </div>
+
             <div>
                 <label
-                    htmlFor="fullName"
+                    htmlFor="phone"
                     className="block text-sm font-medium text-foreground mb-2"
                 >
-                    Full Name
+                    Phone Number
                 </label>
                 <input
-                    id="fullName"
-                    name="fullName"
-                    type="text"
-                    required
+                    id="phone"
+                    name="phone"
+                    type="tel"
                     className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                    placeholder="John Doe"
+                    placeholder="081-234-5678"
                 />
             </div>
 

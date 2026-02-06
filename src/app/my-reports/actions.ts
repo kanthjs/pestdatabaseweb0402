@@ -22,9 +22,24 @@ export async function getUserReports() {
         throw new Error("Unauthorized");
     }
 
+    // Find the user's profile to get the correct ID
+    // The profile ID might differ from the auth user ID due to database resets
+    let profile = await prisma.userProfile.findUnique({
+        where: { id: user.id },
+    });
+
+    if (!profile && user.email) {
+        profile = await prisma.userProfile.findUnique({
+            where: { email: user.email },
+        });
+    }
+
+    // Use profile ID if found, otherwise fall back to auth user ID
+    const effectiveUserId = profile?.id || user.id;
+
     const reports = await prisma.pestReport.findMany({
         where: {
-            reporterUserId: user.id,
+            reporterUserId: effectiveUserId,
         },
         orderBy: {
             reportedAt: "desc",

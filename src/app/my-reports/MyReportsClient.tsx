@@ -96,9 +96,9 @@ export default function MyReportsClient() {
                                         </p>
                                     </div>
                                     <Badge variant={
-                                        report.status === "VERIFIED" ? "default" :
+                                        report.status === "APPROVED" ? "default" :
                                             report.status === "REJECTED" ? "destructive" : "secondary"
-                                    } className={`uppercase tracking-wider font-bold ${report.status === "VERIFIED" ? "bg-green-500 hover:bg-green-600" : ""
+                                    } className={`uppercase tracking-wider font-bold ${report.status === "APPROVED" ? "bg-green-500 hover:bg-green-600" : ""
                                         }`}>
                                         {report.status}
                                     </Badge>

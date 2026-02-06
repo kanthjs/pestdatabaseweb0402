@@ -208,6 +208,12 @@ export default function SurveyFormClient({
     const handleSubmit = async () => {
         if (isSubmitting) return;
 
+        // Basic validation
+        if (!formData.province || !formData.plantId || !formData.pestId) {
+            alert("Please complete all required fields (Province, Plant, and Pest).");
+            return;
+        }
+
         try {
             setIsSubmitting(true);
 
@@ -229,12 +235,12 @@ export default function SurveyFormClient({
                 // Redirect to dashboard or success page
                 router.push("/dashboard?success=true");
             } else {
-                alert("Failed to submit report. Please try again.");
+                alert(`Failed to submit report: ${result.error || "Please try again."}`);
                 setIsSubmitting(false);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Submission error:", error);
-            alert("An error occurred during submission.");
+            alert(`An error occurred during submission: ${error.message || "Unknown error"}`);
             setIsSubmitting(false);
         }
     };
@@ -827,60 +833,62 @@ export default function SurveyFormClient({
                                         </div>
 
                                         {/* Reporter Fields */}
-                                        <div className={`grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 transition-all duration-300 ${formData.isAnonymous ? "opacity-50 pointer-events-none grayscale" : ""}`}>
-                                            <div className="space-y-3">
-                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">First Name</Label>
-                                                <Input
-                                                    disabled={formData.isAnonymous}
-                                                    value={formData.reporterFirstName}
-                                                    onChange={(e) => handleInputChange("reporterFirstName", e.target.value)}
-                                                    className="h-12 rounded-xl border-border bg-background"
-                                                    placeholder={user ? "Auto-filled from your account" : "Enter your first name"}
-                                                />
-                                            </div>
-                                            <div className="space-y-3">
-                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Last Name</Label>
-                                                <Input
-                                                    disabled={formData.isAnonymous}
-                                                    value={formData.reporterLastName}
-                                                    onChange={(e) => handleInputChange("reporterLastName", e.target.value)}
-                                                    className="h-12 rounded-xl border-border bg-background"
-                                                    placeholder={user ? "Auto-filled from your account" : "Enter your last name"}
-                                                />
-                                            </div>
-                                            <div className="space-y-3">
-                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Phone Number</Label>
-                                                <Input
-                                                    disabled={formData.isAnonymous}
-                                                    value={formData.reporterPhone}
-                                                    onChange={(e) => handleInputChange("reporterPhone", e.target.value)}
-                                                    className="h-12 rounded-xl border-border bg-background"
-                                                    placeholder="Enter your phone number"
-                                                />
-                                            </div>
-                                            <div className="space-y-3">
-                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Role</Label>
-                                                <div className="relative">
-                                                    <select
-                                                        title="Select reporter role"
+                                        {(!user || formData.isAnonymous) && (
+                                            <div className={`grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 transition-all duration-300 ${formData.isAnonymous ? "opacity-50 pointer-events-none grayscale" : ""}`}>
+                                                <div className="space-y-3">
+                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">First Name</Label>
+                                                    <Input
                                                         disabled={formData.isAnonymous}
-                                                        value={formData.reporterRole}
-                                                        onChange={(e) => handleInputChange("reporterRole", e.target.value)}
-                                                        className="w-full h-12 px-4 rounded-xl border border-border bg-background appearance-none outline-none disabled:cursor-not-allowed"
-                                                    >
-                                                        <option value="">Select your role</option>
-                                                        {REPORTER_ROLES.map((role) => (
-                                                            <option key={role.id} value={role.id}>
-                                                                {role.label}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
-                                                        <span className="material-icons-outlined">expand_more</span>
+                                                        value={formData.reporterFirstName}
+                                                        onChange={(e) => handleInputChange("reporterFirstName", e.target.value)}
+                                                        className="h-12 rounded-xl border-border bg-background"
+                                                        placeholder={user ? "Auto-filled from your account" : "Enter your first name"}
+                                                    />
+                                                </div>
+                                                <div className="space-y-3">
+                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Last Name</Label>
+                                                    <Input
+                                                        disabled={formData.isAnonymous}
+                                                        value={formData.reporterLastName}
+                                                        onChange={(e) => handleInputChange("reporterLastName", e.target.value)}
+                                                        className="h-12 rounded-xl border-border bg-background"
+                                                        placeholder={user ? "Auto-filled from your account" : "Enter your last name"}
+                                                    />
+                                                </div>
+                                                <div className="space-y-3">
+                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Phone Number</Label>
+                                                    <Input
+                                                        disabled={formData.isAnonymous}
+                                                        value={formData.reporterPhone}
+                                                        onChange={(e) => handleInputChange("reporterPhone", e.target.value)}
+                                                        className="h-12 rounded-xl border-border bg-background"
+                                                        placeholder="Enter your phone number"
+                                                    />
+                                                </div>
+                                                <div className="space-y-3">
+                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Role</Label>
+                                                    <div className="relative">
+                                                        <select
+                                                            title="Select reporter role"
+                                                            disabled={formData.isAnonymous}
+                                                            value={formData.reporterRole}
+                                                            onChange={(e) => handleInputChange("reporterRole", e.target.value)}
+                                                            className="w-full h-12 px-4 rounded-xl border border-border bg-background appearance-none outline-none disabled:cursor-not-allowed"
+                                                        >
+                                                            <option value="">Select your role</option>
+                                                            {REPORTER_ROLES.map((role) => (
+                                                                <option key={role.id} value={role.id}>
+                                                                    {role.label}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-muted-foreground">
+                                                            <span className="material-icons-outlined">expand_more</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 </CardContent>
                             </>
