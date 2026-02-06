@@ -19,7 +19,7 @@ export function NotificationBell() {
     const [isOpen, setIsOpen] = useState(false);
 
     // Fetch notifications
-    const { data: notifications = [] } = useQuery<Notification[]>({
+    const { data: rawNotifications } = useQuery<Notification[]>({
         queryKey: ["notifications"],
         queryFn: async () => {
             const res = await fetch("/api/notifications");
@@ -30,6 +30,9 @@ export function NotificationBell() {
     });
 
     // Mark as read mutation
+    // Ensure notifications is always an array
+    const notifications = Array.isArray(rawNotifications) ? rawNotifications : [];
+
     const markReadMutation = useMutation({
         mutationFn: async (id?: string) => {
             await fetch("/api/notifications", {

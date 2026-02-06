@@ -1,11 +1,13 @@
 import Link from "next/link";
 import LoginForm from "./LoginForm";
 
-export default function LoginPage({
+export default async function LoginPage({
     searchParams,
 }: {
-    searchParams: { message?: string; redirectTo?: string };
+    searchParams: Promise<{ message?: string; redirectTo?: string }>;
 }) {
+    const params = await searchParams;
+
     return (
         <div className="min-h-screen bg-background flex items-center justify-center px-4">
             <div className="w-full max-w-md">
@@ -25,9 +27,9 @@ export default function LoginPage({
                 </div>
 
                 {/* Message */}
-                {searchParams.message && (
+                {params.message && (
                     <div className="mb-6 p-4 rounded-xl bg-secondary/10 border border-secondary/20 text-secondary text-sm text-center">
-                        {searchParams.message}
+                        {params.message}
                     </div>
                 )}
 
@@ -37,7 +39,7 @@ export default function LoginPage({
                         Welcome Back
                     </h1>
 
-                    <LoginForm redirectTo={searchParams.redirectTo} />
+                    <LoginForm redirectTo={params.redirectTo} />
 
                     <div className="mt-6 pt-6 border-t border-border text-center">
                         <p className="text-sm text-muted-foreground">

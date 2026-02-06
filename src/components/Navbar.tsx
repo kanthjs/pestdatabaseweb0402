@@ -11,15 +11,19 @@ import { User } from "@supabase/supabase-js";
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const supabase = createClient();
+
         supabase.auth.getUser().then(({ data: { user } }) => {
             setUser(user);
+            setIsLoading(false);
         });
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
+            setIsLoading(false);
         });
 
         return () => subscription.unsubscribe();
@@ -28,7 +32,6 @@ export default function Navbar() {
     const menuItems = [
         { name: "About", href: "/" },
         { name: "Data Map", href: "/dashboard" },
-        // Resources removed as requested
     ];
 
     return (
@@ -62,7 +65,7 @@ export default function Navbar() {
                     <div className="hidden md:flex items-center space-x-4">
                         <ThemeToggle />
                         {user && <NotificationBell />}
-                        <UserMenu />
+                        <UserMenu user={user} isLoading={isLoading} />
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -98,7 +101,7 @@ export default function Navbar() {
                         ))}
                         <div className="pt-2 border-t border-border mt-2">
                             <div className="px-3 py-2">
-                                <UserMenu />
+                                <UserMenu user={user} isLoading={isLoading} />
                             </div>
                         </div>
                     </div>

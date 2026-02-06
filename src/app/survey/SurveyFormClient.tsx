@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Switch } from "@/components/ui/switch";
 import { createClient } from "@/lib/supabase/client";
 import { submitPestReport } from "./actions";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import { User } from "@supabase/supabase-js";
 
 // Dynamic import for the Map component to avoid SSR errors
 const ReportMap = dynamic(() => import("@/components/ReportMap"), {
@@ -112,10 +113,48 @@ export default function SurveyFormClient({
     });
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
+    const [authLoading, setAuthLoading] = useState(true);
+    const [autoFilled, setAutoFilled] = useState(false);
     const router = useRouter();
+    const pathname = usePathname();
 
     const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
     const progressPercent = ((currentStepIndex + 1) / STEPS.length) * 100;
+
+    // Check auth state
+    useEffect(() => {
+        const supabase = createClient();
+
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            setUser(user);
+            setAuthLoading(false);
+        });
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+            setAuthLoading(false);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    // Autofill reporter info when user is logged in and reaches Step 5
+    useEffect(() => {
+        if (user && currentStep === "reporter" && !autoFilled && !formData.isAnonymous) {
+            const fullName = user.user_metadata?.full_name || "";
+            const nameParts = fullName.split(" ");
+            const firstName = nameParts[0] || user.email?.split("@")[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+
+            setFormData((prev) => ({
+                ...prev,
+                reporterFirstName: prev.reporterFirstName || firstName,
+                reporterLastName: prev.reporterLastName || lastName,
+            }));
+            setAutoFilled(true);
+        }
+    }, [user, currentStep, autoFilled, formData.isAnonymous]);
 
     const handleInputChange = (
         field: keyof PestReportFormData,
@@ -222,14 +261,31 @@ export default function SurveyFormClient({
                         </Link>
                         <Link
                             className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-                            href="#"
+                            href="/dashboard"
                         >
                             Manage
                         </Link>
                     </nav>
                     <Separator orientation="vertical" className="h-8 border-border" />
                     <ThemeToggle />
-                    <div className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-background dark:border-border shadow-sm cursor-pointer hover:ring-2 ring-primary ring-offset-2 transition-all bg-muted" />
+                    {/* Show user info or login link */}
+                    {!authLoading && (
+                        user ? (
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/5 border border-primary/10">
+                                <span className="material-icons-outlined text-primary text-lg">person</span>
+                                <span className="text-sm font-medium text-primary truncate max-w-[120px]">
+                                    {user.email?.split("@")[0]}
+                                </span>
+                            </div>
+                        ) : (
+                            <Link
+                                href={`/login?redirectTo=${pathname}`}
+                                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                            >
+                                Log In
+                            </Link>
+                        )
+                    )}
                 </div>
                 <button className="md:hidden p-2 text-muted-foreground">
                     <span className="material-icons-outlined text-2xl">menu</span>
@@ -575,48 +631,52 @@ export default function SurveyFormClient({
                                                     Photo Evidence
                                                 </Label>
                                                 <span className="text-xs text-muted-foreground">
-                                                    {formData.imageUrls.length} images selected
+                                                    {selectedFiles.length}/2 images selected
                                                 </span>
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 {/* Upload Button Area */}
-                                                <div className="col-span-1 md:col-span-2">
-                                                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-muted/30 hover:border-primary/50 transition-all group">
-                                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                            <div className="bg-primary/5 p-3 rounded-full mb-3 group-hover:bg-primary/10 transition-colors">
-                                                                <span className="material-icons-outlined text-primary text-2xl">
-                                                                    add_a_photo
-                                                                </span>
+                                                {selectedFiles.length < 2 && (
+                                                    <div className="col-span-1 md:col-span-2">
+                                                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-muted/30 hover:border-primary/50 transition-all group">
+                                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                                <div className="bg-primary/5 p-3 rounded-full mb-3 group-hover:bg-primary/10 transition-colors">
+                                                                    <span className="material-icons-outlined text-primary text-2xl">
+                                                                        add_a_photo
+                                                                    </span>
+                                                                </div>
+                                                                <p className="mb-1 text-sm text-muted-foreground font-medium">
+                                                                    <span className="font-bold text-primary">Click to upload</span> or drag and drop
+                                                                </p>
+                                                                <p className="text-xs text-muted-foreground/70">
+                                                                    PNG, JPG or GIF (max. 5MB, up to 2 images)
+                                                                </p>
                                                             </div>
-                                                            <p className="mb-1 text-sm text-muted-foreground font-medium">
-                                                                <span className="font-bold text-primary">Click to upload</span> or drag and drop
-                                                            </p>
-                                                            <p className="text-xs text-muted-foreground/70">
-                                                                SVG, PNG, JPG or GIF (max. 5MB)
-                                                            </p>
-                                                        </div>
-                                                        <input
-                                                            type="file"
-                                                            className="hidden"
-                                                            multiple
-                                                            accept="image/*"
-                                                            onChange={(e) => {
-                                                                if (e.target.files && e.target.files.length > 0) {
-                                                                    const newFiles = Array.from(e.target.files);
-                                                                    const newUrls = newFiles.map(file => URL.createObjectURL(file));
+                                                            <input
+                                                                type="file"
+                                                                className="hidden"
+                                                                multiple
+                                                                accept="image/*"
+                                                                onChange={(e) => {
+                                                                    if (e.target.files && e.target.files.length > 0) {
+                                                                        const newFiles = Array.from(e.target.files);
+                                                                        const remaining = 2 - selectedFiles.length;
+                                                                        const filesToAdd = newFiles.slice(0, remaining);
+                                                                        const newUrls = filesToAdd.map(file => URL.createObjectURL(file));
 
-                                                                    setSelectedFiles(prev => [...prev, ...newFiles]);
-                                                                    setFormData(prev => ({
-                                                                        ...prev,
-                                                                        imageUrls: [...prev.imageUrls, ...newUrls],
-                                                                        imageCaptions: [...prev.imageCaptions, ...new Array(newUrls.length).fill("")]
-                                                                    }));
-                                                                }
-                                                            }}
-                                                        />
-                                                    </label>
-                                                </div>
+                                                                        setSelectedFiles(prev => [...prev, ...filesToAdd]);
+                                                                        setFormData(prev => ({
+                                                                            ...prev,
+                                                                            imageUrls: [...prev.imageUrls, ...newUrls],
+                                                                            imageCaptions: [...prev.imageCaptions, ...new Array(newUrls.length).fill("")]
+                                                                        }));
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </label>
+                                                    </div>
+                                                )}
 
                                                 {/* Image Previews */}
                                                 {formData.imageUrls.map((url, index) => (
@@ -702,6 +762,43 @@ export default function SurveyFormClient({
                                 </CardHeader>
                                 <CardContent className="pt-8">
                                     <div className="space-y-8">
+
+                                        {/* Auth Status Banner */}
+                                        {user ? (
+                                            /* Logged in — show autofill confirmation */
+                                            <div className="flex items-center gap-4 p-4 rounded-xl border border-secondary/30 bg-secondary/5">
+                                                <div className="bg-secondary/10 p-2.5 rounded-xl text-secondary shrink-0">
+                                                    <span className="material-icons-outlined text-xl">check_circle</span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-bold text-primary">Logged in as {user.email}</p>
+                                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                                        Your information has been auto-filled. You can still edit or submit anonymously.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            /* Not logged in — show login prompt */
+                                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl border border-border bg-muted/20">
+                                                <div className="bg-primary/10 p-2.5 rounded-xl text-primary shrink-0">
+                                                    <span className="material-icons-outlined text-xl">login</span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-bold text-primary">Have an account?</p>
+                                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                                        Log in to auto-fill your info and track your reports.
+                                                    </p>
+                                                </div>
+                                                <Link
+                                                    href={`/login?redirectTo=${pathname}`}
+                                                    className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-all"
+                                                >
+                                                    <span className="material-icons-outlined text-lg">login</span>
+                                                    Log In to Autofill
+                                                </Link>
+                                            </div>
+                                        )}
+
                                         {/* Anonymous Toggle */}
                                         <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/20">
                                             <div className="space-y-0.5">
@@ -721,6 +818,10 @@ export default function SurveyFormClient({
                                                         reporterPhone: checked ? "" : prev.reporterPhone,
                                                         reporterRole: checked ? "" : prev.reporterRole,
                                                     }));
+                                                    // Re-trigger autofill when switching back to non-anonymous
+                                                    if (!checked && user) {
+                                                        setAutoFilled(false);
+                                                    }
                                                 }}
                                             />
                                         </div>
@@ -734,6 +835,7 @@ export default function SurveyFormClient({
                                                     value={formData.reporterFirstName}
                                                     onChange={(e) => handleInputChange("reporterFirstName", e.target.value)}
                                                     className="h-12 rounded-xl border-border bg-background"
+                                                    placeholder={user ? "Auto-filled from your account" : "Enter your first name"}
                                                 />
                                             </div>
                                             <div className="space-y-3">
@@ -743,6 +845,7 @@ export default function SurveyFormClient({
                                                     value={formData.reporterLastName}
                                                     onChange={(e) => handleInputChange("reporterLastName", e.target.value)}
                                                     className="h-12 rounded-xl border-border bg-background"
+                                                    placeholder={user ? "Auto-filled from your account" : "Enter your last name"}
                                                 />
                                             </div>
                                             <div className="space-y-3">
@@ -752,6 +855,7 @@ export default function SurveyFormClient({
                                                     value={formData.reporterPhone}
                                                     onChange={(e) => handleInputChange("reporterPhone", e.target.value)}
                                                     className="h-12 rounded-xl border-border bg-background"
+                                                    placeholder="Enter your phone number"
                                                 />
                                             </div>
                                             <div className="space-y-3">
