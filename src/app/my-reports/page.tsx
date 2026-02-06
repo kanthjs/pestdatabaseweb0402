@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import MyReportsClient from "./MyReportsClient";
 
 export default async function MyReportsPage() {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {

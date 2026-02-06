@@ -18,7 +18,7 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
         const result = await login(formData);
 
         if (result && !result.success) {
-            setError(result.message);
+            setError(result.message ?? "Login failed");
             setIsLoading(false);
         }
     }

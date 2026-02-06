@@ -1,15 +1,23 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { markNotificationSchema } from "@/lib/validation";
+import { apiErrors, handleApiError, successResponse } from "@/lib/api-utils";
+import { rateLimiters } from "@/lib/rate-limit";
 import { NextResponse } from "next/server";
 
 // GET: Fetch unread notifications
-export async function GET() {
+export async function GET(request: Request) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        return apiErrors.unauthorized();
+    }
+
+    // Rate limiting
+    const rateLimitResult = rateLimiters.api(`notifications:get:${user.id}`);
+    if (!rateLimitResult.success) {
+        return apiErrors.rateLimited();
     }
 
     try {
@@ -32,9 +40,9 @@ export async function GET() {
             take: 10,
         });
 
-        return NextResponse.json(notifications);
+        return successResponse(notifications);
     } catch (error) {
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return handleApiError(error);
     }
 }
 
@@ -44,7 +52,13 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        return apiErrors.unauthorized();
+    }
+
+    // Rate limiting
+    const rateLimitResult = rateLimiters.api(`notifications:post:${user.id}`);
+    if (!rateLimitResult.success) {
+        return apiErrors.rateLimited();
     }
 
     try {
@@ -54,10 +68,7 @@ export async function POST(request: Request) {
         const validationResult = markNotificationSchema.safeParse(body);
         
         if (!validationResult.success) {
-            return NextResponse.json(
-                { error: "Invalid input", details: validationResult.error.issues },
-                { status: 400 }
-            );
+            return apiErrors.validationError(validationResult.error.issues);
         }
 
         const { id, markAll } = validationResult.data;
@@ -74,8 +85,8 @@ export async function POST(request: Request) {
             });
         }
 
-        return NextResponse.json({ success: true });
+        return successResponse({ message: "Notifications updated" });
     } catch (error) {
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return handleApiError(error);
     }
 }

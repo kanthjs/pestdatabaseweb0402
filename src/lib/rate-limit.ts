@@ -1,5 +1,17 @@
-// Rate Limiting Utility using in-memory store
-// For production, consider using Redis
+/**
+ * Rate Limiting Utility using in-memory store
+ * 
+ * **Note:** For production with multiple instances, consider using Redis instead.
+ * This implementation is suitable for single-instance deployments or development.
+ * 
+ * @example
+ * ```ts
+ * const result = rateLimiters.auth(`login:${email}`);
+ * if (!result.success) {
+ *   return { error: result.error };
+ * }
+ * ```
+ */
 
 type RateLimitStore = {
     [key: string]: {
@@ -10,8 +22,13 @@ type RateLimitStore = {
 
 const store: RateLimitStore = {};
 
+/**
+ * Configuration options for rate limiting
+ */
 interface RateLimitConfig {
+    /** Maximum number of requests allowed in the time window */
     maxRequests: number;
+    /** Time window in milliseconds */
     windowMs: number;
 }
 
@@ -33,6 +50,20 @@ const API_CONFIG: RateLimitConfig = {
     windowMs: 60 * 1000, // 1 minute
 };
 
+/**
+ * Check if a request is within rate limits without incrementing the counter
+ * Use this for read-only checks
+ * 
+ * @param identifier - Unique identifier (user ID, IP address, etc.)
+ * @param config - Rate limit configuration
+ * @returns Object with allowed status, remaining requests, and reset time
+ * 
+ * @example
+ * ```ts
+ * const { allowed, remaining } = checkRateLimit(`api:${userId}`, API_CONFIG);
+ * console.log(`Remaining requests: ${remaining}`);
+ * ```
+ */
 export function checkRateLimit(
     identifier: string,
     config: RateLimitConfig = DEFAULT_CONFIG
@@ -67,6 +98,22 @@ export function checkRateLimit(
     };
 }
 
+/**
+ * Apply rate limiting to a request
+ * Increments the counter if allowed
+ * 
+ * @param identifier - Unique identifier (user ID, IP address, etc.)
+ * @param config - Rate limit configuration
+ * @returns Object with success status, optional error message, remaining count, and reset time
+ * 
+ * @example
+ * ```ts
+ * const result = rateLimit(`api:${userId}`, API_CONFIG);
+ * if (!result.success) {
+ *   return apiErrors.rateLimited();
+ * }
+ * ```
+ */
 export function rateLimit(
     identifier: string,
     config: RateLimitConfig = DEFAULT_CONFIG
@@ -90,7 +137,23 @@ export function rateLimit(
     };
 }
 
-// Pre-configured rate limiters
+/**
+ * Pre-configured rate limiters for common use cases
+ * 
+ * - `auth`: Strict limiting for login/signup (3 requests per 5 minutes)
+ * - `survey`: Moderate limiting for survey submissions (3 per minute)
+ * - `expert`: Moderate limiting for expert actions (10 per minute)
+ * - `api`: Standard API limiting (10 per minute)
+ * 
+ * @example
+ * ```ts
+ * // In login action
+ * const result = rateLimiters.auth(`login:${email}`);
+ * if (!result.success) {
+ *   return { success: false, message: result.error };
+ * }
+ * ```
+ */
 export const rateLimiters = {
     // For login/signup - strict
     auth: (identifier: string) => rateLimit(identifier, AUTH_CONFIG),
@@ -105,7 +168,20 @@ export const rateLimiters = {
     api: (identifier: string) => rateLimit(identifier, API_CONFIG),
 };
 
-// Get client identifier from request
+/**
+ * Generate a client identifier for rate limiting
+ * Prefers user ID when available, falls back to IP address
+ * 
+ * @param userId - Authenticated user ID or null
+ * @param ip - Client IP address
+ * @returns Formatted identifier string
+ * 
+ * @example
+ * ```ts
+ * const id = getClientIdentifier(user?.id, requestIp);
+ * const result = rateLimiters.api(id);
+ * ```
+ */
 export function getClientIdentifier(userId: string | null, ip: string): string {
     return userId ? `user:${userId}` : `ip:${ip}`;
 }
