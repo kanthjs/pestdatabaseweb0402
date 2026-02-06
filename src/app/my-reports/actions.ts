@@ -47,34 +47,23 @@ export async function getUserReports() {
             id: true,
             reportedAt: true,
             province: true,
-            pestId: true,
             status: true,
             rejectionReason: true,
             imageUrls: true,
             reporterEmail: true,
+            pest: {
+                select: {
+                    pestNameEn: true,
+                },
+            },
         },
     });
-
-    // We need to map pestId to pestName. 
-    // Ideally use include: { pest: true }? No relation defined in schema yet...
-    // Wait, schema has:
-    // model Pest { pestId String @id, pestNameEn String }
-    // model PestReport { ... pestId String ... } -- No @relation defined!
-
-    // I should fetch pects to map names or add relation. 
-    // Adding relation is better but I just pushed schema.
-    // For now I'll fetch all pests or just show pestId (which might be readable?).
-    // Actually pestId keys are like "PEST001".
-    // Let's fetch all pests and map them manually for now to avoid another schema change immediately.
-
-    const pests = await prisma.pest.findMany();
-    const pestMap = new Map(pests.map(p => [p.pestId, p.pestNameEn]));
 
     return reports.map(r => ({
         id: r.id,
         reportedAt: r.reportedAt,
         province: r.province,
-        pestName: pestMap.get(r.pestId) || r.pestId,
+        pestName: r.pest.pestNameEn,
         status: r.status,
         rejectionReason: r.rejectionReason,
         imageUrl: r.imageUrls[0] || null,

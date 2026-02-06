@@ -3,16 +3,12 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
-import { addDays, subDays } from "date-fns";
+import { subDays } from "date-fns";
 import { DateRange } from "react-day-picker";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardFilter } from "./components/DashboardFilter";
 import { MetricsCards } from "./components/MetricsCards";
-import { AnalyticsCharts } from "./components/AnalyticsCharts";
-import { getDashboardMetrics, DashboardViewMode } from "./actions";
-import { Button } from "@/components/ui/button";
-import { Globe, User } from "lucide-react";
+import { getDashboardMetrics } from "./actions";
 
 // Dynamic import for Map to avoid SSR issues
 const AdvancedMap = dynamic(() => import("./components/AdvancedMap"), {
@@ -22,9 +18,8 @@ const AdvancedMap = dynamic(() => import("./components/AdvancedMap"), {
 
 export default function DashboardClient() {
     const [date, setDate] = useState<DateRange | undefined>();
-    const [viewMode, setViewMode] = useState<DashboardViewMode>("public");
 
-    // Use useEffect to set the default date on critical client-side mount
+    // Use useEffect to set the default date on client-side mount
     // This avoids hydration mismatch due to server/client timezone differences
     useEffect(() => {
         setDate({
@@ -34,10 +29,10 @@ export default function DashboardClient() {
     }, []);
 
     const { data: metrics, isLoading, isError } = useQuery({
-        queryKey: ["dashboardMetrics", date?.from, date?.to, viewMode],
+        queryKey: ["dashboardMetrics", date?.from, date?.to],
         queryFn: async () => {
             if (!date?.from || !date?.to) return null;
-            return await getDashboardMetrics(date.from, date.to, viewMode);
+            return await getDashboardMetrics(date.from, date.to);
         },
         refetchInterval: 30000,
         enabled: !!(date?.from && date?.to),
@@ -51,74 +46,23 @@ export default function DashboardClient() {
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">
-                            {viewMode === "public" ? "Dashboard Overview" : "My Dashboard"}
+                            Pest Outbreak Dashboard
                         </h1>
                         <p className="text-muted-foreground">
-                            {viewMode === "public" 
-                                ? "Real-time monitoring and pest outbreak analytics." 
-                                : "Your personal pest reports and analytics."}
+                            Real-time monitoring of pest outbreaks and affected areas.
                         </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                        {/* View Mode Toggle */}
-                        <div className="flex items-center bg-muted rounded-lg p-1 mr-2">
-                            <Button
-                                variant={viewMode === "public" ? "secondary" : "ghost"}
-                                size="sm"
-                                onClick={() => setViewMode("public")}
-                                className="gap-2"
-                            >
-                                <Globe className="h-4 w-4" />
-                                Public
-                            </Button>
-                            <Button
-                                variant={viewMode === "personal" ? "secondary" : "ghost"}
-                                size="sm"
-                                onClick={() => setViewMode("personal")}
-                                className="gap-2"
-                            >
-                                <User className="h-4 w-4" />
-                                My Data
-                            </Button>
-                        </div>
-                        <DashboardFilter date={date} setDate={setDate} />
-                    </div>
+                    <DashboardFilter date={date} setDate={setDate} />
                 </div>
 
                 {/* Key Metrics */}
-                <MetricsCards metrics={metrics || null} loading={isLoading} viewMode={viewMode} />
+                <MetricsCards metrics={metrics || null} loading={isLoading} />
 
-                {/* Main Content Tabs */}
-                <Tabs defaultValue="overview" className="space-y-4">
-                    <TabsList>
-                        <TabsTrigger value="overview">Overview</TabsTrigger>
-                        <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                        <TabsTrigger value="map">Geographic Map</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="overview" className="space-y-4">
-                        <AnalyticsCharts
-                            trendData={metrics?.trendData || []}
-                            pestRanking={metrics?.pestRanking || []}
-                            geoData={metrics?.geoData || []}
-                            loading={isLoading}
-                        />
-                    </TabsContent>
-
-                    <TabsContent value="analytics">
-                        {/* Reuse charts for now, but could have more detailed tables here */}
-                        <AnalyticsCharts
-                            trendData={metrics?.trendData || []}
-                            pestRanking={metrics?.pestRanking || []}
-                            geoData={metrics?.geoData || []}
-                            loading={isLoading}
-                        />
-                    </TabsContent>
-
-                    <TabsContent value="map">
-                        <AdvancedMap reports={metrics?.mapData || []} />
-                    </TabsContent>
-                </Tabs>
+                {/* Geographic Map */}
+                <div>
+                    <h2 className="text-xl font-semibold mb-4">Geographic Distribution</h2>
+                    <AdvancedMap reports={metrics?.mapData || []} />
+                </div>
 
             </div>
         </div>

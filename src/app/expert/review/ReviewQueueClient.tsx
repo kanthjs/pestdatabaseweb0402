@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { memo, useState, useTransition } from "react";
 import { verifyReport, rejectReport } from "./actions";
 
 interface PestReport {
@@ -29,6 +29,105 @@ interface ReviewQueueClientProps {
     reports: PestReport[];
 }
 
+// Helper function to format date
+const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString("th-TH", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+};
+
+// Memoized table row component to prevent unnecessary re-renders
+const ReportTableRow = memo(function ReportTableRow({
+    report,
+    isPending,
+    onRowClick,
+    onVerify,
+    onReject,
+}: {
+    report: PestReport;
+    isPending: boolean;
+    onRowClick: (report: PestReport) => void;
+    onVerify: (reportId: string) => void;
+    onReject: (report: PestReport) => void;
+}) {
+    return (
+        <tr
+            className="hover:bg-muted/10 transition-colors cursor-pointer"
+            onClick={() => onRowClick(report)}
+        >
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                {formatDate(report.createdAt)}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground font-medium">
+                {report.province}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
+                    {report.pestId}
+                </span>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
+                    {report.plantId}
+                </span>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                {report.isAnonymous ? (
+                    <span className="italic">Anonymous</span>
+                ) : (
+                    `${report.reporterFirstName || ""} ${report.reporterLastName || ""}`
+                )}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                {report.imageUrls.length > 0 ? (
+                    <span className="inline-flex items-center gap-1 text-sm text-secondary">
+                        <span className="material-icons-outlined text-base">
+                            image
+                        </span>
+                        {report.imageUrls.length} photo(s)
+                    </span>
+                ) : (
+                    <span className="text-sm text-muted-foreground">
+                        No photos
+                    </span>
+                )}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-right">
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onVerify(report.id);
+                    }}
+                    disabled={isPending}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-secondary text-white text-sm font-medium hover:bg-secondary/90 transition-colors disabled:opacity-50 mr-2"
+                >
+                    <span className="material-icons-outlined text-base">
+                        check
+                    </span>
+                    Approve
+                </button>
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onReject(report);
+                    }}
+                    disabled={isPending}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-destructive text-destructive text-sm font-medium hover:bg-destructive/10 transition-colors disabled:opacity-50"
+                >
+                    <span className="material-icons-outlined text-base">
+                        close
+                    </span>
+                    Reject
+                </button>
+            </td>
+        </tr>
+    );
+});
+
 export default function ReviewQueueClient({ reports }: ReviewQueueClientProps) {
     const [selectedReport, setSelectedReport] = useState<PestReport | null>(null);
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
@@ -56,12 +155,9 @@ export default function ReviewQueueClient({ reports }: ReviewQueueClientProps) {
         });
     };
 
-    const formatDate = (date: Date) => {
-        return new Date(date).toLocaleDateString("th-TH", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        });
+    const handleRejectClick = (report: PestReport) => {
+        setSelectedReport(report);
+        setRejectModalOpen(true);
     };
 
     return (
@@ -121,78 +217,14 @@ export default function ReviewQueueClient({ reports }: ReviewQueueClientProps) {
                             </thead>
                             <tbody className="divide-y divide-border">
                                 {reports.map((report) => (
-                                    <tr
+                                    <ReportTableRow
                                         key={report.id}
-                                        className="hover:bg-muted/10 transition-colors cursor-pointer"
-                                        onClick={() => setSelectedReport(report)}
-                                    >
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                                            {formatDate(report.createdAt)}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground font-medium">
-                                            {report.province}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
-                                                {report.pestId}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary/10 text-secondary">
-                                                {report.plantId}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                                            {report.isAnonymous ? (
-                                                <span className="italic">Anonymous</span>
-                                            ) : (
-                                                `${report.reporterFirstName || ""} ${report.reporterLastName || ""}`
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {report.imageUrls.length > 0 ? (
-                                                <span className="inline-flex items-center gap-1 text-sm text-secondary">
-                                                    <span className="material-icons-outlined text-base">
-                                                        image
-                                                    </span>
-                                                    {report.imageUrls.length} photo(s)
-                                                </span>
-                                            ) : (
-                                                <span className="text-sm text-muted-foreground">
-                                                    No photos
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleVerify(report.id);
-                                                }}
-                                                disabled={isPending}
-                                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-secondary text-white text-sm font-medium hover:bg-secondary/90 transition-colors disabled:opacity-50 mr-2"
-                                            >
-                                                <span className="material-icons-outlined text-base">
-                                                    check
-                                                </span>
-                                                Approve
-                                            </button>
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setSelectedReport(report);
-                                                    setRejectModalOpen(true);
-                                                }}
-                                                disabled={isPending}
-                                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-destructive text-destructive text-sm font-medium hover:bg-destructive/10 transition-colors disabled:opacity-50"
-                                            >
-                                                <span className="material-icons-outlined text-base">
-                                                    close
-                                                </span>
-                                                Reject
-                                            </button>
-                                        </td>
-                                    </tr>
+                                        report={report}
+                                        isPending={isPending}
+                                        onRowClick={setSelectedReport}
+                                        onVerify={handleVerify}
+                                        onReject={handleRejectClick}
+                                    />
                                 ))}
                             </tbody>
                         </table>

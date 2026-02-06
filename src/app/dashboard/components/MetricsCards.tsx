@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from "lucide-react";
@@ -14,7 +15,7 @@ interface MetricCardProps {
     color?: "default" | "primary" | "secondary" | "destructive" | "warning";
 }
 
-function MetricCard({
+const MetricCard = memo(function MetricCard({
     title,
     value,
     subtext,
@@ -60,7 +61,7 @@ function MetricCard({
             </CardContent>
         </Card>
     );
-}
+});
 
 function getColorClass(color: MetricCardProps["color"]) {
     switch (color) {
@@ -80,10 +81,9 @@ interface MetricsCardsProps {
         hotZone: { province: string; count: number; severity: number } | null;
     } | null;
     loading?: boolean;
-    viewMode?: "public" | "personal";
 }
 
-export function MetricsCards({ metrics, loading, viewMode = "public" }: MetricsCardsProps) {
+export const MetricsCards = memo(function MetricsCards({ metrics, loading }: MetricsCardsProps) {
     if (loading || !metrics) {
         return (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -101,12 +101,10 @@ export function MetricsCards({ metrics, loading, viewMode = "public" }: MetricsC
         );
     }
 
-    const isPersonal = viewMode === "personal";
-
     return (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <MetricCard
-                title={isPersonal ? "My Reports" : "Verified Reports"}
+                title="Verified Reports"
                 value={metrics.totalVerified.count}
                 trend={metrics.totalVerified.trend}
                 subtext="from previous period"
@@ -127,7 +125,7 @@ export function MetricsCards({ metrics, loading, viewMode = "public" }: MetricsC
                 color="secondary"
             />
             <MetricCard
-                title={isPersonal ? "My Affected Area (Rai)" : "Affected Area (Rai)"}
+                title="Affected Area (Rai)"
                 value={metrics.totalArea.value.toLocaleString()}
                 trend={metrics.totalArea.trend}
                 subtext="from previous period"
@@ -149,7 +147,7 @@ export function MetricsCards({ metrics, loading, viewMode = "public" }: MetricsC
                 color="destructive"
             />
             <MetricCard
-                title={isPersonal ? "My Top Pest" : "Top Pest"}
+                title="Top Pest"
                 value={metrics.topPest?.name || "None"}
                 subtext={metrics.topPest ? `${metrics.topPest.count} incidents` : "No reports"}
                 icon={
@@ -172,7 +170,7 @@ export function MetricsCards({ metrics, loading, viewMode = "public" }: MetricsC
                 color="warning"
             />
             <MetricCard
-                title={isPersonal ? "My Hot Zone" : "Hot Zone"}
+                title="Hot Zone"
                 value={metrics.hotZone?.province || "None"}
                 subtext={metrics.hotZone ? `Severity: ${metrics.hotZone.severity}%` : "Safe"}
                 icon={
@@ -194,4 +192,4 @@ export function MetricsCards({ metrics, loading, viewMode = "public" }: MetricsC
             />
         </div>
     );
-}
+});
