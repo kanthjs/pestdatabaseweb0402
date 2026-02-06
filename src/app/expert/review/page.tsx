@@ -53,16 +53,6 @@ export default async function ExpertReviewPage() {
         },
     });
 
-    // Get counts for dashboard
-    const counts = await prisma.pestReport.groupBy({
-        by: ["status"],
-        _count: true,
-    });
-
-    const pendingCount = counts.find((c) => c.status === "PENDING")?._count ?? 0;
-    const approvedCount = counts.find((c) => c.status === "APPROVED")?._count ?? 0;
-    const rejectedCount = counts.find((c) => c.status === "REJECTED")?._count ?? 0;
-
     return (
         <div className="min-h-screen bg-background">
             {/* Header */}
@@ -94,63 +84,8 @@ export default async function ExpertReviewPage() {
                 </div>
             </header>
 
-            {/* Stats Cards */}
+            {/* Queue Table */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
-                        <div className="flex items-center gap-4">
-                            <div className="bg-accent/20 p-3 rounded-xl">
-                                <span className="material-icons-outlined text-accent text-xl">
-                                    pending
-                                </span>
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-muted-foreground">
-                                    Pending
-                                </p>
-                                <p className="text-3xl font-bold text-accent">
-                                    {pendingCount}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
-                        <div className="flex items-center gap-4">
-                            <div className="bg-secondary/20 p-3 rounded-xl">
-                                <span className="material-icons-outlined text-secondary text-xl">
-                                    check_circle
-                                </span>
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-muted-foreground">
-                                    Approved
-                                </p>
-                                <p className="text-3xl font-bold text-secondary">
-                                    {approvedCount}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
-                        <div className="flex items-center gap-4">
-                            <div className="bg-destructive/20 p-3 rounded-xl">
-                                <span className="material-icons-outlined text-destructive text-xl">
-                                    cancel
-                                </span>
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-muted-foreground">
-                                    Rejected
-                                </p>
-                                <p className="text-3xl font-bold text-destructive">
-                                    {rejectedCount}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Queue Table */}
                 <ReviewQueueClient reports={pendingReports} />
             </div>
         </div>

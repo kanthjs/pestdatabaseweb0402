@@ -69,9 +69,11 @@ export async function signup(formData: FormData) {
     // Create user profile in our database
     if (authData.user) {
         try {
+            const userName = email.split('@')[0] + '_' + Date.now().toString(36);
             await prisma.userProfile.create({
                 data: {
                     id: authData.user.id,
+                    userName,
                     email: email,
                     firstName: firstName,
                     lastName: lastName,
@@ -106,10 +108,17 @@ export async function getCurrentUser() {
 
     if (!user) return null;
 
-    // Get user profile with role
-    const profile = await prisma.userProfile.findUnique({
+    // Get user profile with role - try by ID first, then by email
+    let profile = await prisma.userProfile.findUnique({
         where: { id: user.id },
     });
+
+    // If not found by ID and user has email, try looking up by email
+    if (!profile && user.email) {
+        profile = await prisma.userProfile.findUnique({
+            where: { email: user.email },
+        });
+    }
 
     return {
         ...user,

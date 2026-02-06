@@ -1,0 +1,32 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
+
+export async function GET() {
+    try {
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            return NextResponse.json({ role: null }, { status: 401 });
+        }
+
+        // Get user role from profile
+        const profile = await prisma.userProfile.findFirst({
+            where: {
+                OR: [
+                    { id: user.id },
+                    { email: user.email || "" },
+                ],
+            },
+            select: {
+                role: true,
+            },
+        });
+
+        return NextResponse.json({ role: profile?.role || "USER" });
+    } catch (error) {
+        console.error("Error fetching user role:", error);
+        return NextResponse.json({ role: "USER" }, { status: 500 });
+    }
+}

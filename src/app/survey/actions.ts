@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { ReportStatus } from "@prisma/client";
+import { ReportStatus, UserRole } from "@prisma/client";
 import { rateLimiters } from "@/lib/rate-limit";
 
 interface PestReportSubmission {
@@ -46,6 +46,9 @@ export async function submitPestReport(data: PestReportSubmission) {
 
     // If user is logged in, ensure their profile exists in our database
     let effectiveUserId = user?.id;
+    let userRole: UserRole = UserRole.USER;
+    let isExpert = false;
+    
     if (user) {
         try {
             let profile = await prisma.userProfile.findUnique({
@@ -77,7 +80,7 @@ export async function submitPestReport(data: PestReportSubmission) {
                             email: user.email || "",
                             firstName: firstName,
                             lastName: lastName,
-                            role: "USER",
+                            role: UserRole.USER,
                         },
                     });
                 } catch (createError: any) {
@@ -93,8 +96,10 @@ export async function submitPestReport(data: PestReportSubmission) {
             }
 
             // If profile exists with different id, use that id for the report
-            if (profile && profile.id !== user.id) {
+            if (profile) {
                 effectiveUserId = profile.id;
+                userRole = profile.role;
+                isExpert = profile.role === UserRole.EXPERT || profile.role === UserRole.ADMIN;
             }
         } catch (profileError) {
             logError("Failed to sync user profile:", profileError);
@@ -104,6 +109,11 @@ export async function submitPestReport(data: PestReportSubmission) {
     }
 
     try {
+        // Auto-approve reports from experts/admins
+        const reportStatus = isExpert ? ReportStatus.APPROVED : ReportStatus.PENDING;
+        const verifiedAt = isExpert ? new Date() : null;
+        const verifiedBy = isExpert ? effectiveUserId : null;
+        
         const report = await prisma.pestReport.create({
             data: {
                 province: data.province,
@@ -122,14 +132,17 @@ export async function submitPestReport(data: PestReportSubmission) {
                 reporterLastName: data.isAnonymous ? null : data.reporterLastName,
                 reporterPhone: data.isAnonymous ? null : data.reporterPhone,
                 occupationRoles: data.isAnonymous ? null : data.reporterRole,
-                status: ReportStatus.PENDING, // Default status
+                status: reportStatus,
+                verifiedAt,
+                verifiedBy,
                 reporterUserId: effectiveUserId,
                 reporterEmail: user?.email,
             },
         });
 
         revalidatePath("/dashboard");
-        return { success: true, reportId: report.id };
+        revalidatePath("/my-reports");
+        return { success: true, reportId: report.id, autoApproved: isExpert };
     } catch (error) {
         logError("Failed to submit report:", error);
         return { success: false, error: "Failed to submit report" };

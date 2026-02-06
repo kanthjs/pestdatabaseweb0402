@@ -7,12 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 
 export default function MyReportsClient() {
+    const router = useRouter();
     const { data: reports, isLoading, isError } = useQuery({
         queryKey: ["my-reports"],
         queryFn: getUserReports,
     });
+
+    const handleCardClick = (reportId: string) => {
+        router.push(`/reports/${reportId}`);
+    };
 
     if (isLoading) {
         return (
@@ -69,7 +75,11 @@ export default function MyReportsClient() {
 
             <div className="grid grid-cols-1 gap-4">
                 {reports.map((report) => (
-                    <Card key={report.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                    <Card 
+                        key={report.id} 
+                        className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => handleCardClick(report.id)}
+                    >
                         <div className="flex flex-col sm:flex-row sm:items-center p-4 gap-4">
                             {/* Image Thumbnail */}
                             <div className="h-24 w-24 shrink-0 rounded-lg bg-muted overflow-hidden">
@@ -109,6 +119,20 @@ export default function MyReportsClient() {
                                         <strong>Reason:</strong> {report.rejectionReason || "No reason provided"}
                                     </div>
                                 )}
+                                <div className="mt-3 flex justify-end">
+                                    <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="text-primary"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleCardClick(report.id);
+                                        }}
+                                    >
+                                        <span className="material-icons-outlined text-sm mr-1">visibility</span>
+                                        View Details
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </Card>

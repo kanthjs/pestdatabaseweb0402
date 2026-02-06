@@ -5,33 +5,59 @@ import { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import UserMenu from "@/components/UserMenu";
 import { NotificationBell } from "@/components/NotificationBell";
+import { ExpertNotificationBadge } from "@/components/ExpertNotificationBadge";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
+
+type UserRole = "USER" | "EXPERT" | "ADMIN";
 
 export default function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [user, setUser] = useState<User | null>(null);
+    const [userRole, setUserRole] = useState<UserRole | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const supabase = createClient();
 
-        supabase.auth.getUser().then(({ data: { user } }) => {
+        const fetchUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
             setUser(user);
+            
+            // Fetch user role from profile
+            if (user) {
+                try {
+                    const res = await fetch("/api/user-role");
+                    if (res.ok) {
+                        const data = await res.json();
+                        setUserRole(data.role);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch user role:", error);
+                }
+            }
+            
             setIsLoading(false);
-        });
+        };
+
+        fetchUser();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user ?? null);
+            if (!session?.user) {
+                setUserRole(null);
+            }
             setIsLoading(false);
         });
 
         return () => subscription.unsubscribe();
     }, []);
 
+    const isExpertOrAdmin = userRole === "EXPERT" || userRole === "ADMIN";
+
     const menuItems = [
         { name: "About", href: "/" },
-        { name: "Data Map", href: "/dashboard" },
+        { name: "Pest Data", href: "/dashboard" },
     ];
 
     return (
@@ -64,14 +90,18 @@ export default function Navbar() {
                     {/* Desktop Buttons */}
                     <div className="hidden md:flex items-center space-x-4">
                         <ThemeToggle />
-                        {user && <NotificationBell />}
+                        {user && (
+                            isExpertOrAdmin ? <ExpertNotificationBadge /> : <NotificationBell />
+                        )}
                         <UserMenu user={user} isLoading={isLoading} />
                     </div>
 
                     {/* Mobile Menu Button */}
                     <div className="md:hidden flex items-center gap-4">
                         <ThemeToggle />
-                        {user && <NotificationBell />}
+                        {user && (
+                            isExpertOrAdmin ? <ExpertNotificationBadge /> : <NotificationBell />
+                        )}
                         <button
                             className="text-muted-foreground hover:text-foreground focus:outline-none"
                             type="button"

@@ -48,7 +48,7 @@ export default function HomePage() {
                 href="/dashboard"
               >
                 <span className="material-icons-outlined mr-2">dashboard</span>
-                Manage Dashboard
+                Pest Data
               </Link>
             </div>
 

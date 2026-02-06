@@ -10,7 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardFilter } from "./components/DashboardFilter";
 import { MetricsCards } from "./components/MetricsCards";
 import { AnalyticsCharts } from "./components/AnalyticsCharts";
-import { getDashboardMetrics } from "./actions";
+import { getDashboardMetrics, DashboardViewMode } from "./actions";
+import { Button } from "@/components/ui/button";
+import { Globe, User } from "lucide-react";
 
 // Dynamic import for Map to avoid SSR issues
 const AdvancedMap = dynamic(() => import("./components/AdvancedMap"), {
@@ -20,6 +22,7 @@ const AdvancedMap = dynamic(() => import("./components/AdvancedMap"), {
 
 export default function DashboardClient() {
     const [date, setDate] = useState<DateRange | undefined>();
+    const [viewMode, setViewMode] = useState<DashboardViewMode>("public");
 
     // Use useEffect to set the default date on critical client-side mount
     // This avoids hydration mismatch due to server/client timezone differences
@@ -31,13 +34,13 @@ export default function DashboardClient() {
     }, []);
 
     const { data: metrics, isLoading, isError } = useQuery({
-        queryKey: ["dashboardMetrics", date?.from, date?.to],
+        queryKey: ["dashboardMetrics", date?.from, date?.to, viewMode],
         queryFn: async () => {
             if (!date?.from || !date?.to) return null;
-            return await getDashboardMetrics(date.from, date.to);
+            return await getDashboardMetrics(date.from, date.to, viewMode);
         },
-        refetchInterval: 30000, // Poll every 30s
-        enabled: !!(date?.from && date?.to), // Only run query when date is set
+        refetchInterval: 30000,
+        enabled: !!(date?.from && date?.to),
     });
 
     return (
@@ -47,18 +50,43 @@ export default function DashboardClient() {
                 {/* Header Controls */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Dashboard Overview</h1>
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            {viewMode === "public" ? "Dashboard Overview" : "My Dashboard"}
+                        </h1>
                         <p className="text-muted-foreground">
-                            Real-time monitoring and pest outbreak analytics.
+                            {viewMode === "public" 
+                                ? "Real-time monitoring and pest outbreak analytics." 
+                                : "Your personal pest reports and analytics."}
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
+                        {/* View Mode Toggle */}
+                        <div className="flex items-center bg-muted rounded-lg p-1 mr-2">
+                            <Button
+                                variant={viewMode === "public" ? "secondary" : "ghost"}
+                                size="sm"
+                                onClick={() => setViewMode("public")}
+                                className="gap-2"
+                            >
+                                <Globe className="h-4 w-4" />
+                                Public
+                            </Button>
+                            <Button
+                                variant={viewMode === "personal" ? "secondary" : "ghost"}
+                                size="sm"
+                                onClick={() => setViewMode("personal")}
+                                className="gap-2"
+                            >
+                                <User className="h-4 w-4" />
+                                My Data
+                            </Button>
+                        </div>
                         <DashboardFilter date={date} setDate={setDate} />
                     </div>
                 </div>
 
                 {/* Key Metrics */}
-                <MetricsCards metrics={metrics || null} loading={isLoading} />
+                <MetricsCards metrics={metrics || null} loading={isLoading} viewMode={viewMode} />
 
                 {/* Main Content Tabs */}
                 <Tabs defaultValue="overview" className="space-y-4">

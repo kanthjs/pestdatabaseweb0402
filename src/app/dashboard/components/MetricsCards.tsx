@@ -80,9 +80,10 @@ interface MetricsCardsProps {
         hotZone: { province: string; count: number; severity: number } | null;
     } | null;
     loading?: boolean;
+    viewMode?: "public" | "personal";
 }
 
-export function MetricsCards({ metrics, loading }: MetricsCardsProps) {
+export function MetricsCards({ metrics, loading, viewMode = "public" }: MetricsCardsProps) {
     if (loading || !metrics) {
         return (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -100,10 +101,12 @@ export function MetricsCards({ metrics, loading }: MetricsCardsProps) {
         );
     }
 
+    const isPersonal = viewMode === "personal";
+
     return (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <MetricCard
-                title="Verified Reports"
+                title={isPersonal ? "My Reports" : "Verified Reports"}
                 value={metrics.totalVerified.count}
                 trend={metrics.totalVerified.trend}
                 subtext="from previous period"
@@ -124,7 +127,7 @@ export function MetricsCards({ metrics, loading }: MetricsCardsProps) {
                 color="secondary"
             />
             <MetricCard
-                title="Affected Area (Rai)"
+                title={isPersonal ? "My Affected Area (Rai)" : "Affected Area (Rai)"}
                 value={metrics.totalArea.value.toLocaleString()}
                 trend={metrics.totalArea.trend}
                 subtext="from previous period"
@@ -146,7 +149,7 @@ export function MetricsCards({ metrics, loading }: MetricsCardsProps) {
                 color="destructive"
             />
             <MetricCard
-                title="Top Pest"
+                title={isPersonal ? "My Top Pest" : "Top Pest"}
                 value={metrics.topPest?.name || "None"}
                 subtext={metrics.topPest ? `${metrics.topPest.count} incidents` : "No reports"}
                 icon={
@@ -169,7 +172,7 @@ export function MetricsCards({ metrics, loading }: MetricsCardsProps) {
                 color="warning"
             />
             <MetricCard
-                title="Hot Zone"
+                title={isPersonal ? "My Hot Zone" : "Hot Zone"}
                 value={metrics.hotZone?.province || "None"}
                 subtext={metrics.hotZone ? `Severity: ${metrics.hotZone.severity}%` : "Safe"}
                 icon={

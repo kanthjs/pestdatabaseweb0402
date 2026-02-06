@@ -22,24 +22,23 @@ export async function getUserReports() {
         throw new Error("Unauthorized");
     }
 
-    // Find the user's profile to get the correct ID
-    // The profile ID might differ from the auth user ID due to database resets
-    let profile = await prisma.userProfile.findUnique({
-        where: { id: user.id },
-    });
-
-    if (!profile && user.email) {
-        profile = await prisma.userProfile.findUnique({
-            where: { email: user.email },
-        });
+    // Use email to match reports - more reliable for ownership
+    // This handles cases where user ID might differ between auth and database
+    const userEmail = user.email;
+    
+    if (!userEmail) {
+        throw new Error("User email not found");
     }
 
-    // Use profile ID if found, otherwise fall back to auth user ID
-    const effectiveUserId = profile?.id || user.id;
-
+    // Fetch reports by email - this includes both:
+    // 1. Reports submitted while logged in (reporterEmail set)
+    // 2. Reports linked to user's profile
     const reports = await prisma.pestReport.findMany({
         where: {
-            reporterUserId: effectiveUserId,
+            OR: [
+                { reporterEmail: userEmail },
+                { reporterUser: { email: userEmail } },
+            ],
         },
         orderBy: {
             reportedAt: "desc",
@@ -48,12 +47,11 @@ export async function getUserReports() {
             id: true,
             reportedAt: true,
             province: true,
-            pestId: true, // we need to join with Pest table usually, but we have pestId. 
-            // Actually schema says Pest model exists.
-            // Let's fetch pest name if possible.
+            pestId: true,
             status: true,
             rejectionReason: true,
             imageUrls: true,
+            reporterEmail: true,
         },
     });
 

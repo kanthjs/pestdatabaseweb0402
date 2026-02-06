@@ -1,8 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 import { startOfDay, subDays, format, differenceInDays } from "date-fns";
 import { unstable_cache } from "next/cache";
+
+export type DashboardViewMode = "public" | "personal";
 
 export interface DashboardMetrics {
     totalVerified: {
@@ -54,6 +57,10 @@ export interface DashboardMetrics {
         incidence: number;
         pestName: string;
     }>;
+    
+    // View mode info
+    viewMode: DashboardViewMode;
+    userEmail?: string;
 }
 
 // Helper to fetch pest names mapping
@@ -65,10 +72,34 @@ async function getPestNamesMap(): Promise<Record<string, string>> {
     }, {} as Record<string, string>);
 }
 
+// Helper to get user email for personal view
+async function getUserEmail(): Promise<string | null> {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.email || null;
+}
+
 // Cached version of getDashboardMetrics - revalidates every 60 seconds
 export const getDashboardMetrics = unstable_cache(
-    async (startDate: Date, endDate: Date): Promise<DashboardMetrics> => {
+    async (startDate: Date, endDate: Date, viewMode: DashboardViewMode = "public"): Promise<DashboardMetrics> => {
         const verifiedStatus = "APPROVED";
+        
+        // Get user email for personal view
+        const userEmail = viewMode === "personal" ? await getUserEmail() : null;
+        
+        // Build where clause based on view mode
+        const baseWhereClause: any = { 
+            status: verifiedStatus, 
+            reportedAt: { gte: startDate, lte: endDate } 
+        };
+        
+        // For personal view, filter by email (more reliable than ID)
+        if (viewMode === "personal" && userEmail) {
+            baseWhereClause.OR = [
+                { reporterEmail: userEmail },
+                { reporterUser: { email: userEmail } },
+            ];
+        }
 
         // 0. Fetch Pest Names (Lookup)
         const pestNames = await getPestNamesMap();
@@ -77,6 +108,18 @@ export const getDashboardMetrics = unstable_cache(
         const daysDiff = differenceInDays(endDate, startDate);
         const prevStartDate = subDays(startDate, daysDiff);
         const prevEndDate = subDays(endDate, daysDiff);
+        
+        // Build previous period where clause
+        const prevWhereClause: any = { 
+            status: verifiedStatus, 
+            reportedAt: { gte: prevStartDate, lte: prevEndDate } 
+        };
+        if (viewMode === "personal" && userEmail) {
+            prevWhereClause.OR = [
+                { reporterEmail: userEmail },
+                { reporterUser: { email: userEmail } },
+            ];
+        }
 
         const [
             currentCount,
@@ -89,49 +132,43 @@ export const getDashboardMetrics = unstable_cache(
             mapReports
         ] = await Promise.all([
             // Total Verified (Current)
-            prisma.pestReport.count({
-                where: { status: verifiedStatus, reportedAt: { gte: startDate, lte: endDate } }
-            }),
+            prisma.pestReport.count({ where: baseWhereClause }),
             // Total Verified (Previous)
-            prisma.pestReport.count({
-                where: { status: verifiedStatus, reportedAt: { gte: prevStartDate, lte: prevEndDate } }
-            }),
+            prisma.pestReport.count({ where: prevWhereClause }),
             // Total Area (Current)
             prisma.pestReport.aggregate({
                 _sum: { fieldAffectedArea: true },
-                where: { status: verifiedStatus, reportedAt: { gte: startDate, lte: endDate } }
+                where: baseWhereClause
             }),
             // Total Area (Previous)
             prisma.pestReport.aggregate({
                 _sum: { fieldAffectedArea: true },
-                where: { status: verifiedStatus, reportedAt: { gte: prevStartDate, lte: prevEndDate } }
+                where: prevWhereClause
             }),
             // Pest Stats (Ranking & Top Pest) - Group By Pest
             prisma.pestReport.groupBy({
                 by: ['pestId'],
-                where: { status: verifiedStatus, reportedAt: { gte: startDate, lte: endDate } },
+                where: baseWhereClause,
                 _count: { _all: true },
                 _sum: { fieldAffectedArea: true, severityPercent: true, incidencePercent: true }
             }),
             // Province Stats (Hot Zone & Geo Data) - Group By Province
             prisma.pestReport.groupBy({
                 by: ['province'],
-                where: { status: verifiedStatus, reportedAt: { gte: startDate, lte: endDate } },
+                where: baseWhereClause,
                 _count: { _all: true },
                 _sum: { fieldAffectedArea: true, severityPercent: true }
             }),
             // Trend Data (Lite fetch)
             prisma.pestReport.findMany({
-                where: { status: verifiedStatus, reportedAt: { gte: startDate, lte: endDate } },
+                where: baseWhereClause,
                 select: { reportedAt: true, symptomOnSet: true }
             }),
             // Map Data (Limited to reports with location)
             prisma.pestReport.findMany({
                 where: {
-                    status: verifiedStatus,
-                    reportedAt: { gte: startDate, lte: endDate },
-                    latitude: { not: 0 }, // Ensure valid location if default is 0 or check for not null
-                    // Note: Schema says Float, usually non-null. 
+                    ...baseWhereClause,
+                    latitude: { not: 0 },
                 },
                 select: {
                     id: true,
@@ -142,7 +179,7 @@ export const getDashboardMetrics = unstable_cache(
                     incidencePercent: true,
                 },
                 orderBy: { reportedAt: 'desc' },
-                take: 500 // Limit for performance
+                take: 500
             })
         ]);
 
@@ -252,9 +289,11 @@ export const getDashboardMetrics = unstable_cache(
             trendData,
             pestRanking,
             geoData,
-            mapData
+            mapData,
+            viewMode,
+            userEmail: userEmail || undefined,
         };
     },
     ["dashboard-metrics"],
-    { revalidate: 60 } // Revalidate every 60 seconds
+    { revalidate: 60 }
 );
