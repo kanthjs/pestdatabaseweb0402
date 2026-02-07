@@ -102,7 +102,7 @@ export const MetricsCards = memo(function MetricsCards({ metrics, loading }: Met
     }
 
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
             <MetricCard
                 title="Verified Reports"
                 value={metrics.totalVerified.count}
@@ -123,51 +123,6 @@ export const MetricsCards = memo(function MetricsCards({ metrics, loading }: Met
                     </svg>
                 }
                 color="secondary"
-            />
-            <MetricCard
-                title="Affected Area (Rai)"
-                value={metrics.totalArea.value.toLocaleString()}
-                trend={metrics.totalArea.trend}
-                subtext="from previous period"
-                icon={
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        className="h-4 w-4"
-                    >
-                        <path d="M3 3v18h18" />
-                        <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
-                    </svg>
-                }
-                color="destructive"
-            />
-            <MetricCard
-                title="Top Pest"
-                value={metrics.topPest?.name || "None"}
-                subtext={metrics.topPest ? `${metrics.topPest.count} incidents` : "No reports"}
-                icon={
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        className="h-4 w-4"
-                    >
-                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                        <path d="M3 12h6" />
-                        <path d="M15 12h6" />
-                    </svg>
-                }
-                color="warning"
             />
             <MetricCard
                 title="Hot Zone"

@@ -1,13 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { subDays } from "date-fns";
-import { DateRange } from "react-day-picker";
 
-import { DashboardFilter } from "./components/DashboardFilter";
 import { MetricsCards } from "./components/MetricsCards";
+import { PestRankingChart } from "./components/PestRankingChart";
 import { getDashboardMetrics } from "./actions";
 
 // Dynamic import for Map to avoid SSR issues
@@ -17,26 +15,26 @@ const AdvancedMap = dynamic(() => import("./components/AdvancedMap"), {
 });
 
 export default function DashboardClient() {
-    const [date, setDate] = useState<DateRange | undefined>();
-
-    // Use useEffect to set the default date on client-side mount
-    // This avoids hydration mismatch due to server/client timezone differences
-    useEffect(() => {
-        setDate({
-            from: subDays(new Date(), 30),
-            to: new Date(),
-        });
-    }, []);
-
     const { data: metrics, isLoading, isError } = useQuery({
-        queryKey: ["dashboardMetrics", date?.from, date?.to],
+        queryKey: ["dashboardMetrics"],
         queryFn: async () => {
-            if (!date?.from || !date?.to) return null;
-            return await getDashboardMetrics(date.from, date.to);
+            const to = new Date();
+            const from = subDays(to, 30);
+            return await getDashboardMetrics(from, to);
         },
         refetchInterval: 30000,
-        enabled: !!(date?.from && date?.to),
     });
+
+    if (isError) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-destructive">Error loading dashboard data</h2>
+                    <p className="text-muted-foreground">Please try refreshing the page.</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background">
@@ -49,19 +47,27 @@ export default function DashboardClient() {
                             Pest Outbreak Dashboard
                         </h1>
                         <p className="text-muted-foreground">
-                            Real-time monitoring of pest outbreaks and affected areas.
+                            รายงานสถานการณ์ศัตรูพืชในช่วง 30 วันที่ผ่านมา
                         </p>
                     </div>
-                    <DashboardFilter date={date} setDate={setDate} />
                 </div>
 
                 {/* Key Metrics */}
                 <MetricsCards metrics={metrics || null} loading={isLoading} />
 
-                {/* Geographic Map */}
-                <div>
-                    <h2 className="text-xl font-semibold mb-4">Geographic Distribution</h2>
-                    <AdvancedMap reports={metrics?.mapData || []} />
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Geographic Map */}
+                    <div className="lg:col-span-2 space-y-4">
+                        <h2 className="text-xl font-semibold">Geographic Distribution</h2>
+                        <AdvancedMap reports={metrics?.mapData || []} />
+                    </div>
+
+                    {/* Pest Ranking */}
+                    <div className="space-y-4">
+                        <h2 className="text-xl font-semibold">Top 5 Pest Ranking</h2>
+                        <PestRankingChart data={metrics?.pestRanking || []} loading={isLoading} />
+                    </div>
                 </div>
 
             </div>

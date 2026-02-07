@@ -5,6 +5,12 @@ import { ReportStatus } from "@prisma/client";
 import { subDays, differenceInDays } from "date-fns";
 import { unstable_cache } from "next/cache";
 
+export interface PestRanking {
+    id: string;
+    name: string;
+    count: number;
+}
+
 export interface DashboardMetrics {
     totalVerified: {
         count: number;
@@ -19,6 +25,7 @@ export interface DashboardMetrics {
         name: string;
         count: number;
     } | null;
+    pestRanking: PestRanking[];
     hotZone: {
         province: string;
         count: number;
@@ -137,14 +144,17 @@ export const getDashboardMetrics = unstable_cache(
             ? 100
             : Math.round(((totalAreaValue - prevAreaValue) / prevAreaValue) * 100);
 
-        // --- Calculate Metric 3: Top Pest ---
-        // Find top pest by frequency
-        const topPestStat = pestStats.sort((a, b) => (b._count?._all || 0) - (a._count?._all || 0))[0];
-        const topPest = topPestStat && topPestStat._count ? {
-            id: topPestStat.pestId,
-            name: await getPestName(topPestStat.pestId),
-            count: topPestStat._count._all || 0
-        } : null;
+        // --- Calculate Metric 3: Pest Ranking (Top 5) ---
+        const sortedPestStats = [...pestStats].sort((a, b) => (b._count?._all || 0) - (a._count?._all || 0));
+
+        const pestRankingPromises = sortedPestStats.slice(0, 5).map(async (stat) => ({
+            id: stat.pestId,
+            name: await getPestName(stat.pestId),
+            count: stat._count._all || 0
+        }));
+
+        const pestRanking = await Promise.all(pestRankingPromises);
+        const topPest = pestRanking.length > 0 ? pestRanking[0] : null;
 
         // --- Calculate Metric 4: Hot Zone ---
         // Find Hot Zone (highest score based on simple heuristic: count * severity * area)
@@ -184,6 +194,7 @@ export const getDashboardMetrics = unstable_cache(
             totalVerified: { count: totalVerifiedCount, trend: verifiedTrend },
             totalArea: { value: totalAreaValue, trend: areaTrend },
             topPest,
+            pestRanking,
             hotZone,
             mapData,
         };
