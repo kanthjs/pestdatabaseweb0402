@@ -6,24 +6,12 @@ import { redirect } from "next/navigation";
 import { ReportStatus, UserRole } from "@prisma/client";
 
 export interface ExpertStatistics {
-    pendingVerification: number;
     verifiedToday: number;
     verifiedThisWeek: number;
     totalVerified: number;
 }
 
-export interface PendingReport {
-    id: string;
-    reportedAt: Date;
-    pestName: string;
-    plantName: string;
-    province: string;
-    reporterName: string;
-    imageUrls: string[];
-    incidencePercent: number;
-    severityPercent: number;
-    fieldAffectedArea: number;
-}
+
 
 export interface ExpertAnalyticsData {
     reportsByDay: { date: string; count: number }[];
@@ -40,10 +28,19 @@ async function checkExpertAccess() {
     }
 
     // Check if user is EXPERT or ADMIN
-    const userProfile = await prisma.userProfile.findUnique({
+    // Try find by ID first, then by email
+    let userProfile = await prisma.userProfile.findUnique({
         where: { id: user.id },
         select: { role: true }
     });
+
+    // If not found by ID and user has email, try looking up by email
+    if (!userProfile && user.email) {
+        userProfile = await prisma.userProfile.findUnique({
+            where: { email: user.email },
+            select: { role: true }
+        });
+    }
 
     if (!userProfile || (userProfile.role !== UserRole.EXPERT && userProfile.role !== UserRole.ADMIN)) {
         redirect("/dashboard"); // Redirect to public dashboard if not authorized
@@ -60,8 +57,7 @@ export async function getExpertDashboardData() {
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    const [pendingCount, verifiedTodayCount, verifiedWeekCount, totalVerifiedCount] = await Promise.all([
-        prisma.pestReport.count({ where: { status: ReportStatus.PENDING } }),
+    const [verifiedTodayCount, verifiedWeekCount, totalVerifiedCount] = await Promise.all([
         prisma.pestReport.count({
             where: {
                 status: ReportStatus.APPROVED,
@@ -78,44 +74,12 @@ export async function getExpertDashboardData() {
     ]);
 
     const stats: ExpertStatistics = {
-        pendingVerification: pendingCount,
         verifiedToday: verifiedTodayCount,
         verifiedThisWeek: verifiedWeekCount,
         totalVerified: totalVerifiedCount
     };
 
-    // 2. Get Pending Reports for Verification
-    const pendingReportsData = await prisma.pestReport.findMany({
-        where: { status: ReportStatus.PENDING },
-        orderBy: { reportedAt: 'asc' }, // Oldest first
-        select: {
-            id: true,
-            reportedAt: true,
-            pest: { select: { pestNameEn: true } },
-            plant: { select: { plantNameEn: true } },
-            province: true,
-            reporterFirstName: true,
-            reporterLastName: true,
-            imageUrls: true,
-            incidencePercent: true,
-            severityPercent: true,
-            fieldAffectedArea: true
-        },
-        take: 20
-    });
 
-    const pendingReports: PendingReport[] = pendingReportsData.map(r => ({
-        id: r.id,
-        reportedAt: r.reportedAt,
-        pestName: r.pest.pestNameEn,
-        plantName: r.plant.plantNameEn,
-        province: r.province,
-        reporterName: `${r.reporterFirstName || ''} ${r.reporterLastName || ''}`.trim() || 'Anonymous',
-        imageUrls: r.imageUrls,
-        incidencePercent: r.incidencePercent,
-        severityPercent: r.severityPercent,
-        fieldAffectedArea: r.fieldAffectedArea
-    }));
 
     // 3. Get Analytics Data (Last 30 days)
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -170,38 +134,8 @@ export async function getExpertDashboardData() {
     return {
         user,
         stats,
-        pendingReports,
         analytics
     };
 }
 
-export async function approveReport(reportId: string) {
-    const user = await checkExpertAccess();
 
-    await prisma.pestReport.update({
-        where: { id: reportId },
-        data: {
-            status: ReportStatus.APPROVED,
-            verifiedAt: new Date(),
-            verifiedBy: user.id
-        }
-    });
-
-    return { success: true, message: "Report approved successfully" };
-}
-
-export async function rejectReport(reportId: string, reason: string) {
-    const user = await checkExpertAccess();
-
-    await prisma.pestReport.update({
-        where: { id: reportId },
-        data: {
-            status: ReportStatus.REJECTED,
-            verifiedAt: new Date(),
-            verifiedBy: user.id,
-            rejectionReason: reason
-        }
-    });
-
-    return { success: true, message: "Report rejected" };
-}

@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useQuery } from "@tanstack/react-query";
 import { subDays } from "date-fns";
+import { useEffect } from "react";
 
 import { MetricsCards } from "./components/MetricsCards";
 import { PestRankingChart } from "./components/PestRankingChart";
@@ -21,15 +22,23 @@ interface DashboardClientProps {
 }
 
 export default function DashboardClient({ userEmail, title, description }: DashboardClientProps) {
-    const { data: metrics, isLoading, isError } = useQuery({
+    console.log("DashboardClient: userEmail prop:", userEmail);
+    const { data: metrics, isLoading, isError, refetch } = useQuery({
         queryKey: ["dashboardMetrics", userEmail],
         queryFn: async () => {
+            console.log("DashboardClient: fetching with userEmail:", userEmail);
             const to = new Date();
             const from = subDays(to, 30);
             return await getDashboardMetrics(from, to, userEmail);
         },
         refetchInterval: 30000,
     });
+
+    // Force refetch when userEmail changes
+    useEffect(() => {
+        console.log("DashboardClient: userEmail changed, refetching...");
+        refetch();
+    }, [userEmail, refetch]);
 
     if (isError) {
         return (

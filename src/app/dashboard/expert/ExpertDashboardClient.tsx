@@ -1,98 +1,65 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ExpertStatistics, PendingReport, ExpertAnalyticsData, approveReport, rejectReport } from "./actions";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ExpertStatistics, ExpertAnalyticsData } from "./actions";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
 import {
     ClipboardCheck,
-    Clock,
     CheckCircle,
-    XCircle,
     TrendingUp,
     BarChart3,
-    Eye,
-    ThumbsUp,
-    ThumbsDown,
     Map,
-    AlertTriangle,
     Calendar
 } from "lucide-react";
-import Image from "next/image";
 import { User } from "@supabase/supabase-js";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from "next/navigation";
+
+import DashboardClient from "../DashboardClient";
 
 interface ExpertDashboardClientProps {
     user: User;
     stats: ExpertStatistics;
-    pendingReports: PendingReport[];
     analytics: ExpertAnalyticsData;
 }
 
-export default function ExpertDashboardClient({ user, stats, pendingReports, analytics }: ExpertDashboardClientProps) {
-    const router = useRouter();
-    const [selectedReport, setSelectedReport] = useState<PendingReport | null>(null);
-    const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
-    const [rejectionReason, setRejectionReason] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleApprove = async (reportId: string) => {
-        setIsLoading(true);
-        try {
-            await approveReport(reportId);
-            router.refresh();
-        } catch (error) {
-            console.error("Error approving report:", error);
-        } finally {
-            setIsLoading(false);
-            setSelectedReport(null);
-        }
-    };
-
-    const handleReject = async () => {
-        if (!selectedReport) return;
-        setIsLoading(true);
-        try {
-            await rejectReport(selectedReport.id, rejectionReason);
-            router.refresh();
-        } catch (error) {
-            console.error("Error rejecting report:", error);
-        } finally {
-            setIsLoading(false);
-            setIsRejectDialogOpen(false);
-            setSelectedReport(null);
-            setRejectionReason("");
-        }
-    };
+export default function ExpertDashboardClient({ user, stats, analytics }: ExpertDashboardClientProps) {
+    const [viewMode, setViewMode] = useState<"global" | "personal">("global");
 
     return (
         <div className="min-h-screen bg-background">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
                 {/* Header */}
-                <div className="flex justify-between items-start">
+                <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
                             <ClipboardCheck className="w-8 h-8 text-primary" />
                             Expert Dashboard
                         </h1>
                         <p className="text-muted-foreground">
-                            สวัสดีผู้เชี่ยวชาญ {user.email} - ตรวจสอบและยืนยันรายงานศัตรูพืช
+                            สวัสดีผู้เชี่ยวชาญ {user.email} - ตรวจสอบและติดตามสถานการณ์ศัตรูพืช
                         </p>
                     </div>
-                    <div className="text-right">
+                    <div className="flex items-center gap-2">
+                        <div className="bg-muted p-1 rounded-lg flex">
+                            <Button
+                                variant={viewMode === "global" ? "default" : "ghost"}
+                                size="sm"
+                                onClick={() => setViewMode("global")}
+                                className="h-8 text-xs px-3"
+                            >
+                                ALL
+                            </Button>
+                            <Button
+                                variant={viewMode === "personal" ? "default" : "ghost"}
+                                size="sm"
+                                onClick={() => setViewMode("personal")}
+                                className="h-8 text-xs px-3"
+                            >
+                                My Report
+                            </Button>
+                        </div>
                         <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium">
                             Expert Access
                         </span>
@@ -100,14 +67,7 @@ export default function ExpertDashboardClient({ user, stats, pendingReports, ana
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <StatCard
-                        title="รอการตรวจสอบ"
-                        value={stats.pendingVerification}
-                        icon={<Clock className="w-5 h-5" />}
-                        color="text-yellow-600"
-                        bgColor="bg-yellow-500/10"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <StatCard
                         title="ยืนยันวันนี้"
                         value={stats.verifiedToday}
@@ -132,16 +92,11 @@ export default function ExpertDashboardClient({ user, stats, pendingReports, ana
                 </div>
 
                 {/* Main Content Tabs */}
-                <Tabs defaultValue="queue" className="w-full">
+                <Tabs defaultValue="overview" className="w-full">
                     <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
-                        <TabsTrigger value="queue" className="gap-2">
-                            <ClipboardCheck className="w-4 h-4" />
-                            Verification Queue
-                            {stats.pendingVerification > 0 && (
-                                <span className="ml-1 px-2 py-0.5 rounded-full bg-yellow-500 text-white text-xs">
-                                    {stats.pendingVerification}
-                                </span>
-                            )}
+                        <TabsTrigger value="overview" className="gap-2">
+                            <Map className="w-4 h-4" />
+                            Dashboard Overview
                         </TabsTrigger>
                         <TabsTrigger value="analytics" className="gap-2">
                             <BarChart3 className="w-4 h-4" />
@@ -149,127 +104,18 @@ export default function ExpertDashboardClient({ user, stats, pendingReports, ana
                         </TabsTrigger>
                     </TabsList>
 
-                    {/* Verification Queue Tab */}
-                    <TabsContent value="queue" className="mt-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Clock className="w-5 h-5 text-yellow-500" />
-                                    รายงานที่รอการตรวจสอบ
-                                </CardTitle>
-                                <CardDescription>
-                                    ตรวจสอบและยืนยันรายงานจากผู้ใช้งาน (เรียงจากเก่าสุดก่อน)
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                {pendingReports.length === 0 ? (
-                                    <div className="text-center py-12 text-muted-foreground">
-                                        <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
-                                        <p className="font-medium">ไม่มีรายงานที่รอการตรวจสอบ</p>
-                                        <p className="text-sm">คุณทำงานได้ดีมาก!</p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {pendingReports.map((report) => (
-                                            <div
-                                                key={report.id}
-                                                className="p-4 rounded-xl border bg-card hover:shadow-md transition-shadow"
-                                            >
-                                                <div className="flex flex-col md:flex-row gap-4">
-                                                    {/* Images */}
-                                                    <div className="flex gap-2 shrink-0">
-                                                        {report.imageUrls.slice(0, 2).map((url, i) => (
-                                                            <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden border">
-                                                                <Image
-                                                                    src={url}
-                                                                    alt="Report image"
-                                                                    fill
-                                                                    className="object-cover"
-                                                                />
-                                                            </div>
-                                                        ))}
-                                                        {report.imageUrls.length === 0 && (
-                                                            <div className="w-20 h-20 rounded-lg bg-muted flex items-center justify-center">
-                                                                <span className="text-xs text-muted-foreground">No Image</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Info */}
-                                                    <div className="flex-1 space-y-2">
-                                                        <div className="flex justify-between items-start">
-                                                            <div>
-                                                                <h3 className="font-bold text-lg">{report.pestName}</h3>
-                                                                <p className="text-sm text-muted-foreground">
-                                                                    พืช: {report.plantName} | จ.{report.province}
-                                                                </p>
-                                                            </div>
-                                                            <span className="text-xs text-muted-foreground">
-                                                                {format(new Date(report.reportedAt), "d MMM yyyy HH:mm", { locale: th })}
-                                                            </span>
-                                                        </div>
-
-                                                        <div className="flex flex-wrap gap-4 text-sm">
-                                                            <div className="flex items-center gap-1">
-                                                                <Map className="w-4 h-4 text-muted-foreground" />
-                                                                <span>{report.fieldAffectedArea} ไร่</span>
-                                                            </div>
-                                                            <div className="flex items-center gap-1">
-                                                                <AlertTriangle className="w-4 h-4 text-orange-500" />
-                                                                <span>Incidence: {report.incidencePercent}%</span>
-                                                            </div>
-                                                            <div className="flex items-center gap-1">
-                                                                <AlertTriangle className="w-4 h-4 text-red-500" />
-                                                                <span>Severity: {report.severityPercent}%</span>
-                                                            </div>
-                                                            <div className="flex items-center gap-1 text-muted-foreground">
-                                                                <span>โดย: {report.reporterName}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Actions */}
-                                                    <div className="flex md:flex-col gap-2 shrink-0">
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            className="gap-1"
-                                                            onClick={() => setSelectedReport(report)}
-                                                        >
-                                                            <Eye className="w-4 h-4" />
-                                                            ดูรายละเอียด
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            className="gap-1 bg-green-600 hover:bg-green-700"
-                                                            onClick={() => handleApprove(report.id)}
-                                                            disabled={isLoading}
-                                                        >
-                                                            <ThumbsUp className="w-4 h-4" />
-                                                            อนุมัติ
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="destructive"
-                                                            className="gap-1"
-                                                            onClick={() => {
-                                                                setSelectedReport(report);
-                                                                setIsRejectDialogOpen(true);
-                                                            }}
-                                                            disabled={isLoading}
-                                                        >
-                                                            <ThumbsDown className="w-4 h-4" />
-                                                            ปฏิเสธ
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
+                    {/* Dashboard Overview Tab */}
+                    <TabsContent value="overview" className="mt-6">
+                        <div className="bg-card border rounded-xl overflow-hidden p-0">
+                            <DashboardClient
+                                userEmail={viewMode === "personal" ? (user.email || undefined) : undefined}
+                                title={viewMode === "personal" ? "Personal Work Summary" : "Global Crop Health Overview"}
+                                description={viewMode === "personal" ? "สถิติจำนวนรายงานที่คุณเป็นผู้บันทึก" : "ภาพรวมรายงานศัตรูพืชทั้งหมดในฐานข้อมูล"}
+                            />
+                        </div>
                     </TabsContent>
+
+
 
                     {/* Analytics Tab */}
                     <TabsContent value="analytics" className="mt-6 space-y-6">
@@ -355,36 +201,6 @@ export default function ExpertDashboardClient({ user, stats, pendingReports, ana
                     </TabsContent>
                 </Tabs>
             </div>
-
-            {/* Reject Dialog */}
-            <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>ปฏิเสธรายงาน</DialogTitle>
-                        <DialogDescription>
-                            กรุณาระบุเหตุผลในการปฏิเสธรายงานนี้
-                        </DialogDescription>
-                    </DialogHeader>
-                    <Textarea
-                        placeholder="เหตุผลในการปฏิเสธ..."
-                        value={rejectionReason}
-                        onChange={(e) => setRejectionReason(e.target.value)}
-                        rows={4}
-                    />
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsRejectDialogOpen(false)}>
-                            ยกเลิก
-                        </Button>
-                        <Button
-                            variant="destructive"
-                            onClick={handleReject}
-                            disabled={!rejectionReason.trim() || isLoading}
-                        >
-                            ยืนยันปฏิเสธ
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }

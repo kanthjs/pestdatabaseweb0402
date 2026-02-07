@@ -24,7 +24,9 @@ export async function GET() {
             },
         });
 
-        return NextResponse.json({ role: profile?.role || "USER" });
+        const role = profile?.role || "USER";
+        console.log(`API [GET] /api/user-role: User ${user.email} has role ${role}`);
+        return NextResponse.json({ role });
     } catch (error) {
         console.error("Error fetching user role:", error);
         return NextResponse.json({ role: "USER" }, { status: 500 });

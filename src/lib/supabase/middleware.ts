@@ -60,19 +60,29 @@ export async function updateSession(request: NextRequest) {
 
         // Check role permissions
         try {
-            const userProfile = await prisma.userProfile.findUnique({
-                where: { id: user.id },
+            const userProfile = await prisma.userProfile.findFirst({
+                where: {
+                    OR: [
+                        { id: user.id },
+                        { email: user.email || "" },
+                    ],
+                },
                 select: { role: true },
             });
 
             const userRole = userProfile?.role || "USER";
 
+            console.log(`Middleware: Path=${request.nextUrl.pathname}, User=${user.email}, Role=${userRole}, Required=${matchedRoute.roles.join()}`);
+
             if (!matchedRoute.roles.includes(userRole)) {
+                console.log(`Middleware: Access DENIED - Role ${userRole} not in [${matchedRoute.roles.join()}]`);
                 // User doesn't have required role - redirect to unauthorized
                 const url = request.nextUrl.clone();
                 url.pathname = "/unauthorized";
                 return NextResponse.redirect(url);
             }
+
+            console.log(`Middleware: Access GRANTED`);
         } catch (error) {
             // Error fetching user profile - deny access
             const url = request.nextUrl.clone();

@@ -15,6 +15,11 @@ export default function UserMenu({ user, isLoading = false, role }: UserMenuProp
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    // Debug: log role value
+    useEffect(() => {
+        console.log("UserMenu: Received role:", role);
+    }, [role]);
+
     // Close dropdown when clicking outside
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -109,10 +114,13 @@ export default function UserMenu({ user, isLoading = false, role }: UserMenuProp
                                     ? "/dashboard/admin"
                                     : role === "EXPERT"
                                         ? "/dashboard/expert"
-                                        : "/dashboard/user"
+                                        : "/dashboard"
                             }
                             className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
-                            onClick={() => setIsOpen(false)}
+                            onClick={() => {
+                                console.log("UserMenu: Dashboard clicked, role:", role);
+                                setIsOpen(false);
+                            }}
                         >
                             <span className="material-icons-outlined text-lg">dashboard</span>
                             Dashboard
@@ -133,16 +141,18 @@ export default function UserMenu({ user, isLoading = false, role }: UserMenuProp
                             <span className="material-icons-outlined text-lg">account_circle</span>
                             Profile
                         </Link>
-                        <Link
-                            href="/expert/review"
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            <span className="material-icons-outlined text-lg">
-                                verified_user
-                            </span>
-                            Expert Review
-                        </Link>
+                        {(role === "EXPERT" || role === "ADMIN") && (
+                            <Link
+                                href="/expert/review"
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <span className="material-icons-outlined text-lg">
+                                    verified_user
+                                </span>
+                                Expert Review
+                            </Link>
+                        )}
                         <div className="border-t border-border mt-1 pt-1">
                             <form action={signout}>
                                 <button
