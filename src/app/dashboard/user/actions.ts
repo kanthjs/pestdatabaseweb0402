@@ -3,121 +3,116 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { ReportStatus } from "@prisma/client";
-
-export interface UserStatistics {
-    totalReports: number;
-    verifiedReports: number;
-    pendingReports: number;
-    rejectedReports: number;
-}
-
-export interface UserReportHistory {
-    id: string;
-    reportedAt: Date;
-    pestName: string;
-    plantName: string;
-    province: string;
-    status: string;
-    imageUrls: string[];
-}
-
-export interface UserGalleryItem {
-    id: string;
-    imageUrl: string;
-    caption: string;
-    plantName: string;
-    pestName: string;
-    reportedAt: Date;
-}
+import { ReportStatus, UserRole } from "@prisma/client";
 
 export async function getUserDashboardData() {
     const supabase = await createClient();
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (error || !user) {
+    if (!user) {
         redirect("/login");
     }
 
-    const userId = user.id;
+    // Get User Profile to ensure they exist
+    const userProfile = await prisma.userProfile.findUnique({
+        where: { id: user.id }
+    });
 
-    // 1. Get Statistics
-    const [total, verified, pending, rejected] = await Promise.all([
-        prisma.pestReport.count({ where: { reporterUserId: userId } }),
-        prisma.pestReport.count({ where: { reporterUserId: userId, status: ReportStatus.APPROVED } }),
-        prisma.pestReport.count({ where: { reporterUserId: userId, status: ReportStatus.PENDING } }),
-        prisma.pestReport.count({ where: { reporterUserId: userId, status: ReportStatus.REJECTED } })
+    if (!userProfile) {
+        redirect("/login");
+    }
+
+    // 1. Stats
+    const [totalReports, verifiedReports] = await Promise.all([
+        prisma.pestReport.count({
+            where: { reporterUserId: user.id }
+        }),
+        prisma.pestReport.count({
+            where: {
+                reporterUserId: user.id,
+                status: ReportStatus.APPROVED
+            }
+        })
     ]);
 
-    const stats: UserStatistics = {
-        totalReports: total,
-        verifiedReports: verified,
-        pendingReports: pending,
-        rejectedReports: rejected
-    };
-
-    // 2. Get Report History (Timeline)
-    const historyData = await prisma.pestReport.findMany({
-        where: { reporterUserId: userId },
-        orderBy: { reportedAt: 'desc' },
-        select: {
-            id: true,
-            reportedAt: true,
-            pest: { select: { pestNameEn: true } },
-            plant: { select: { plantNameEn: true } },
-            province: true,
-            status: true,
-            imageUrls: true
-        },
-        take: 50 // Recent 50 reports
+    // 2. Recent Reports
+    const recentReports = await prisma.pestReport.findMany({
+        where: { reporterUserId: user.id },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        include: {
+            pest: true,
+            plant: true
+        }
     });
 
-    const history: UserReportHistory[] = historyData.map(r => ({
-        id: r.id,
-        reportedAt: r.reportedAt,
-        pestName: r.pest.pestNameEn,
-        plantName: r.plant.plantNameEn,
-        province: r.province,
-        status: r.status,
-        imageUrls: r.imageUrls
+    // 3. Top Pests
+    const topPests = await prisma.pestReport.groupBy({
+        by: ['pestId'],
+        where: { reporterUserId: user.id },
+        _count: {
+            pestId: true
+        },
+        orderBy: {
+            _count: {
+                pestId: 'desc'
+            }
+        },
+        take: 5
+    });
+
+    const pestNames = await Promise.all(topPests.map(async (item) => {
+        const pest = await prisma.pest.findUnique({
+            where: { pestId: item.pestId },
+            select: { pestNameEn: true, pestNameTh: true }
+        });
+        return {
+            name: pest?.pestNameEn || pest?.pestNameTh || "Unknown",
+            count: item._count.pestId
+        };
     }));
 
-    // 3. Get Gallery Items (All images)
-    const galleryReports = await prisma.pestReport.findMany({
-        where: {
-            reporterUserId: userId,
-            imageUrls: { isEmpty: false }
-        },
-        orderBy: { reportedAt: 'desc' },
-        select: {
-            id: true,
-            imageUrls: true,
-            imageCaptions: true,
-            pest: { select: { pestNameEn: true } },
-            plant: { select: { plantNameEn: true } },
-            reportedAt: true
-        },
-        take: 20 // Recent 20 reports with images
-    });
-
-    const gallery: UserGalleryItem[] = [];
-    galleryReports.forEach(report => {
-        report.imageUrls.forEach((url, index) => {
-            gallery.push({
-                id: `${report.id}-${index}`,
-                imageUrl: url,
-                caption: report.imageCaptions[index] || "",
-                plantName: report.plant.plantNameEn,
-                pestName: report.pest.pestNameEn,
-                reportedAt: report.reportedAt
-            });
-        });
-    });
-
     return {
-        user,
-        stats,
-        history,
-        gallery
+        userProfile,
+        stats: {
+            totalReports,
+            verifiedReports
+        },
+        recentReports,
+        topPests: pestNames
     };
+}
+
+export async function exportUserReportsToCSV() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) throw new Error("Unauthorized");
+
+    const reports = await prisma.pestReport.findMany({
+        where: { reporterUserId: user.id },
+        orderBy: { createdAt: 'desc' },
+        include: {
+            pest: true,
+            plant: true
+        }
+    });
+
+    const header = "ID,Date,Province,Pest,Plant,Status,Verification Status\n";
+    const rows = reports.map(r => {
+        const date = r.createdAt.toISOString().split('T')[0];
+        const escape = (text: string | null) => text ? `"${text.replace(/"/g, '""')}"` : "";
+
+        return [
+            r.id,
+            date,
+            escape(r.province),
+            escape(r.pest.pestNameEn),
+            escape(r.plant.plantNameEn),
+            r.status,
+            r.verifiedBy ? "Verified" : "Pending"
+        ].join(",");
+    }).join("\n");
+
+    return header + rows;
 }

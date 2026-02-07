@@ -1,5 +1,4 @@
-"use client";
-
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from 'react';
 import { ExpertStatistics, ExpertAnalyticsData } from "./actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +23,15 @@ interface ExpertDashboardClientProps {
 }
 
 export default function ExpertDashboardClient({ user, stats, analytics }: ExpertDashboardClientProps) {
-    const [viewMode, setViewMode] = useState<"global" | "personal">("global");
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const viewMode = (searchParams.get("view") as "global" | "personal") || "global";
+
+    const setViewMode = (mode: "global" | "personal") => {
+        const params = new URLSearchParams(searchParams);
+        params.set("view", mode);
+        router.push(`?${params.toString()}`);
+    };
 
     return (
         <div className="min-h-screen bg-background">

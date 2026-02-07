@@ -49,7 +49,7 @@ async function checkExpertAccess() {
     return user;
 }
 
-export async function getExpertDashboardData() {
+export async function getExpertDashboardData(filter: "global" | "personal" = "global") {
     const user = await checkExpertAccess();
 
     // 1. Get Statistics
@@ -57,20 +57,25 @@ export async function getExpertDashboardData() {
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
+    const whereBase = {
+        status: ReportStatus.APPROVED,
+        ...(filter === "personal" ? { reporterUserId: user.id } : {}) // Filter by user if personal
+    };
+
     const [verifiedTodayCount, verifiedWeekCount, totalVerifiedCount] = await Promise.all([
         prisma.pestReport.count({
             where: {
-                status: ReportStatus.APPROVED,
+                ...whereBase,
                 verifiedAt: { gte: todayStart }
             }
         }),
         prisma.pestReport.count({
             where: {
-                status: ReportStatus.APPROVED,
+                ...whereBase,
                 verifiedAt: { gte: weekStart }
             }
         }),
-        prisma.pestReport.count({ where: { status: ReportStatus.APPROVED } })
+        prisma.pestReport.count({ where: whereBase })
     ]);
 
     const stats: ExpertStatistics = {
@@ -86,7 +91,8 @@ export async function getExpertDashboardData() {
 
     const recentReports = await prisma.pestReport.findMany({
         where: {
-            reportedAt: { gte: thirtyDaysAgo }
+            reportedAt: { gte: thirtyDaysAgo },
+            ...(filter === "personal" ? { reporterUserId: user.id } : {})
         },
         select: {
             reportedAt: true,

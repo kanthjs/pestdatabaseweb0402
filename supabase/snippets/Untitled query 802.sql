@@ -1,1 +1,1 @@
-SELECT id, email, role FROM "UserProfile" WHERE role = 'EXPERT';
+SELECT id, email, role FROM "UserProfile" WHERE role = 'ADMIN';

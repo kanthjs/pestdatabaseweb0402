@@ -151,8 +151,12 @@ export const occupationRoles = [
 async function main() {
   console.log('กำลังเริ่มทำการ Seed ข้อมูล...')
 
-  // ล้างข้อมูลเก่าออกก่อนเพื่อให้ข้อมูลไม่ซ้ำซ้อนเวลาสั่ง seed ใหม่
+  // ล้างข้อมูลเก่าออกก่อนในลำดับที่ถูกต้องเพื่อป้องกัน Foreign Key Constraint
+  console.log('Clearing existing data...')
+  await prisma.activityLog.deleteMany()
+  await prisma.notification.deleteMany()
   await prisma.pestReport.deleteMany()
+  await prisma.userProfile.deleteMany()
   await prisma.province.deleteMany()
   await prisma.plant.deleteMany()
   await prisma.pest.deleteMany()
@@ -529,7 +533,6 @@ async function main() {
   ];
 
   console.log('Seeding user profiles...')
-  await prisma.userProfile.deleteMany()
   for (const profile of seedUserProfile) {
     await prisma.userProfile.create({
       data: profile

@@ -1,12 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
-import { AdminStatistics, UserListItem, SystemHealth, updateUserRole, approveExpertRequest, rejectExpertRequest } from "./actions";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React from 'react';
+import { AdminStatistics, UserListItem, SystemHealth } from "./actions";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
-import { th } from "date-fns/locale";
 import {
     Shield,
     Users,
@@ -18,20 +15,14 @@ import {
     Settings,
     CheckCircle,
     Crown,
-    User as UserIcon,
     GraduationCap,
-    MoreVertical
+    List
 } from "lucide-react";
 import { User } from "@supabase/supabase-js";
-import { UserRole } from "@prisma/client";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import { useRouter } from "next/navigation";
+import UsersTable from "./components/UsersTable";
+import ReportsTable from "./components/ReportsTable";
+import ActivityLogsTable from "./components/ActivityLogsTable";
+import MasterDataTab from "./components/MasterDataTab";
 
 interface AdminDashboardClientProps {
     user: User;
@@ -41,60 +32,6 @@ interface AdminDashboardClientProps {
 }
 
 export default function AdminDashboardClient({ user: _user, stats, users, health }: AdminDashboardClientProps) {
-    const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleRoleChange = async (userId: string, newRole: UserRole) => {
-        setIsLoading(true);
-        try {
-            await updateUserRole(userId, newRole);
-            router.refresh();
-        } catch (error) {
-            console.error("Error updating role:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleApproveExpert = async (userId: string) => {
-        setIsLoading(true);
-        try {
-            await approveExpertRequest(userId);
-            router.refresh();
-        } catch (error) {
-            console.error("Error approving expert:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleRejectExpert = async (userId: string) => {
-        setIsLoading(true);
-        try {
-            await rejectExpertRequest(userId);
-            router.refresh();
-        } catch (error) {
-            console.error("Error rejecting expert:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const getRoleBadge = (role: UserRole) => {
-        const styles = {
-            ADMIN: { bg: "bg-purple-100", text: "text-purple-700", icon: <Crown className="w-3 h-3" /> },
-            EXPERT: { bg: "bg-emerald-100", text: "text-emerald-700", icon: <GraduationCap className="w-3 h-3" /> },
-            USER: { bg: "bg-blue-100", text: "text-blue-700", icon: <UserIcon className="w-3 h-3" /> },
-        };
-        const style = styles[role] || styles.USER;
-        return (
-            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${style.bg} ${style.text}`}>
-                {style.icon}
-                {role}
-            </span>
-        );
-    };
-
     return (
         <div className="min-h-screen bg-background">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -157,176 +94,103 @@ export default function AdminDashboardClient({ user: _user, stats, users, health
                 </div>
 
                 {/* Main Content Tabs */}
-                <Tabs defaultValue="users" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 md:w-[500px]">
+                <Tabs defaultValue="reports" className="w-full">
+                    <TabsList className="grid w-full grid-cols-5 md:w-[700px]">
+                        <TabsTrigger value="reports" className="gap-2">
+                            <FileText className="w-4 h-4" />
+                            Reports
+                        </TabsTrigger>
                         <TabsTrigger value="users" className="gap-2">
                             <Users className="w-4 h-4" />
-                            จัดการผู้ใช้
+                            Users
+                        </TabsTrigger>
+                        <TabsTrigger value="master" className="gap-2">
+                            <Database className="w-4 h-4" />
+                            Data
+                        </TabsTrigger>
+                        <TabsTrigger value="logs" className="gap-2">
+                            <List className="w-4 h-4" />
+                            Logs
                         </TabsTrigger>
                         <TabsTrigger value="system" className="gap-2">
                             <Activity className="w-4 h-4" />
-                            สถานะระบบ
+                            System
                         </TabsTrigger>
                         <TabsTrigger value="settings" className="gap-2">
                             <Settings className="w-4 h-4" />
-                            ตั้งค่า
+                            Config
                         </TabsTrigger>
                     </TabsList>
 
-                    {/* User Management Tab */}
+                    {/* Reports Tab */}
+                    <TabsContent value="reports" className="mt-6">
+                        <ReportsTable />
+                    </TabsContent>
+
+                    {/* Users Management Tab */}
                     <TabsContent value="users" className="mt-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Users className="w-5 h-5" />
-                                    รายชื่อผู้ใช้งาน
-                                </CardTitle>
-                                <CardDescription>
-                                    จัดการบัญชีผู้ใช้และกำหนดสิทธิ์การเข้าถึง
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead>
-                                            <tr className="border-b text-left text-sm text-muted-foreground">
-                                                <th className="pb-3 font-medium">ผู้ใช้</th>
-                                                <th className="pb-3 font-medium">Email</th>
-                                                <th className="pb-3 font-medium">Role</th>
-                                                <th className="pb-3 font-medium text-center">รายงาน</th>
-                                                <th className="pb-3 font-medium">สมัครเมื่อ</th>
-                                                <th className="pb-3 font-medium text-right">จัดการ</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {users.map((u) => (
-                                                <tr key={u.id} className="border-b last:border-0 hover:bg-muted/50">
-                                                    <td className="py-4">
-                                                        <span className="font-medium">{u.userName}</span>
-                                                    </td>
-                                                    <td className="py-4 text-sm text-muted-foreground">
-                                                        {u.email}
-                                                    </td>
-                                                    <td className="py-4">
-                                                        {getRoleBadge(u.role)}
-                                                    </td>
-                                                    <td className="py-4 text-center">
-                                                        <span className="font-bold">{u.reportCount}</span>
-                                                    </td>
-                                                    <td className="py-4 text-sm text-muted-foreground">
-                                                        {format(new Date(u.createdAt), "d MMM yyyy", { locale: th })}
-                                                    </td>
-                                                    <td className="py-4 text-right">
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="sm" disabled={isLoading}>
-                                                                    <MoreVertical className="w-4 h-4" />
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end">
-                                                                <DropdownMenuItem
-                                                                    onClick={() => handleRoleChange(u.id, UserRole.USER)}
-                                                                    disabled={u.role === UserRole.USER}
-                                                                >
-                                                                    <UserIcon className="w-4 h-4 mr-2" />
-                                                                    Set as USER
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem
-                                                                    onClick={() => handleRoleChange(u.id, UserRole.EXPERT)}
-                                                                    disabled={u.role === UserRole.EXPERT}
-                                                                >
-                                                                    <GraduationCap className="w-4 h-4 mr-2" />
-                                                                    Set as EXPERT
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuSeparator />
-                                                                <DropdownMenuItem
-                                                                    onClick={() => handleRoleChange(u.id, UserRole.ADMIN)}
-                                                                    disabled={u.role === UserRole.ADMIN}
-                                                                    className="text-purple-600"
-                                                                >
-                                                                    <Crown className="w-4 h-4 mr-2" />
-                                                                    Set as ADMIN
-                                                                </DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        <UsersTable users={users} />
+                    </TabsContent>
+
+                    {/* Master Data Tab */}
+                    <TabsContent value="master" className="mt-6">
+                        <MasterDataTab />
+                    </TabsContent>
+
+                    {/* Activity Logs Tab */}
+                    <TabsContent value="logs" className="mt-6">
+                        <ActivityLogsTable />
                     </TabsContent>
 
                     {/* System Health Tab */}
                     <TabsContent value="system" className="mt-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <Database className="w-5 h-5" />
-                                        Database
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Size</span>
-                                            <span className="font-medium">{health.databaseSize}</span>
+                                <CardContent className="pt-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-blue-100 rounded-full">
+                                            <Database className="w-6 h-6 text-blue-600" />
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Status</span>
-                                            <span className="flex items-center gap-1 text-green-600">
-                                                <CheckCircle className="w-4 h-4" />
-                                                Connected
-                                            </span>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">Database Size</p>
+                                            <h3 className="text-2xl font-bold">{health.databaseSize}</h3>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 flex items-center text-sm text-green-600">
+                                        <CheckCircle className="w-4 h-4 mr-1" />
+                                        Operational
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardContent className="pt-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-green-100 rounded-full">
+                                            <Activity className="w-6 h-6 text-green-600" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">Reports Today</p>
+                                            <h3 className="text-2xl font-bold">{health.reportsToday}</h3>
                                         </div>
                                     </div>
                                 </CardContent>
                             </Card>
 
                             <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <Activity className="w-5 h-5" />
-                                        Activity Today
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">New Reports</span>
-                                            <span className="font-bold text-2xl">{health.reportsToday}</span>
+                                <CardContent className="pt-6">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-purple-100 rounded-full">
+                                            <Shield className="w-6 h-6 text-purple-600" />
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Active Users</span>
-                                            <span className="font-medium">{health.activeUsers}</span>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">Security</p>
+                                            <h3 className="text-2xl font-bold">Standard</h3>
                                         </div>
                                     </div>
-                                </CardContent>
-                            </Card>
-
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <Shield className="w-5 h-5" />
-                                        Security
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Auth Provider</span>
-                                            <span className="font-medium">Supabase</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">RLS</span>
-                                            <span className="flex items-center gap-1 text-green-600">
-                                                <CheckCircle className="w-4 h-4" />
-                                                Enabled
-                                            </span>
-                                        </div>
+                                    <div className="mt-4 flex items-center text-sm text-green-600">
+                                        <CheckCircle className="w-4 h-4 mr-1" />
+                                        RLS Enabled
                                     </div>
                                 </CardContent>
                             </Card>
@@ -336,18 +200,11 @@ export default function AdminDashboardClient({ user: _user, stats, users, health
                     {/* Settings Tab */}
                     <TabsContent value="settings" className="mt-6">
                         <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Settings className="w-5 h-5" />
-                                    ตั้งค่าระบบ
-                                </CardTitle>
-                                <CardDescription>
-                                    การตั้งค่าระบบและการกำหนดค่าต่างๆ
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-muted-foreground text-center py-8">
-                                    ส่วนนี้กำลังพัฒนา...
+                            <CardContent className="py-12 text-center">
+                                <Settings className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                                <h3 className="text-lg font-medium">System Settings</h3>
+                                <p className="text-muted-foreground mt-2">
+                                    Configuration options coming soon in Phase 3.
                                 </p>
                             </CardContent>
                         </Card>

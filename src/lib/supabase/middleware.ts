@@ -49,16 +49,20 @@ export async function updateSession(request: NextRequest) {
         request.nextUrl.pathname.startsWith(route.path)
     );
 
-    if (matchedRoute) {
-        // Not authenticated - redirect to login
+    if (matchedRoute || request.nextUrl.pathname === "/dashboard") {
+        // Not authenticated - redirect to login (only for protected routes, /dashboard is public but we redirect if logged in)
         if (!user) {
-            const url = request.nextUrl.clone();
-            url.pathname = "/login";
-            url.searchParams.set("redirectTo", request.nextUrl.pathname);
-            return NextResponse.redirect(url);
+            if (matchedRoute) {
+                const url = request.nextUrl.clone();
+                url.pathname = "/login";
+                url.searchParams.set("redirectTo", request.nextUrl.pathname);
+                return NextResponse.redirect(url);
+            }
+            // If /dashboard and not logged in, allow access (it's the public dashboard)
+            return supabaseResponse;
         }
 
-        // Check role permissions
+        // Check role permissions and handle /dashboard redirect
         try {
             const userProfile = await prisma.userProfile.findFirst({
                 where: {
@@ -72,9 +76,18 @@ export async function updateSession(request: NextRequest) {
 
             const userRole = userProfile?.role || "USER";
 
-            console.log(`Middleware: Path=${request.nextUrl.pathname}, User=${user.email}, Role=${userRole}, Required=${matchedRoute.roles.join()}`);
+            // Redirect /dashboard to specific dashboard based on role
+            if (request.nextUrl.pathname === "/dashboard") {
+                const url = request.nextUrl.clone();
+                if (userRole === "ADMIN") url.pathname = "/dashboard/admin";
+                else if (userRole === "EXPERT") url.pathname = "/dashboard/expert";
+                else url.pathname = "/dashboard/user";
+                return NextResponse.redirect(url);
+            }
 
-            if (!matchedRoute.roles.includes(userRole)) {
+            console.log(`Middleware: Path=${request.nextUrl.pathname}, User=${user.email}, Role=${userRole}, Required=${matchedRoute?.roles.join()}`);
+
+            if (matchedRoute && !matchedRoute.roles.includes(userRole)) {
                 console.log(`Middleware: Access DENIED - Role ${userRole} not in [${matchedRoute.roles.join()}]`);
                 // User doesn't have required role - redirect to unauthorized
                 const url = request.nextUrl.clone();
@@ -84,10 +97,12 @@ export async function updateSession(request: NextRequest) {
 
             console.log(`Middleware: Access GRANTED`);
         } catch (error) {
-            // Error fetching user profile - deny access
-            const url = request.nextUrl.clone();
-            url.pathname = "/unauthorized";
-            return NextResponse.redirect(url);
+            // Error fetching user profile - deny access only if it was a protected route
+            if (matchedRoute) {
+                const url = request.nextUrl.clone();
+                url.pathname = "/unauthorized";
+                return NextResponse.redirect(url);
+            }
         }
     }
 
