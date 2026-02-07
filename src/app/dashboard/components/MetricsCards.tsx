@@ -76,6 +76,7 @@ function getColorClass(color: MetricCardProps["color"]) {
 interface MetricsCardsProps {
     metrics: {
         totalVerified: { count: number; trend: number };
+        totalReportsEver: number;
         totalArea: { value: number; trend: number };
         topPest: { name: string; count: number } | null;
         hotZone: { province: string; count: number; severity: number } | null;
@@ -86,8 +87,8 @@ interface MetricsCardsProps {
 export const MetricsCards = memo(function MetricsCards({ metrics, loading }: MetricsCardsProps) {
     if (loading || !metrics) {
         return (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {[1, 2, 3, 4].map((i) => (
+            <div className="grid gap-4 md:grid-cols-2">
+                {[1, 2].map((i) => (
                     <Card key={i} className="animate-pulse">
                         <CardHeader className="space-y-0 pb-2">
                             <div className="h-4 w-1/2 bg-muted rounded" />
@@ -102,12 +103,11 @@ export const MetricsCards = memo(function MetricsCards({ metrics, loading }: Met
     }
 
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2">
             <MetricCard
-                title="Verified Reports"
-                value={metrics.totalVerified.count}
-                trend={metrics.totalVerified.trend}
-                subtext="from previous period"
+                title="จำนวนรายงานทั้งหมด"
+                value={metrics.totalReportsEver.toLocaleString()}
+                subtext="ตั้งแต่เริ่มระบบ"
                 icon={
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -119,16 +119,19 @@ export const MetricsCards = memo(function MetricsCards({ metrics, loading }: Met
                         strokeWidth="2"
                         className="h-4 w-4"
                     >
-                        <path d="M12 2v20M2 12h20" />
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <path d="M12 18v-6" />
+                        <path d="M9 15h6" />
                     </svg>
                 }
                 color="secondary"
             />
             <MetricCard
-                title="Affected Area (Rai)"
-                value={metrics.totalArea.value.toLocaleString()}
-                trend={metrics.totalArea.trend}
-                subtext="from previous period"
+                title="รายงานใหม่ (30 วัน)"
+                value={metrics.totalVerified.count.toLocaleString()}
+                trend={metrics.totalVerified.trend}
+                subtext="เทียบกับช่วงก่อนหน้า"
                 icon={
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -140,55 +143,19 @@ export const MetricsCards = memo(function MetricsCards({ metrics, loading }: Met
                         strokeWidth="2"
                         className="h-4 w-4"
                     >
-                        <path d="M3 3v18h18" />
-                        <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
+                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+                        <line x1="16" x2="16" y1="2" y2="6" />
+                        <line x1="8" x2="8" y1="2" y2="6" />
+                        <line x1="3" x2="21" y1="10" y2="10" />
+                        <path d="M8 14h.01" />
+                        <path d="M12 14h.01" />
+                        <path d="M16 14h.01" />
+                        <path d="M8 18h.01" />
+                        <path d="M12 18h.01" />
+                        <path d="M16 18h.01" />
                     </svg>
                 }
-                color="destructive"
-            />
-            <MetricCard
-                title="Top Pest"
-                value={metrics.topPest?.name || "None"}
-                subtext={metrics.topPest ? `${metrics.topPest.count} incidents` : "No reports"}
-                icon={
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        className="h-4 w-4"
-                    >
-                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                        <path d="M3 12h6" />
-                        <path d="M15 12h6" />
-                    </svg>
-                }
-                color="warning"
-            />
-            <MetricCard
-                title="Hot Zone"
-                value={metrics.hotZone?.province || "None"}
-                subtext={metrics.hotZone ? `Severity: ${metrics.hotZone.severity}%` : "Safe"}
-                icon={
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        className="h-4 w-4"
-                    >
-                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                        <circle cx="12" cy="10" r="3" />
-                    </svg>
-                }
-                color="destructive"
+                color="primary"
             />
         </div>
     );

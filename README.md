@@ -8,6 +8,7 @@ Agricultural pest monitoring system for Thailand. Built with Next.js 16, Supabas
 - 📊 **Analytics Dashboard** - Interactive maps, charts, and trend analysis
 - ✅ **Expert Verification** - Agronomist review workflow
 - 🌐 **Thai Language** - Full support for Thai provinces and data
+- 🔐 **Role-based Access** - User, Expert, and Admin dashboards
 
 ## Tech Stack
 
@@ -57,8 +58,20 @@ Open [http://localhost:3000](http://localhost:3000)
 
 | Role | Email | Password |
 |------|-------|----------|
-| Expert | expert1@demo.com | password123 | I added this account
-| User | reporter1@demo.com | password123 | I added this account
+| Admin | admin1@demo.com | password123 |
+| Expert | expert1@demo.com | password123 |
+| User | user1@demo.com | password123 |
+
+## Dashboard Structure
+
+```
+/dashboard           → Public Dashboard (ทุกคน)
+/dashboard/user      → User Dashboard (ต้อง Login)
+/dashboard/expert    → Expert Dashboard (EXPERT, ADMIN)
+/dashboard/admin     → Admin Dashboard (ADMIN only)
+```
+
+See `.notes/dashboard_tomake.md` for detailed documentation.
 
 ## Database Workflow
 
@@ -78,18 +91,38 @@ npx prisma migrate deploy                    # Apply migrations only
 ```
 src/
 ├── app/                 # Next.js routes
-│   ├── (main)/         # Main layout group
-│   │   ├── dashboard/  # Public analytics
-│   │   └── survey/     # Report form
-│   ├── expert/         # Protected expert routes
-│   └── api/            # API routes
-├── components/         # UI components
-├── lib/                # Utils (Prisma, Supabase)
-└── hooks/              # Custom hooks
+│   ├── dashboard/       # Dashboard routes (public, user, expert, admin)
+│   ├── survey/          # Report form
+│   ├── expert/          # Expert review workflow
+│   └── api/             # API routes
+├── components/          # UI components
+├── lib/                 # Utils (Prisma, Supabase)
+└── hooks/               # Custom hooks
 
-prisma/                 # Schema & seeds
-supabase/               # Local config
+prisma/                  # Schema & seeds
+supabase/                # Local config
+.notes/                  # Development notes
 ```
+
+## Important Notes for Developers
+
+### User ID Mismatch Issue
+Supabase Auth user ID may not match UserProfile ID in database. The system handles this by:
+1. First lookup by ID
+2. If not found, lookup by Email as fallback
+
+Affected files:
+- `src/app/login/actions.ts`
+- `src/app/dashboard/expert/actions.ts`
+- `src/app/dashboard/admin/actions.ts`
+- `src/lib/supabase/middleware.ts`
+
+### Role-based Access Control
+Middleware protects routes based on user role:
+- `/dashboard` - Public
+- `/dashboard/user` - USER, EXPERT, ADMIN
+- `/dashboard/expert` - EXPERT, ADMIN
+- `/dashboard/admin` - ADMIN only
 
 ## License
 

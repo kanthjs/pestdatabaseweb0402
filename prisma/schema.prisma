@@ -19,6 +19,8 @@ model Province {
 model Plant {
   plantId     String       @id
   plantNameEn String
+  plantNameTh String?
+  imageUrl    String?
   pestReports PestReport[]
 }
 
@@ -26,13 +28,16 @@ model Plant {
 model Pest {
   pestId      String       @id
   pestNameEn  String
+  pestNameTh  String?
+  imageUrl    String?
   pestReports PestReport[]
 }
 
-// สถานะการตรวจสอบรายงาน
+// สถานะการขอเป็นผู้เชี่ยวชาญ
 enum ExpertStatus {
+  NONE // ไม่ได้ขอ
   PENDING // รอการตรวจสอบ
-  APPROVED // ผ่านการตรวจสอบแล้ว
+  APPROVED // ได้รับอนุมัติแล้ว
   REJECTED // ถูกปฏิเสธ
 }
 
@@ -60,7 +65,7 @@ model UserProfile {
   lastName        String?
   phone           String?
   occupationRoles String?
-  expertRequest   ExpertStatus @default(PENDING)
+  expertRequest   ExpertStatus   @default(NONE)
   address         String?
   province        String?
   district        String?
@@ -70,6 +75,7 @@ model UserProfile {
   updatedAt       DateTime       @updatedAt
   pestReports     PestReport[]
   notifications   Notification[]
+  activityLogs    ActivityLog[]
 }
 
 // ตารางหลักสำหรับเก็บรายงานการพบศัตรูพืช
@@ -125,6 +131,7 @@ model PestReport {
   verifiedAt      DateTime? // วันที่ตรวจสอบ
   verifiedBy      String? // ชื่อผู้ตรวจสอบ
   rejectionReason String? // เหตุผลที่ปฏิเสธ
+  deletedAt       DateTime? // Soft Delete
 
   // Relations
   notifications Notification[]
@@ -151,4 +158,20 @@ model Notification {
 
   @@index([userId])
   @@index([isRead])
+}
+
+// บันทึกกิจกรรมของผู้ดูแลระบบ (Audit Logs)
+model ActivityLog {
+  id         String      @id @default(cuid())
+  adminId    String
+  admin      UserProfile @relation(fields: [adminId], references: [id])
+  action     String // e.g., "APPROVE_REPORT", "CHANGE_ROLE"
+  entityId   String? // ID of the affected object (Report ID, User ID)
+  entityType String? // "REPORT", "USER", "EXPERT_REQUEST"
+  details    Json? // Additional details (reason, old/new values)
+  createdAt  DateTime    @default(now())
+
+  @@index([adminId])
+  @@index([createdAt])
+  @@index([entityId])
 }

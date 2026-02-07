@@ -28,7 +28,41 @@ export async function login(formData: FormData) {
         return { success: false, message: "Invalid email or password" };
     }
 
-    const redirectTo = (formData.get("redirectTo") as string) || "/dashboard";
+    let redirectTo = (formData.get("redirectTo") as string);
+    console.log("Login: redirectTo from form:", redirectTo);
+
+    if (!redirectTo) {
+        // Fetch user profile to determine role
+        const { data: { user } } = await supabase.auth.getUser();
+        console.log("Login: user:", user?.email, "id:", user?.id);
+        if (user) {
+            // Try find by ID first, then by email (like in API)
+            let profile = await prisma.userProfile.findUnique({
+                where: { id: user.id },
+                select: { role: true }
+            });
+            console.log("Login: profile by id:", profile);
+            
+            // If not found by ID and user has email, try looking up by email
+            if (!profile && user.email) {
+                profile = await prisma.userProfile.findUnique({
+                    where: { email: user.email },
+                    select: { role: true }
+                });
+                console.log("Login: profile by email:", profile);
+            }
+            
+            const role = profile?.role || "USER";
+            console.log("Login: final role:", role);
+
+            if (role === "ADMIN") redirectTo = "/dashboard/admin";
+            else if (role === "EXPERT") redirectTo = "/dashboard/expert";
+            else redirectTo = "/dashboard/user";
+        } else {
+            redirectTo = "/dashboard";
+        }
+    }
+    console.log("Login: final redirectTo:", redirectTo);
 
     revalidatePath("/", "layout");
     redirect(redirectTo);

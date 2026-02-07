@@ -1,9 +1,19 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
+import { prisma } from "@/lib/prisma";
+import { ReportStatus } from "@prisma/client";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const [reportCount, surveyorCount, provinceCount] = await Promise.all([
+    prisma.pestReport.count({ where: { status: ReportStatus.APPROVED } }),
+    prisma.userProfile.count(),
+    prisma.pestReport.groupBy({
+      by: ['province'],
+      where: { status: ReportStatus.APPROVED },
+    }).then(groups => groups.length)
+  ]);
 
   return (
     <div className="bg-background text-foreground min-h-screen flex flex-col font-sans transition-colors duration-300">
@@ -55,9 +65,9 @@ export default function HomePage() {
             {/* Stats */}
             <div className="mt-12 pt-8 border-t border-border grid grid-cols-3 gap-6">
               {[
-                { value: "12k+", label: "Reports Filed" },
-                { value: "850", label: "Active Surveyors" },
-                { value: "98%", label: "Coverage Rate" },
+                { value: reportCount.toLocaleString(), label: "Verified Reports" },
+                { value: surveyorCount.toLocaleString(), label: "Active Surveyors" },
+                { value: provinceCount.toLocaleString(), label: "Provinces Covered" },
               ].map((stat) => (
                 <div key={stat.label}>
                   <p className="text-2xl font-bold text-primary font-display">
@@ -193,7 +203,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer is below */}
       <footer className="bg-background border-t border-border py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
