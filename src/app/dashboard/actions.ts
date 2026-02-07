@@ -9,6 +9,9 @@ export interface PestRanking {
     id: string;
     name: string;
     count: number;
+    totalArea: number;
+    avgSeverity: number;
+    avgIncidence: number;
 }
 
 export interface DashboardMetrics {
@@ -16,6 +19,7 @@ export interface DashboardMetrics {
         count: number;
         trend: number; // percentage change vs previous period
     };
+    totalReportsEver: number;
     totalArea: {
         value: number;
         trend: number;
@@ -74,6 +78,7 @@ export const getDashboardMetrics = unstable_cache(
         const [
             currentCount,
             prevCount,
+            totalEver,
             currentAreaAgg,
             prevAreaAgg,
             pestStats,
@@ -84,6 +89,8 @@ export const getDashboardMetrics = unstable_cache(
             prisma.pestReport.count({ where: baseWhereClause }),
             // Total Verified (Previous)
             prisma.pestReport.count({ where: prevWhereClause }),
+            // Total Reports Ever (All approved)
+            prisma.pestReport.count({ where: { status: verifiedStatus } }),
             // Total Area (Current)
             prisma.pestReport.aggregate({
                 _sum: { fieldAffectedArea: true },
@@ -98,7 +105,8 @@ export const getDashboardMetrics = unstable_cache(
             prisma.pestReport.groupBy({
                 by: ['pestId'],
                 where: baseWhereClause,
-                _count: { _all: true }
+                _count: { _all: true },
+                _sum: { fieldAffectedArea: true, severityPercent: true, incidencePercent: true }
             }),
             // Province Stats (for Hot Zone) - Group By Province
             prisma.pestReport.groupBy({
@@ -150,11 +158,18 @@ export const getDashboardMetrics = unstable_cache(
         const pestRankingPromises = sortedPestStats.slice(0, 5).map(async (stat) => ({
             id: stat.pestId,
             name: await getPestName(stat.pestId),
-            count: stat._count._all || 0
+            count: stat._count?._all || 0,
+            totalArea: stat._sum?.fieldAffectedArea || 0,
+            avgSeverity: Math.round((stat._sum?.severityPercent || 0) / (stat._count?._all || 1)),
+            avgIncidence: Math.round((stat._sum?.incidencePercent || 0) / (stat._count?._all || 1))
         }));
 
         const pestRanking = await Promise.all(pestRankingPromises);
-        const topPest = pestRanking.length > 0 ? pestRanking[0] : null;
+        const topPest = pestRanking.length > 0 ? {
+            id: pestRanking[0].id,
+            name: pestRanking[0].name,
+            count: pestRanking[0].count
+        } : null;
 
         // --- Calculate Metric 4: Hot Zone ---
         // Find Hot Zone (highest score based on simple heuristic: count * severity * area)
@@ -192,6 +207,7 @@ export const getDashboardMetrics = unstable_cache(
 
         return {
             totalVerified: { count: totalVerifiedCount, trend: verifiedTrend },
+            totalReportsEver: totalEver,
             totalArea: { value: totalAreaValue, trend: areaTrend },
             topPest,
             pestRanking,
