@@ -57,9 +57,8 @@ Open [http://localhost:3000](http://localhost:3000)
 
 | Role | Email | Password |
 |------|-------|----------|
-| Expert | expert@demo.com | password123 |
 | Expert | expert1@demo.com | password123 | I added this account
-| User | user@demo.com | password123 |
+| User | reporter1@demo.com | password123 | I added this account
 
 ## Database Workflow
 
