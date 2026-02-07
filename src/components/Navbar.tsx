@@ -23,7 +23,7 @@ export default function Navbar() {
         const fetchUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             setUser(user);
-            
+
             // Fetch user role from profile
             if (user) {
                 try {
@@ -36,7 +36,7 @@ export default function Navbar() {
                     console.error("Failed to fetch user role:", error);
                 }
             }
-            
+
             setIsLoading(false);
         };
 
@@ -55,9 +55,15 @@ export default function Navbar() {
 
     const isExpertOrAdmin = userRole === "EXPERT" || userRole === "ADMIN";
 
+    const dashboardHref = userRole === "ADMIN"
+        ? "/dashboard/admin"
+        : userRole === "EXPERT"
+            ? "/dashboard/expert"
+            : user ? "/dashboard/user" : "/dashboard";
+
     const menuItems = [
         { name: "About", href: "/" },
-        { name: "Pest Data", href: "/dashboard" },
+        { name: "Pest Data", href: dashboardHref },
     ];
 
     return (
@@ -93,7 +99,7 @@ export default function Navbar() {
                         {user && (
                             isExpertOrAdmin ? <ExpertNotificationBadge /> : <NotificationBell />
                         )}
-                        <UserMenu user={user} isLoading={isLoading} />
+                        <UserMenu user={user} isLoading={isLoading} role={userRole} />
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -131,7 +137,7 @@ export default function Navbar() {
                         ))}
                         <div className="pt-2 border-t border-border mt-2">
                             <div className="px-3 py-2">
-                                <UserMenu user={user} isLoading={isLoading} />
+                                <UserMenu user={user} isLoading={isLoading} role={userRole} />
                             </div>
                         </div>
                     </div>

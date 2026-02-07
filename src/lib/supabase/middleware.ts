@@ -37,6 +37,9 @@ export async function updateSession(request: NextRequest) {
 
     // Protected routes configuration
     const protectedRoutes = [
+        { path: "/dashboard/admin", roles: ["ADMIN"] },
+        { path: "/dashboard/expert", roles: ["EXPERT", "ADMIN"] },
+        { path: "/dashboard/user", roles: ["USER", "EXPERT", "ADMIN"] },
         { path: "/expert", roles: ["EXPERT", "ADMIN"] },
         { path: "/admin", roles: ["ADMIN"] },
     ];

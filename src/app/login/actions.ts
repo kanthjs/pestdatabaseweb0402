@@ -28,7 +28,25 @@ export async function login(formData: FormData) {
         return { success: false, message: "Invalid email or password" };
     }
 
-    const redirectTo = (formData.get("redirectTo") as string) || "/dashboard";
+    let redirectTo = (formData.get("redirectTo") as string);
+
+    if (!redirectTo) {
+        // Fetch user profile to determine role
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const profile = await prisma.userProfile.findUnique({
+                where: { id: user.id },
+                select: { role: true }
+            });
+            const role = profile?.role || "USER";
+
+            if (role === "ADMIN") redirectTo = "/dashboard/admin";
+            else if (role === "EXPERT") redirectTo = "/dashboard/expert";
+            else redirectTo = "/dashboard/user";
+        } else {
+            redirectTo = "/dashboard";
+        }
+    }
 
     revalidatePath("/", "layout");
     redirect(redirectTo);

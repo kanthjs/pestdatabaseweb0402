@@ -8,9 +8,10 @@ import { User } from "@supabase/supabase-js";
 interface UserMenuProps {
     user: User | null;
     isLoading?: boolean;
+    role?: "USER" | "EXPERT" | "ADMIN" | null;
 }
 
-export default function UserMenu({ user, isLoading = false }: UserMenuProps) {
+export default function UserMenu({ user, isLoading = false, role }: UserMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -103,7 +104,13 @@ export default function UserMenu({ user, isLoading = false }: UserMenuProps) {
                             Report Pest
                         </Link>
                         <Link
-                            href="/dashboard"
+                            href={
+                                role === "ADMIN"
+                                    ? "/dashboard/admin"
+                                    : role === "EXPERT"
+                                        ? "/dashboard/expert"
+                                        : "/dashboard/user"
+                            }
                             className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
                             onClick={() => setIsOpen(false)}
                         >

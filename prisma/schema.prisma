@@ -29,10 +29,11 @@ model Pest {
   pestReports PestReport[]
 }
 
-// สถานะการตรวจสอบรายงาน
+// สถานะการขอเป็นผู้เชี่ยวชาญ
 enum ExpertStatus {
+  NONE // ไม่ได้ขอ
   PENDING // รอการตรวจสอบ
-  APPROVED // ผ่านการตรวจสอบแล้ว
+  APPROVED // ได้รับอนุมัติแล้ว
   REJECTED // ถูกปฏิเสธ
 }
 
@@ -60,7 +61,7 @@ model UserProfile {
   lastName        String?
   phone           String?
   occupationRoles String?
-  expertRequest   ExpertStatus @default(PENDING)
+  expertRequest   ExpertStatus   @default(NONE)
   address         String?
   province        String?
   district        String?

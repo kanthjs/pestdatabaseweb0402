@@ -14,13 +14,19 @@ const AdvancedMap = dynamic(() => import("./components/AdvancedMap"), {
     loading: () => <div className="h-[400px] w-full flex items-center justify-center bg-muted animate-pulse rounded-xl">Loading Map...</div>
 });
 
-export default function DashboardClient() {
+interface DashboardClientProps {
+    userEmail?: string;
+    title?: string;
+    description?: string;
+}
+
+export default function DashboardClient({ userEmail, title, description }: DashboardClientProps) {
     const { data: metrics, isLoading, isError } = useQuery({
-        queryKey: ["dashboardMetrics"],
+        queryKey: ["dashboardMetrics", userEmail],
         queryFn: async () => {
             const to = new Date();
             const from = subDays(to, 30);
-            return await getDashboardMetrics(from, to);
+            return await getDashboardMetrics(from, to, userEmail);
         },
         refetchInterval: 30000,
     });
@@ -43,10 +49,10 @@ export default function DashboardClient() {
                 {/* Header */}
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">
-                        Pest Outbreak Dashboard
+                        {title || "Pest Outbreak Dashboard"}
                     </h1>
                     <p className="text-muted-foreground">
-                        รายงานสถานการณ์ศัตรูพืชในช่วง 30 วันที่ผ่านมา
+                        {description || "รายงานสถานการณ์ศัตรูพืชในช่วง 30 วันที่ผ่านมา"}
                     </p>
                 </div>
 
