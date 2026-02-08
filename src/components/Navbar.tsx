@@ -8,6 +8,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { ExpertNotificationBadge } from "@/components/ExpertNotificationBadge";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { Button } from "@/components/ui/button";
 
 type UserRole = "USER" | "EXPERT" | "ADMIN";
 
@@ -75,8 +76,8 @@ export default function Navbar() {
             : user ? "/dashboard/user" : "/dashboard";
 
     const menuItems = [
-        { name: "About", href: "/" },
-        { name: "Pest Data", href: dashboardHref },
+        { name: "หน้าหลัก", href: "/" },
+        { name: "ข้อมูลศัตรูพืช", href: dashboardHref },
     ];
 
     return (
@@ -109,10 +110,28 @@ export default function Navbar() {
                     {/* Desktop Buttons */}
                     <div className="hidden md:flex items-center space-x-4">
                         <ThemeToggle />
-                        {user && (
-                            isExpertOrAdmin ? <ExpertNotificationBadge /> : <NotificationBell />
+                        {user ? (
+                            <>
+                                {isExpertOrAdmin ? <ExpertNotificationBadge /> : <NotificationBell />}
+                                <UserMenu user={user} isLoading={isLoading} role={userRole} />
+                            </>
+                        ) : (
+                            <>
+                                <Link href="/login">
+                                    <Button variant="outline" size="sm" className="rounded-full">
+                                        เข้าสู่ระบบ
+                                    </Button>
+                                </Link>
+                                <Link href="/signup">
+                                    <Button 
+                                        size="sm" 
+                                        className="bg-cta text-cta-foreground hover:bg-cta/90 rounded-full"
+                                    >
+                                        เข้าร่วมเครือข่าย
+                                    </Button>
+                                </Link>
+                            </>
                         )}
-                        <UserMenu user={user} isLoading={isLoading} role={userRole} />
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -148,11 +167,31 @@ export default function Navbar() {
                                 {item.name}
                             </Link>
                         ))}
-                        <div className="pt-2 border-t border-border mt-2">
-                            <div className="px-3 py-2">
-                                <UserMenu user={user} isLoading={isLoading} role={userRole} />
+                        {!user && (
+                            <div className="pt-4 pb-2 space-y-2 border-t border-border mt-2">
+                                <Link
+                                    href="/login"
+                                    className="block px-3 py-2 rounded-lg text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted/50"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    เข้าสู่ระบบ
+                                </Link>
+                                <Link
+                                    href="/signup"
+                                    className="block px-3 py-2 rounded-lg text-base font-medium bg-cta text-cta-foreground hover:bg-cta/90 mx-3"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    เข้าร่วมเครือข่าย
+                                </Link>
                             </div>
-                        </div>
+                        )}
+                        {user && (
+                            <div className="pt-2 border-t border-border mt-2">
+                                <div className="px-3 py-2">
+                                    <UserMenu user={user} isLoading={isLoading} role={userRole} />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
