@@ -90,7 +90,7 @@ export default function ActivityLogsTable() {
                                             <TableCell className="text-sm">
                                                 <div className="flex flex-col">
                                                     <span>{log.entityType}</span>
-                                                    <span className="text-xs text-muted-foreground">{log.targetId?.substring(0, 8)}...</span>
+                                                    <span className="text-xs text-muted-foreground">{log.entityId?.substring(0, 8)}...</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-xs font-mono text-muted-foreground max-w-[200px] truncate">
