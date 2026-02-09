@@ -1,4 +1,4 @@
-# Landing Page Architecture Diagram
+# Landing Page Architecture Diagram (Updated 2026-02-08)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -11,150 +11,93 @@
 │  │     src/components/landing/LandingHero.tsx                          │    │
 │  │                                                                     │    │
 │  │  ┌─────────────────────────────────────────────────────────────┐   │    │
-│  │  │  Hero Image (Full Width)                                    │   │    │
-│  │  │  - รูปทุ่งนาข้าว                                            │   │    │
-│  │  │  - Gradient Overlay                                         │   │    │
+│  │  │  Hero Image (Top) - Rice Field with Gradient Overlay         │   │    │
 │  │  └─────────────────────────────────────────────────────────────┘   │    │
 │  │                              ↓                                     │    │
 │  │  ┌─────────────────────────────────────────────────────────────┐   │    │
-│  │  │  Content Card (Overlap)                                     │   │    │
-│  │  │  ├─ Headline: "เครือข่ายเฝ้าระวังศัตรูพืชข้าวแห่งประเทศไทย" │   │    │
-│  │  │  ├─ Description                                            │   │    │
-│  │  │  ├─ CTA Buttons: [เข้าร่วมเครือข่าย] [ดูข้อมูลศัตรูพืช]     │   │    │
-│  │  │  └─ Stats: สมาชิก | หน่วยงาน | รายงาน                       │   │    │
+│  │  │  Content Card (Glassmorphism Overlap)                       │   │    │
+│  │  │  ├─ Headline: "ปกป้องผลผลิตข้าวของคุณ ก่อนที่จะสายเกินไป"       │   │    │
+│  │  │  ├─ CTA: [เข้าร่วมเครือข่าย (ฟรี)] [ดูข้อมูลศัตรูพืช]               │   │    │
+│  │  │  └─ Stats: Members | Organizations | Confirmed Reports      │   │    │
 │  │  └─────────────────────────────────────────────────────────────┘   │    │
-│  │                                                                     │    │
-│  │  DATA: reportCount, memberCount, organizationCount (from Prisma)   │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 │                                    ↓                                         │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │  2. VALUE PROPOSITION                                               │    │
-│  │     src/components/landing/ValueProposition.tsx                     │    │
+│  │  2. PROBLEM AGITATE                                                 │    │
+│  │     src/components/landing/ProblemAgitate.tsx                       │    │
 │  │                                                                     │    │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │    │
-│  │  │   ผลกระทบ   │  │  การปกป้อง  │  │  การตรวจจับ │                 │    │
-│  │  │ ทางเศรษฐกิจ │  │สิ่งแวดล้อม  │  │  ที่รวดเร็ว │                 │    │
-│  │  │  (trending) │  │  (forest)   │  │   (speed)   │                 │    │
+│  │  │  30% Loss   │  │  80% No Data │  │ 48hr Delay  │                 │    │
+│  │  │ (Economic)  │  │ (Information)│  │ (Response)  │                 │    │
 │  │  └─────────────┘  └─────────────┘  └─────────────┘                 │    │
 │  │                                                                     │    │
-│  │  UI: Card components with hover effects                            │    │
+│  │  UI: Destructive-themed cards making status quo painful            │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 │                                    ↓                                         │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │  3. NETWORK ROLE                                                    │    │
-│  │     src/components/landing/NetworkRole.tsx                          │    │
+│  │  3. VALUE STACK                                                     │    │
+│  │     src/components/landing/ValueStack.tsx                           │    │
 │  │                                                                     │    │
-│  │  ┌────────────────────────┐  ┌─────────────────────────────────┐   │    │
-│  │  │                        │  │  • การแลกเปลี่ยนความรู้         │   │    │
-│  │  │    Hero Image          │  │  • การร่วมมือกับผู้เชี่ยวชาญ    │   │    │
-│  │  │    (Rice Field)        │  │  • การประสานงานการเฝ้าระวัง     │   │    │
-│  │  │                        │  │                                  │   │    │
-│  │  └────────────────────────┘  └─────────────────────────────────┘   │    │
+│  │  (01) Real-time Alerts      (02) Easy Reporting                    │    │
+│  │  (03) Expert Verification   (04) Community & Training              │    │
 │  │                                                                     │    │
-│  │  LAYOUT: Image Left | Content Right                                │    │
+│  │  BANNER: "ทั้งหมดนี้... ไม่มีค่าใช้จ่าย"                                  │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 │                                    ↓                                         │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │  4. NETWORK ACTIVITIES                                              │    │
-│  │     src/components/landing/NetworkActivities.tsx                    │    │
+│  │  4. SOCIAL PROOF                                                    │    │
+│  │     src/components/landing/SocialProof.tsx                          │    │
 │  │                                                                     │    │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                 │    │
-│  │  │  เฝ้าระวัง  │  │   รายงาน    │  │  อบรม/ร่วม  │                 │    │
-│  │  │ (monitoring)│  │(assignment) │  │   มือ      │                 │    │
+│  │  │ Testimonial │  │ Testimonial │  │ Testimonial │                 │    │
+│  │  │ (Farmer)    │  │ (Expert)    │  │ (Official)  │                 │    │
 │  │  └─────────────┘  └─────────────┘  └─────────────┘                 │    │
-│  │                              ↓                                     │    │
-│  │  ┌─────────────────────────────────────────────────────────────┐   │    │
-│  │  │              CTABanner (Reusable Component)                 │   │    │
-│  │  │         "พร้อมที่จะเข้าร่วมกับเราหรือยัง"                   │   │    │
-│  │  └─────────────────────────────────────────────────────────────┘   │    │
 │  │                                                                     │    │
-│  │  IMPORTS: Card, CTABanner                                          │    │
+│  │  PARTNERS: [RD] [MOAC] [NSTDA] [KU] [CMU] [KKU]                    │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 │                                    ↓                                         │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │  5. NETWORK STATS                                                   │    │
-│  │     src/components/landing/NetworkStats.tsx                         │    │
+│  │  5. TRANSFORMATION (Timeline)                                       │    │
+│  │     src/components/landing/Transformation.tsx                       │    │
 │  │                                                                     │    │
-│  │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐     │    │
-│  │  │   1,234+        │  │       25        │  │   5,678+        │     │    │
-│  │  │  สมาชิกที่ใช้งาน │  │ หน่วยงานพันธมิตร │  │ รายงานที่ยืนยัน │     │    │
-│  │  │  (Animated)     │  │                 │  │   (Animated)    │     │    │
-│  │  └─────────────────┘  └─────────────────┘  └─────────────────┘     │    │
-│  │                                                                     │    │
-│  │  FEATURE: AnimatedNumber (Intersection Observer)                   │    │
-│  │  DATA: reports, members, organizations (from props)                │    │
-│  │  STYLE: Dark background (bg-primary) with orange numbers           │    │
+│  │  [24h: Alerts] ──► [30d: Reports] ──► [6m: Local Expert]            │    │
+│  │                                          │                        │    │
+│  │                                          └──► [1y+: Regional Impact]  │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 │                                    ↓                                         │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │  6. MEMBER ORGANIZATIONS                                            │    │
-│  │     src/components/landing/MemberOrganizations.tsx                  │    │
+│  │  6. SECONDARY CTA                                                   │    │
+│  │     src/components/landing/SecondaryCTA.tsx                         │    │
 │  │                                                                     │    │
-│  │  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐                        │    │
-│  │  │ RD │ │MOAC│ │NSTDA│ │ KU │ │CMU │ │KKU │  (Placeholder logos)  │    │
-│  │  └────┘ └────┘ └────┘ └────┘ └────┘ └────┘                        │    │
-│  │                                                                     │    │
-│  │  NOTE: Static placeholders - can be replaced with real logos       │    │
+│  │  AVATAR STACK: [ส][ว][พ][อ][ม][+1,234]                              │    │
+│  │  "พร้อมที่จะปกป้องพืชผลของคุณหรือยัง?"                               │    │
+│  │  BUTTONS: [เข้าร่วมเครือข่ายเลย] [ดูข้อมูลเพิ่มเติม]                     │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 │                                    ↓                                         │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │  7. PEST REPORTING                                                  │    │
-│  │     src/components/landing/PestReporting.tsx                        │    │
-│  │                                                                     │    │
-│  │  ┌────────────────────────┐  ┌─────────────────────────────────┐   │    │
-│  │  │  วิธีการรายงานศัตรูพืช  │  │  ┌────┐ ┌────┐ ┌────┐ ┌────┐  │   │    │
-│  │  │                          │  │  │ 01 │ │ 02 │ │ 03 │ │ 04 │  │   │    │
-│  │  │  • รายงานง่าย            │  │  │สัง │ │ถ่าย│ │ส่ง │ │รอ  │  │   │    │
-│  │  │  • ตรวจสอบโดยผู้เชี่ยวชาญ│  │  │เกต │ │ภาพ │ │ราย│ │ตรว│  │   │    │
-│  │  │  • มีส่วนร่วม            │  │  │    │ │    │ │งาน│ │สอบ│  │   │    │
-│  │  │                          │  │  └────┘ └────┘ └────┘ └────┘  │   │    │
-│  │  │  [รายงานศัตรูพืช]        │  │      4 Steps Grid             │   │    │
-│  │  │  [สมัครสมาชิก]           │  │                                 │   │    │
-│  │  └────────────────────────┘  └─────────────────────────────────┘   │    │
-│  │                                                                     │    │
-│  │  LAYOUT: Content Left | Steps Grid Right                           │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-│                                    ↓                                         │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │  8. LANDING FOOTER                                                  │    │
+│  │  7. LANDING FOOTER                                                  │    │
 │  │     src/components/landing/LandingFooter.tsx                        │    │
 │  │                                                                     │    │
-│  │  ┌──────────┬──────────┬──────────┬──────────┐                     │    │
-│  │  │  Brand   │ ลิงก์ด่วน │  กฎหมาย  │  ติดต่อ  │                     │    │
-│  │  │RicePest  │ หน้าหลัก │ นโยบาย  │  email   │                     │    │
-│  │  │   Net    │ข้อมูล    │ ข้อกำหนด │  phone   │                     │    │
-│  │  │          │รายงาน    │ คำชี้แจง │  location│                     │    │
-│  │  └──────────┴──────────┴──────────┴──────────┘                     │    │
-│  │                              ↓                                     │    │
-│  │  ┌─────────────────────────────────────────────────────────────┐   │    │
-│  │  │              © 2025 Rice Pest Survey Network                │   │    │
-│  │  └─────────────────────────────────────────────────────────────┘   │    │
-│  │                                                                     │    │
-│  │  STYLE: Dark background (bg-primary)                               │    │
+│  │  [Brand]   [Quick Links]   [Legal]   [Contact]                     │    │
+│  │  [© 2025 Rice Pest Survey Network]                                 │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
+```
 
 ═══════════════════════════════════════════════════════════════════════════════
                               SHARED COMPONENTS
 ═══════════════════════════════════════════════════════════════════════════════
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  CTABanner.tsx (Reusable)                                                   │
-│  ├─ Used in: NetworkActivities                                              │
-│  ├─ Props: title, description, buttonText, href                             │
-│  └─ Style: bg-primary, rounded-2xl, centered                                │
+│  UI Components (src/components/ui/)                                         │
+│  ├─ Button: Custom variants for 'cta' (orange) and 'primary' (green)        │
+│  ├─ Card: Standardized containers for sections                              │
+│  └─ Material Icons: Used for all iconography                                │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│  UI Components (from src/components/ui/)                                    │
-│  ├─ Button (with 'cta' variant)                                             │
-│  ├─ Card, CardHeader, CardContent, CardTitle                               │
-│  └─ Badge (if needed)                                                       │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  Navbar (Modified)                                                          │
-│  src/components/Navbar.tsx                                                   │
-│  ├─ Added: "เข้าร่วมเครือข่าย" button (cta style)                           │
-│  ├─ Added: "เข้าสู่ระบบ" button (outline style)                             │
-│  └─ Hidden: NotificationBell for non-authenticated users                    │
+│  Navbar (src/components/Navbar.tsx)                                         │
+│  ├─ Dynamic CTAs: Shows Login/Join for guests, Dashboard for members        │
+│  └─ Sticky with glassmorphism effect                                        │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 ═══════════════════════════════════════════════════════════════════════════════
@@ -163,22 +106,15 @@
 
     Database (Prisma)
          │
-         ├─ prisma.pestReport.count ───┐
-         │                               │
-         └─ prisma.userProfile.count ───┤
+         ├─ pestReport.count (APPROVED) ──┐
+         │                                │
+         └─ userProfile.count ────────────┤
                                           ▼
     src/app/page.tsx (Server Component)
          │
-         ├─ reportCount ───┐
-         ├─ memberCount ───┼──► LandingHero, NetworkStats
-         └─ orgCount=25 ───┘
-                                           │
-                                           ▼
-    Client Components
-         │
-         ├─ NetworkStats ──► AnimatedNumber (Intersection Observer)
-         │
-         └─ All Sections ──► Responsive Design (Mobile/Tablet/Desktop)
+         ├─ reportCount ──┐
+         ├─ memberCount ──┼──► Passed as props to:
+         └─ orgCount(25) ─┘    LandingHero, SocialProof, SecondaryCTA
 
 ═══════════════════════════════════════════════════════════════════════════════
                               FILE STRUCTURE
@@ -186,36 +122,30 @@
 
 src/
 ├── app/
-│   └── page.tsx                    # Main landing page (imports all sections)
+│   └── page.tsx                    # Main landing entry (Direct Response focus)
 │
 ├── components/
-│   ├── Navbar.tsx                  # MODIFIED: Added Join/Login CTAs
-│   │
-│   ├── landing/                    # NEW DIRECTORY
+│   ├── landing/                    # High-conversion landing components
 │   │   ├── index.ts                # Barrel exports
-│   │   ├── LandingHero.tsx         # Hero with image + content card
-│   │   ├── ValueProposition.tsx    # 3 cards: Economic/Environment/Detection
-│   │   ├── NetworkRole.tsx         # Image left, mission right
-│   │   ├── NetworkActivities.tsx   # 3 activity cards + CTABanner
-│   │   ├── NetworkStats.tsx        # Animated statistics
-│   │   ├── MemberOrganizations.tsx # Logo grid (placeholders)
-│   │   ├── PestReporting.tsx       # 4-step reporting guide
-│   │   ├── LandingFooter.tsx       # 4-column footer
-│   │   └── CTABanner.tsx           # Reusable CTA component
+│   │   ├── LandingHero.tsx         # Hero with problem/solution focus
+│   │   ├── ProblemAgitate.tsx      # Highlighting pain points
+│   │   ├── ValueStack.tsx          # Benefit explanation (4 tiers)
+│   │   ├── SocialProof.tsx         # Testimonials and partner logos
+│   │   ├── Transformation.tsx      # Timeline of user progress
+│   │   ├── SecondaryCTA.tsx        # Bottom catch-all CTA
+│   │   └── LandingFooter.tsx       # Standard footer
 │   │
-│   └── ui/
-│       └── button.tsx              # MODIFIED: Added 'cta' variant
+│   └── ui/                         # Base design system components
 │
-└── public/
-    └── logos/                      # Placeholder for organization logos
+└── lib/
+    └── prisma.ts                   # Database client
 
 ═══════════════════════════════════════════════════════════════════════════════
-                              COLOR SYSTEM
+                              COLOR SYSTEM (REFINED)
 ═══════════════════════════════════════════════════════════════════════════════
 
-Primary:    #152B25 (fresh-forest) - Headings, buttons
-Secondary:  #4BAF47 (fresh-leaf)   - Icons, accents
-CTA:        #F37335 (fresh-orange) - Call-to-action buttons
-Background: #FDFCF9 (cream-bg)      - Page background
-
-Dark Mode:  Forest Night Theme (adapted automatically)
+Primary:    #152B25 (Forest)    - Trust, Authority, Agriculture
+Secondary:  #4BAF47 (Leaf)      - Growth, Verification, Success
+CTA:        #F37335 (Orange)    - Action, Urgency, Contrast
+Muted:      #FDFCF9 (Cream)     - Background stability
+Destructive:#EF4444 (Red-Tint)  - Used in ProblemAgitate for pain points

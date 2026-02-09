@@ -2,12 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { ReportStatus } from "@prisma/client";
 import {
   LandingHero,
-  ValueProposition,
-  NetworkRole,
-  NetworkActivities,
-  NetworkStats,
-  MemberOrganizations,
-  PestReporting,
+  ProblemAgitate,
+  ValueStack,
+  SocialProof,
+  // Transformation, // ยังไม่พร้อมแสดง - รอโปรเจคโตขึ้นก่อน
+  SecondaryCTA,
   LandingFooter,
 } from "@/components/landing";
 
@@ -22,36 +21,32 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
+      {/* 1. HERO - Get the email or get the scroll */}
       <LandingHero
         reportCount={reportCount}
         memberCount={memberCount}
         organizationCount={25}
       />
 
-      {/* Value Proposition - Why surveillance matters */}
-      <ValueProposition />
+      {/* 2. SUCCESS - Skip (conditional, for post-signup page) */}
 
-      {/* Network Role */}
-      <NetworkRole />
+      {/* 3. PROBLEM-AGITATE - Make the status quo painful */}
+      <ProblemAgitate />
 
-      {/* Network Activities */}
-      <NetworkActivities />
+      {/* 4. VALUE STACK - Make saying no feel stupid */}
+      <ValueStack />
 
-      {/* Network Statistics */}
-      <NetworkStats
-        reports={reportCount}
-        members={memberCount}
-        organizations={25}
-      />
+      {/* 5. SOCIAL PROOF - Let others convince them */}
+      <SocialProof memberCount={memberCount} organizationCount={25} />
 
-      {/* Member Organizations */}
-      <MemberOrganizations />
+      {/* 6. TRANSFORMATION - Make the outcome tangible */}
+      {/* <Transformation /> */}
+      {/* ยังไม่พร้อมแสดง - รอให้โปรเจคมีความชัดเจนมากขึ้นก่อน */}
 
-      {/* Pest Reporting Guide */}
-      <PestReporting />
+      {/* 7. SECONDARY CTA - Catch the scrollers */}
+      <SecondaryCTA memberCount={memberCount} />
 
-      {/* Footer */}
+      {/* 8. FOOTER - Professional legitimacy */}
       <LandingFooter />
     </div>
   );

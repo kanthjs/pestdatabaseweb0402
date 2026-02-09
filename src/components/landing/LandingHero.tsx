@@ -15,6 +15,7 @@ export function LandingHero({
 }: LandingHeroProps) {
   return (
     <section className="relative min-h-[90vh]">
+      {/* ส่วนหลักของ Hero ที่สร้างความประทับใจแแรกพบเมื่อเข้าเว็บไซต์ */}
       {/* Background Pattern */}
       <div
         className="absolute inset-0 opacity-[0.03]"
@@ -25,7 +26,7 @@ export function LandingHero({
         }}
       />
 
-      {/* Hero Image - Full Width at Top */}
+      {/* รูปภาพพื้นหลัง (Hero Image) เพื่อสร้างมู้ดและโทนของเว็บไซต์เกษตรกร */}
       <div className="relative w-full h-[50vh] lg:h-[60vh]">
         <Image
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsFTNo1gJGqSi6iL3lMZUfIdag7qxOmev-BjWfiH9LwzM3UKa4uV4eIl2FUr3wuiYRCwj_RuROSiDIaMGDIU4nv6s14883dDchR1J6ubGZi8fliP69GGtgOkEVbTcKhxYp0kYcnTJy6Lf4sCiOLr_iXiYK1b7Wu8mUw0vKj7W8usXBSOxzr8gFqiz0wijRnilqrNkbUXzAb5J6ckRAQXeMuUm4BE4rGGm55Oqbf7Lag27D8m4f5jidpWbPfG0z9cttY982wKpTIhyd"
@@ -39,40 +40,47 @@ export function LandingHero({
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
       </div>
 
-      {/* Content Section */}
+      {/* ส่วนเนื้อหาหลักที่ลอยอยู่บนรูปภาพ (Content Card) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full -mt-20 relative z-10">
         <div className="bg-card/80 backdrop-blur-sm rounded-3xl p-8 lg:p-12 shadow-xl border border-border">
-          {/* Headline */}
+          {/* ข้อความกำกับด้านบน (Eyebrow) บอกชื่อกลุ่มหรือโครงการ */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-secondary/10 text-secondary rounded-full text-sm font-medium mb-6">
+            <span className="material-icons-outlined text-base">agriculture</span>
+            เครือข่ายเฝ้าระวังศัตรูพืชข้าว
+          </div>
+
+          {/* หัวข้อหลัก (Headline) - เน้นปัญหาและความสำคัญเพื่อดึงดูดความสนใจ */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary leading-tight mb-6">
-            เครือข่ายเฝ้าระวัง
+            ร่วมกันรายงานเพื่อปกป้องผลผลิต
             <br />
-            <span className="text-secondary">ศัตรูพืชข้าว</span>
-            <br />
-            แห่งประเทศไทย
+            <span className="text-cta">ก่อนที่จะสายเกินไป</span>
           </h1>
 
-          {/* Description */}
+          {/* คำอธิบายเพิ่มเติม (Description) ให้รายละเอียดเกี่ยวกับเครือข่ายและความสามารถของระบบ */}
           <p className="text-lg text-muted-foreground mb-8 leading-relaxed max-w-2xl">
-            เข้าร่วมเครือข่ายผู้เชี่ยวชาญและเกษตรกรในการเฝ้าระวัง ติดตาม
-            และรายงานการระบาดของศัตรูพืชข้าว เพื่อความมั่นคงทางอาหารของประเทศ
+            เข้าร่วมเครือข่ายเกษตรกรและผู้เชี่ยวชาญกว่า{" "}
+            <span className="font-semibold text-primary">{memberCount.toLocaleString()}</span> คน
+            ที่รายงานและติดตามการระบาดของศัตรูข้าวแบบ real-time
           </p>
 
-          {/* CTA Buttons */}
+          {/* ปุ่มเรียกร้องให้ดำเนินการ (Call to Action - CTA) - นำทางไปสู่ฟีเจอร์หลัก */}
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
+            {/* ปุ่มสมัครสมาชิก: นำผู้ใช้ใหม่ไปยังหน้าลงทะเบียน (/signup) */}
             <Link href="/signup">
               <Button
                 size="lg"
-                className="bg-cta text-cta-foreground hover:bg-cta/90 rounded-full px-8 py-6 text-lg font-semibold shadow-xl shadow-orange-500/20 transition-all hover:-translate-y-1"
+                className="bg-cta text-cta-foreground hover:bg-cta/90 rounded-full px-10 py-7 text-lg font-semibold shadow-xl shadow-orange-500/20 transition-all hover:-translate-y-1"
               >
                 <span className="material-icons-outlined mr-2">person_add</span>
-                เข้าร่วมเครือข่าย
+                เข้าร่วมเครือข่าย (ฟรี)
               </Button>
             </Link>
+            {/* ปุ่มแดชบอร์ด: นำผู้ใช้ไปดูข้อมูลการระบาดและแผนที่ (/dashboard) */}
             <Link href="/dashboard">
               <Button
                 variant="outline"
                 size="lg"
-                className="rounded-full px-8 py-6 text-lg font-medium border-2"
+                className="rounded-full px-8 py-7 text-lg font-medium border-2"
               >
                 <span className="material-icons-outlined mr-2">visibility</span>
                 ดูข้อมูลศัตรูพืช
@@ -80,7 +88,7 @@ export function LandingHero({
             </Link>
           </div>
 
-          {/* Stats */}
+          {/* ส่วนตัวเลขสถิติ (Stats) - เพื่อสร้างความน่าเชื่อถือด้วยข้อมูลจริง */}
           <div className="grid grid-cols-3 gap-6 pt-8 border-t border-border">
             {[
               { value: memberCount.toLocaleString(), label: "สมาชิกที่ใช้งาน" },
