@@ -20,7 +20,6 @@ import {
     Plus,
     Eye,
     BarChart3,
-    Shield,
     User,
 } from "lucide-react";
 import { MetricsCards } from "./components/MetricsCards";
@@ -126,22 +125,6 @@ export default function DashboardClient({
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        {isExpert && (
-                            <Link href="/review">
-                                <Button variant="outline" className="gap-2">
-                                    <Shield className="w-4 h-4" />
-                                    Review Reports
-                                </Button>
-                            </Link>
-                        )}
-                        {role !== "guest" && (
-                            <Link href="/survey">
-                                <Button className="bg-cta text-cta-foreground hover:bg-cta/90 gap-2">
-                                    <Plus className="w-4 h-4" />
-                                    Report Pest
-                                </Button>
-                            </Link>
-                        )}
                         {isExpert && (
                             <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-medium dark:bg-emerald-500/10 dark:text-emerald-400">
                                 Expert
