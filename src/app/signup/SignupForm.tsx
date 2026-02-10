@@ -11,6 +11,15 @@ export default function SignupForm() {
         setIsLoading(true);
         setError(null);
 
+        const password = formData.get("password") as string;
+        const confirmPassword = formData.get("confirmPassword") as string;
+
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            setIsLoading(false);
+            return;
+        }
+
         const result = await signup(formData);
 
         if (result && !result.success) {
@@ -27,56 +36,7 @@ export default function SignupForm() {
                 </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label
-                        htmlFor="firstName"
-                        className="block text-sm font-medium text-foreground mb-2"
-                    >
-                        First Name
-                    </label>
-                    <input
-                        id="firstName"
-                        name="firstName"
-                        type="text"
-                        required
-                        className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                        placeholder="John"
-                    />
-                </div>
-                <div>
-                    <label
-                        htmlFor="lastName"
-                        className="block text-sm font-medium text-foreground mb-2"
-                    >
-                        Last Name
-                    </label>
-                    <input
-                        id="lastName"
-                        name="lastName"
-                        type="text"
-                        required
-                        className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                        placeholder="Doe"
-                    />
-                </div>
-            </div>
-
-            <div>
-                <label
-                    htmlFor="phone"
-                    className="block text-sm font-medium text-foreground mb-2"
-                >
-                    Phone Number
-                </label>
-                <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-                    placeholder="081-234-5678"
-                />
-            </div>
+            {/* Removed First Name, Last Name, and Phone Number fields as requested */}
 
             <div>
                 <label
@@ -114,6 +74,24 @@ export default function SignupForm() {
                 <p className="text-xs text-muted-foreground mt-1">
                     At least 6 characters
                 </p>
+            </div>
+
+            <div>
+                <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-foreground mb-2"
+                >
+                    Confirm Password
+                </label>
+                <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    minLength={6}
+                    className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                    placeholder="••••••••"
+                />
             </div>
 
             <button

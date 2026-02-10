@@ -164,6 +164,24 @@ export default function SurveyFormClient({
     };
 
     const goToNextStep = () => {
+        // Validation before moving to next step
+        if (currentStep === "location" && !formData.province) {
+            alert("Please select a province / กรุณาเลือกจังหวัด");
+            return;
+        }
+        if (currentStep === "plant" && !formData.plantId) {
+            alert("Please select a plant / กรุณาเลือกชนิดพืช");
+            return;
+        }
+        if (currentStep === "pest" && !formData.pestId) {
+            alert("Please select a pest or disease / กรุณาเลือกชนิดศัตรูพืชหรือโรค");
+            return;
+        }
+        if (currentStep === "issue" && selectedFiles.length === 0) {
+            alert("Please upload at least 1 photo / กรุณาแนบรูปภาพอย่างน้อย 1 รูป");
+            return;
+        }
+
         const nextIndex = currentStepIndex + 1;
         if (nextIndex < STEPS.length) {
             setCurrentStep(STEPS[nextIndex].id);
@@ -208,9 +226,13 @@ export default function SurveyFormClient({
     const handleSubmit = async () => {
         if (isSubmitting) return;
 
-        // Basic validation
-        if (!formData.province || !formData.plantId || !formData.pestId) {
-            alert("Please complete all required fields (Province, Plant, and Pest).");
+        if (!formData.province || !formData.plantId || !formData.pestId || selectedFiles.length === 0) {
+            if (selectedFiles.length === 0) {
+                alert("Please upload at least 1 photo / กรุณาแนบรูปภาพอย่างน้อย 1 รูป");
+                setCurrentStep("issue");
+            } else {
+                alert("Please complete all required fields (Province, Plant, and Pest).");
+            }
             return;
         }
 

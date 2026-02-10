@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import UserMenu from "@/components/UserMenu";
@@ -71,9 +72,7 @@ export default function Navbar() {
 
     const dashboardHref = userRole === "ADMIN"
         ? "/dashboard/admin"
-        : userRole === "EXPERT"
-            ? "/dashboard/expert"
-            : user ? "/dashboard/user" : "/dashboard";
+        : "/dashboard";
 
     const menuItems = [
         { name: "หน้าหลัก", href: "/" },
@@ -86,9 +85,15 @@ export default function Navbar() {
                 <div className="flex justify-between h-16 items-center">
                     {/* Logo */}
                     <Link href="/" className="flex-shrink-0 flex items-center gap-2 cursor-pointer group">
-                        <span className="material-icons-outlined text-primary text-3xl group-hover:scale-110 transition-transform">
-                            agriculture
-                        </span>
+                        <div className="relative w-10 h-10 group-hover:scale-110 transition-transform">
+                            <Image
+                                src="/logo.png"
+                                alt="RicePestNet Logo"
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
                         <span className="font-display font-bold text-xl tracking-tight text-primary">
                             RicePest<span className="text-secondary">Net</span>
                         </span>
@@ -123,8 +128,8 @@ export default function Navbar() {
                                     </Button>
                                 </Link>
                                 <Link href="/signup">
-                                    <Button 
-                                        size="sm" 
+                                    <Button
+                                        size="sm"
                                         className="bg-cta text-cta-foreground hover:bg-cta/90 rounded-full"
                                     >
                                         เข้าร่วมเครือข่าย

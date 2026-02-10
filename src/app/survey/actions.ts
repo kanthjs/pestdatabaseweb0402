@@ -44,11 +44,16 @@ export async function submitPestReport(data: PestReportSubmission) {
         return { success: false, error: rateLimitResult.error };
     }
 
+    // Server-side image validation
+    if (!data.imageUrls || data.imageUrls.length === 0) {
+        return { success: false, error: "At least one photo is required / ต้องแนบรูปภาพอย่างน้อย 1 รูป" };
+    }
+
     // If user is logged in, ensure their profile exists in our database
     let effectiveUserId = user?.id;
     let userRole: UserRole = UserRole.USER;
     let isExpert = false;
-    
+
     if (user) {
         try {
             let profile = await prisma.userProfile.findUnique({
@@ -68,7 +73,7 @@ export async function submitPestReport(data: PestReportSubmission) {
                 const nameParts = fullName.split(" ");
                 const firstName = user.user_metadata?.first_name || nameParts[0] || user.email?.split("@")[0] || "User";
                 const lastName = user.user_metadata?.last_name || nameParts.slice(1).join(" ") || "";
-                const userName = user.email 
+                const userName = user.email
                     ? user.email.split('@')[0] + '_' + Date.now().toString(36)
                     : 'user_' + Date.now().toString(36);
 
@@ -113,7 +118,7 @@ export async function submitPestReport(data: PestReportSubmission) {
         const reportStatus = isExpert ? ReportStatus.APPROVED : ReportStatus.PENDING;
         const verifiedAt = isExpert ? new Date() : null;
         const verifiedBy = isExpert ? effectiveUserId : null;
-        
+
         const report = await prisma.pestReport.create({
             data: {
                 province: data.province,

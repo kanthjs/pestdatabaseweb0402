@@ -112,13 +112,10 @@ export default function UserMenu({ user, isLoading = false, role }: UserMenuProp
                             href={
                                 role === "ADMIN"
                                     ? "/dashboard/admin"
-                                    : role === "EXPERT"
-                                        ? "/dashboard/expert"
-                                        : "/dashboard"
+                                    : "/dashboard"
                             }
                             className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
                             onClick={() => {
-                                console.log("UserMenu: Dashboard clicked, role:", role);
                                 setIsOpen(false);
                             }}
                         >
@@ -143,7 +140,7 @@ export default function UserMenu({ user, isLoading = false, role }: UserMenuProp
                         </Link>
                         {(role === "EXPERT" || role === "ADMIN") && (
                             <Link
-                                href="/expert/review"
+                                href="/review"
                                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
                                 onClick={() => setIsOpen(false)}
                             >

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import SignupForm from "./SignupForm";
 
 export default function SignupPage() {
@@ -7,10 +8,16 @@ export default function SignupPage() {
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <Link href="/" className="inline-flex items-center gap-2">
-                        <span className="material-icons-outlined text-primary text-4xl">
-                            agriculture
-                        </span>
+                    <Link href="/" className="inline-flex flex-col items-center gap-2">
+                        <div className="relative w-16 h-16">
+                            <Image
+                                src="/logo.png"
+                                alt="RicePestNet Logo"
+                                fill
+                                className="object-contain"
+                                priority
+                            />
+                        </div>
                         <span className="font-display font-bold text-2xl text-primary">
                             RicePest<span className="text-secondary">Net</span>
                         </span>

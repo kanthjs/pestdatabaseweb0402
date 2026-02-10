@@ -42,7 +42,7 @@ export async function login(formData: FormData) {
                 select: { role: true }
             });
             console.log("Login: profile by id:", profile);
-            
+
             // If not found by ID and user has email, try looking up by email
             if (!profile && user.email) {
                 profile = await prisma.userProfile.findUnique({
@@ -51,13 +51,12 @@ export async function login(formData: FormData) {
                 });
                 console.log("Login: profile by email:", profile);
             }
-            
+
             const role = profile?.role || "USER";
             console.log("Login: final role:", role);
 
             if (role === "ADMIN") redirectTo = "/dashboard/admin";
-            else if (role === "EXPERT") redirectTo = "/dashboard/expert";
-            else redirectTo = "/dashboard/user";
+            else redirectTo = "/dashboard";
         } else {
             redirectTo = "/dashboard";
         }
@@ -80,20 +79,10 @@ export async function signup(formData: FormData) {
     const supabase = await createClient();
 
     const password = formData.get("password") as string;
-    const firstName = formData.get("firstName") as string;
-    const lastName = formData.get("lastName") as string;
-    const phone = formData.get("phone") as string;
 
     const { data: authData, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-            data: {
-                full_name: `${firstName} ${lastName}`.trim(),
-                first_name: firstName,
-                last_name: lastName,
-            },
-        },
     });
 
     if (error) {
@@ -109,9 +98,6 @@ export async function signup(formData: FormData) {
                     id: authData.user.id,
                     userName,
                     email: email,
-                    firstName: firstName,
-                    lastName: lastName,
-                    phone: phone,
                     role: "USER",
                 },
             });

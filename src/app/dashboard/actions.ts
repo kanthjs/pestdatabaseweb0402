@@ -1,9 +1,11 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 import { ReportStatus } from "@prisma/client";
 import { subDays, differenceInDays } from "date-fns";
 
+// ─── Types ───────────────────────────────────────────────────────
 export interface PestRanking {
     id: string;
     name: string;
@@ -16,7 +18,7 @@ export interface PestRanking {
 export interface DashboardMetrics {
     totalVerified: {
         count: number;
-        trend: number; // percentage change vs previous period
+        trend: number;
     };
     totalReportsEver: number;
     totalArea: {
@@ -44,7 +46,33 @@ export interface DashboardMetrics {
     }>;
 }
 
-// Helper to fetch pest name for a single ID
+export interface UserReportItem {
+    id: string;
+    createdAt: Date;
+    province: string;
+    pestName: string;
+    plantName: string;
+    status: ReportStatus;
+    rejectionReason: string | null;
+}
+
+export interface UserStats {
+    totalReports: number;
+    verifiedReports: number;
+    pendingReports: number;
+    rejectedReports: number;
+}
+
+export interface DashboardData {
+    role: "guest" | "user" | "expert";
+    userEmail?: string;
+    userName?: string;
+    metrics: DashboardMetrics;
+    userStats?: UserStats;
+    userReports?: UserReportItem[];
+}
+
+// ─── Helper ──────────────────────────────────────────────────────
 async function getPestName(pestId: string): Promise<string> {
     const pest = await prisma.pest.findUnique({
         where: { pestId },
@@ -53,51 +81,52 @@ async function getPestName(pestId: string): Promise<string> {
     return pest?.pestNameEn || pestId;
 }
 
-// getDashboardMetrics - Now optionally filters by user email for accurate user-specific data
-export async function getDashboardMetrics(startDate: Date, endDate: Date, userEmail?: string): Promise<DashboardMetrics> {
-    // For personal dashboard (userEmail provided), show all their reports regardless of status
-    // This matches how /my-reports works for consistency
+// ─── Get Current User Info ───────────────────────────────────────
+export async function getCurrentUserInfo() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    const baseWhereClause: any = {
-        reportedAt: { gte: startDate, lte: endDate }
-    };
+    if (!user) return { role: "guest" as const };
 
-    if (userEmail) {
-        // Match both reporterEmail field and email from linked UserProfile
-        baseWhereClause.OR = [
-            { reporterEmail: userEmail },
-            { reporterUser: { email: userEmail } }
-        ];
-    } else {
-        baseWhereClause.status = ReportStatus.APPROVED;
+    let profile = await prisma.userProfile.findUnique({
+        where: { id: user.id },
+    });
+
+    if (!profile && user.email) {
+        profile = await prisma.userProfile.findUnique({
+            where: { email: user.email },
+        });
     }
 
-    // Calculate previous period dates for trend comparison
+    const role = profile?.role === "EXPERT" || profile?.role === "ADMIN"
+        ? "expert" as const
+        : "user" as const;
+
+    return {
+        role,
+        userId: profile?.id || user.id,
+        userEmail: user.email || undefined,
+        userName: profile?.userName || user.email?.split("@")[0] || "User",
+    };
+}
+
+// ─── Global Dashboard Metrics (Approved reports, last 30 days) ──
+export async function getDashboardMetrics(): Promise<DashboardMetrics> {
+    const endDate = new Date();
+    const startDate = subDays(endDate, 30);
     const daysDiff = differenceInDays(endDate, startDate);
     const prevStartDate = subDays(startDate, daysDiff);
     const prevEndDate = subDays(endDate, daysDiff);
 
-    const prevWhereClause: any = {
-        reportedAt: { gte: prevStartDate, lte: prevEndDate }
+    const baseWhere = {
+        reportedAt: { gte: startDate, lte: endDate },
+        status: ReportStatus.APPROVED,
     };
 
-    if (userEmail) {
-        prevWhereClause.OR = [
-            { reporterEmail: userEmail },
-            { reporterUser: { email: userEmail } }
-        ];
-    } else {
-        prevWhereClause.status = ReportStatus.APPROVED;
-    }
-
-    const totalEverWhereClause: any = userEmail
-        ? {
-            OR: [
-                { reporterEmail: userEmail },
-                { reporterUser: { email: userEmail } }
-            ]
-        }
-        : { status: ReportStatus.APPROVED };
+    const prevWhere = {
+        reportedAt: { gte: prevStartDate, lte: prevEndDate },
+        status: ReportStatus.APPROVED,
+    };
 
     const [
         currentCount,
@@ -109,40 +138,32 @@ export async function getDashboardMetrics(startDate: Date, endDate: Date, userEm
         provinceStats,
         mapReports
     ] = await Promise.all([
-        // Total Verified (Current)
-        prisma.pestReport.count({ where: baseWhereClause }),
-        // Total Verified (Previous)
-        prisma.pestReport.count({ where: prevWhereClause }),
-        // Total Reports Ever
-        prisma.pestReport.count({ where: totalEverWhereClause }),
-        // Total Area (Current)
+        prisma.pestReport.count({ where: baseWhere }),
+        prisma.pestReport.count({ where: prevWhere }),
+        prisma.pestReport.count({ where: { status: ReportStatus.APPROVED } }),
         prisma.pestReport.aggregate({
             _sum: { fieldAffectedArea: true },
-            where: baseWhereClause
+            where: baseWhere
         }),
-        // Total Area (Previous)
         prisma.pestReport.aggregate({
             _sum: { fieldAffectedArea: true },
-            where: prevWhereClause
+            where: prevWhere
         }),
-        // Pest Stats (for Top Pest) - Group By Pest
         prisma.pestReport.groupBy({
             by: ['pestId'],
-            where: baseWhereClause,
+            where: baseWhere,
             _count: { _all: true },
             _sum: { fieldAffectedArea: true, severityPercent: true, incidencePercent: true }
         }),
-        // Province Stats (for Hot Zone) - Group By Province
         prisma.pestReport.groupBy({
             by: ['province'],
-            where: baseWhereClause,
+            where: baseWhere,
             _count: { _all: true },
             _sum: { fieldAffectedArea: true, severityPercent: true }
         }),
-        // Map Data (Limited to reports with location)
         prisma.pestReport.findMany({
             where: {
-                ...baseWhereClause,
+                ...baseWhere,
                 latitude: { not: 0 },
             },
             select: {
@@ -151,52 +172,41 @@ export async function getDashboardMetrics(startDate: Date, endDate: Date, userEm
                 longitude: true,
                 severityPercent: true,
                 incidencePercent: true,
-                pest: {
-                    select: {
-                        pestNameEn: true
-                    }
-                }
+                pest: { select: { pestNameEn: true } }
             },
             orderBy: { reportedAt: 'desc' },
             take: 500
         })
     ]);
 
-    // --- Calculate Metric 1: Total Verified ---
-    const totalVerifiedCount = currentCount;
-    const prevVerifiedCount = prevCount;
-    const verifiedTrend = prevVerifiedCount === 0
-        ? 100
-        : Math.round(((totalVerifiedCount - prevVerifiedCount) / prevVerifiedCount) * 100);
-
-    // --- Calculate Metric 2: Total Area ---
+    // Trends
+    const verifiedTrend = prevCount === 0 ? 100
+        : Math.round(((currentCount - prevCount) / prevCount) * 100);
     const totalAreaValue = currentAreaAgg._sum?.fieldAffectedArea || 0;
     const prevAreaValue = prevAreaAgg._sum?.fieldAffectedArea || 0;
-    const areaTrend = prevAreaValue === 0
-        ? 100
+    const areaTrend = prevAreaValue === 0 ? 100
         : Math.round(((totalAreaValue - prevAreaValue) / prevAreaValue) * 100);
 
-    // --- Calculate Metric 3: Pest Ranking (Top 5) ---
+    // Pest Ranking (Top 5)
     const sortedPestStats = [...pestStats].sort((a, b) => (b._count?._all || 0) - (a._count?._all || 0));
+    const pestRanking = await Promise.all(
+        sortedPestStats.slice(0, 5).map(async (stat) => ({
+            id: stat.pestId,
+            name: await getPestName(stat.pestId),
+            count: stat._count?._all || 0,
+            totalArea: stat._sum?.fieldAffectedArea || 0,
+            avgSeverity: Math.round((stat._sum?.severityPercent || 0) / (stat._count?._all || 1)),
+            avgIncidence: Math.round((stat._sum?.incidencePercent || 0) / (stat._count?._all || 1))
+        }))
+    );
 
-    const pestRankingPromises = sortedPestStats.slice(0, 5).map(async (stat) => ({
-        id: stat.pestId,
-        name: await getPestName(stat.pestId),
-        count: stat._count?._all || 0,
-        totalArea: stat._sum?.fieldAffectedArea || 0,
-        avgSeverity: Math.round((stat._sum?.severityPercent || 0) / (stat._count?._all || 1)),
-        avgIncidence: Math.round((stat._sum?.incidencePercent || 0) / (stat._count?._all || 1))
-    }));
-
-    const pestRanking = await Promise.all(pestRankingPromises);
     const topPest = pestRanking.length > 0 ? {
         id: pestRanking[0].id,
         name: pestRanking[0].name,
         count: pestRanking[0].count
     } : null;
 
-    // --- Calculate Metric 4: Hot Zone ---
-    // Find Hot Zone (highest score based on simple heuristic: count * severity * area)
+    // Hot Zone
     let hotZone = null;
     if (provinceStats.length > 0) {
         const hotStats = provinceStats
@@ -206,11 +216,7 @@ export async function getDashboardMetrics(startDate: Date, endDate: Date, userEm
                 totalArea: stat._sum?.fieldAffectedArea || 0,
                 avgSeverity: ((stat._sum?.severityPercent || 0) / (stat._count?._all || 1))
             }))
-            .sort((a, b) => {
-                const scoreA = a.count * a.avgSeverity * a.totalArea;
-                const scoreB = b.count * b.avgSeverity * b.totalArea;
-                return scoreB - scoreA;
-            })[0];
+            .sort((a, b) => (b.count * b.avgSeverity * b.totalArea) - (a.count * a.avgSeverity * a.totalArea))[0];
 
         hotZone = {
             province: hotStats.province,
@@ -219,7 +225,7 @@ export async function getDashboardMetrics(startDate: Date, endDate: Date, userEm
         };
     }
 
-    // --- Map Data ---
+    // Map Data
     const mapData = mapReports.map(r => ({
         id: r.id,
         lat: r.latitude,
@@ -230,7 +236,7 @@ export async function getDashboardMetrics(startDate: Date, endDate: Date, userEm
     }));
 
     return {
-        totalVerified: { count: totalVerifiedCount, trend: verifiedTrend },
+        totalVerified: { count: currentCount, trend: verifiedTrend },
         totalReportsEver: totalEver,
         totalArea: { value: totalAreaValue, trend: areaTrend },
         topPest,
@@ -238,4 +244,68 @@ export async function getDashboardMetrics(startDate: Date, endDate: Date, userEm
         hotZone,
         mapData,
     };
+}
+
+// ─── User's Personal Stats & Reports ─────────────────────────────
+export async function getUserPersonalData(userId: string): Promise<{
+    stats: UserStats;
+    reports: UserReportItem[];
+}> {
+    const [totalReports, verifiedReports, pendingReports, rejectedReports, recentReports] = await Promise.all([
+        prisma.pestReport.count({ where: { reporterUserId: userId } }),
+        prisma.pestReport.count({ where: { reporterUserId: userId, status: ReportStatus.APPROVED } }),
+        prisma.pestReport.count({ where: { reporterUserId: userId, status: ReportStatus.PENDING } }),
+        prisma.pestReport.count({ where: { reporterUserId: userId, status: ReportStatus.REJECTED } }),
+        prisma.pestReport.findMany({
+            where: { reporterUserId: userId },
+            orderBy: { createdAt: 'desc' },
+            take: 10,
+            include: { pest: true, plant: true }
+        })
+    ]);
+
+    return {
+        stats: { totalReports, verifiedReports, pendingReports, rejectedReports },
+        reports: recentReports.map(r => ({
+            id: r.id,
+            createdAt: r.createdAt,
+            province: r.province,
+            pestName: r.pest.pestNameEn,
+            plantName: r.plant.plantNameEn,
+            status: r.status,
+            rejectionReason: r.rejectionReason,
+        }))
+    };
+}
+
+// ─── CSV Export ──────────────────────────────────────────────────
+export async function exportUserReportsToCSV() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    let userProfile = await prisma.userProfile.findUnique({ where: { id: user.id } });
+    if (!userProfile && user.email) {
+        userProfile = await prisma.userProfile.findUnique({ where: { email: user.email } });
+    }
+    if (!userProfile) throw new Error("User profile not found");
+
+    const reports = await prisma.pestReport.findMany({
+        where: { reporterUserId: userProfile.id },
+        orderBy: { createdAt: 'desc' },
+        include: { pest: true, plant: true }
+    });
+
+    const header = "ID,Date,Province,Pest,Plant,Status,Rejection Reason\n";
+    const rows = reports.map(r => {
+        const date = r.createdAt.toISOString().split('T')[0];
+        const escape = (text: string | null) => text ? `"${text.replace(/"/g, '""')}"` : "";
+        return [
+            r.id, date, escape(r.province),
+            escape(r.pest.pestNameEn), escape(r.plant.plantNameEn),
+            r.status, escape(r.rejectionReason)
+        ].join(",");
+    }).join("\n");
+
+    return header + rows;
 }

@@ -10,8 +10,21 @@ const noto_sans_thai = Noto_Sans_Thai({
 });
 
 export const metadata: Metadata = {
-  title: "Rice Pest Survey Network - Home",
-  description: "Safeguarding Rice Harvests Together",
+  title: "Thai Rice Pest Monitoring Network | RicePestNet",
+  description: "Safeguarding Rice Harvests Together - เครือข่ายเฝ้าระวังศัตรูพืชข้าวแห่งประเทศไทย",
+  icons: {
+    icon: [
+      { url: "/logo.png", sizes: "any" },
+    ],
+    apple: [
+      { url: "/logo.png" },
+    ],
+  },
+  openGraph: {
+    title: "Thai Rice Pest Monitoring Network",
+    description: "Safeguarding Rice Harvests Together",
+    images: ["/logo.png"],
+  },
 };
 
 import { ThemeProvider } from "@/components/theme-provider";

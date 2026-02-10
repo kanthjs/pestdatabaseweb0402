@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const quickLinks = [
   { name: "หน้าหลัก", href: "/" },
@@ -8,9 +9,9 @@ const quickLinks = [
 ];
 
 const legalLinks = [
-  { name: "นโยบายความเป็นส่วนตัว", href: "#" },
-  { name: "ข้อกำหนดการใช้งาน", href: "#" },
-  { name: "คำชี้แจง", href: "#" },
+  { name: "นโยบายความเป็นส่วนตัว", href: "/privacy" },
+  { name: "ข้อกำหนดการใช้งาน", href: "/terms" },
+  { name: "คำชี้แจง", href: "/disclaimer" },
 ];
 
 const contactInfo = [
@@ -27,9 +28,14 @@ export function LandingFooter() {
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-6">
-              <span className="material-icons-outlined text-3xl text-cta">
-                agriculture
-              </span>
+              <div className="relative w-10 h-10">
+                <Image
+                  src="/logo.png"
+                  alt="RicePestNet Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
               <span className="font-bold text-xl">
                 RicePest<span className="text-cta">Net</span>
               </span>

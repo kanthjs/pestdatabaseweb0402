@@ -1,10 +1,7 @@
-import { getUserDashboardData } from "./actions";
-import UserDashboardClient from "./UserDashboardClient";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default async function UserDashboardPage() {
-    const data = await getUserDashboardData();
-
-    return <UserDashboardClient {...data} />;
+// This page has been merged into the unified /dashboard
+// Redirecting to maintain backwards compatibility
+export default function UserDashboardPage() {
+    redirect("/dashboard");
 }
