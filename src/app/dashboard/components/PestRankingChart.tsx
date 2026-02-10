@@ -9,15 +9,22 @@ import { cn } from "@/lib/utils";
 interface PestRankingChartProps {
     data: PestRanking[];
     loading?: boolean;
+    title?: string;
+    description?: string;
 }
 
-export function PestRankingChart({ data, loading }: PestRankingChartProps) {
+export function PestRankingChart({
+    data,
+    loading,
+    title = "Top 5 ศัตรูพืชเฝ้าระวัง",
+    description = "Pest Ranking (30-day monitoring data)",
+}: PestRankingChartProps) {
     if (loading) {
         return (
             <Card className="col-span-1 border-none shadow-lg bg-card/50 backdrop-blur-sm">
                 <CardHeader>
-                    <CardTitle>Top 5 ศัตรูพืชเฝ้าระวัง</CardTitle>
-                    <CardDescription>วิเคราะห์จากจำนวนรายงานในรอบ 30 วัน</CardDescription>
+                    <CardTitle>{title}</CardTitle>
+                    <CardDescription>{description}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
@@ -35,10 +42,10 @@ export function PestRankingChart({ data, loading }: PestRankingChartProps) {
             <CardHeader className="pb-2">
                 <CardTitle className="text-xl font-bold flex items-center gap-2">
                     <span className="w-2 h-6 bg-primary rounded-full" />
-                    Top 5 ศัตรูพืชเฝ้าระวัง
+                    {title}
                 </CardTitle>
                 <CardDescription>
-                    Pest Ranking (30-day monitoring data)
+                    {description}
                 </CardDescription>
             </CardHeader>
             <CardContent>

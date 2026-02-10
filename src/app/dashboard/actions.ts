@@ -250,8 +250,17 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 export async function getUserPersonalData(userId: string): Promise<{
     stats: UserStats;
     reports: UserReportItem[];
+    mapData: Array<{
+        id: string;
+        lat: number;
+        lng: number;
+        severity: number;
+        incidence: number;
+        pestName: string;
+    }>;
+    pestRanking: PestRanking[];
 }> {
-    const [totalReports, verifiedReports, pendingReports, rejectedReports, recentReports] = await Promise.all([
+    const [totalReports, verifiedReports, pendingReports, rejectedReports, recentReports, personalPestStats] = await Promise.all([
         prisma.pestReport.count({ where: { reporterUserId: userId } }),
         prisma.pestReport.count({ where: { reporterUserId: userId, status: ReportStatus.APPROVED } }),
         prisma.pestReport.count({ where: { reporterUserId: userId, status: ReportStatus.PENDING } }),
@@ -259,14 +268,34 @@ export async function getUserPersonalData(userId: string): Promise<{
         prisma.pestReport.findMany({
             where: { reporterUserId: userId },
             orderBy: { createdAt: 'desc' },
-            take: 10,
+            take: 20, // increased for map
             include: { pest: true, plant: true }
+        }),
+        prisma.pestReport.groupBy({
+            by: ['pestId'],
+            where: { reporterUserId: userId },
+            _count: { _all: true },
+            _sum: { fieldAffectedArea: true, severityPercent: true, incidencePercent: true }
         })
     ]);
 
+    const pestRanking = await Promise.all(
+        personalPestStats
+            .sort((a, b) => (b._count?._all || 0) - (a._count?._all || 0))
+            .slice(0, 5)
+            .map(async (stat) => ({
+                id: stat.pestId,
+                name: await getPestName(stat.pestId),
+                count: stat._count?._all || 0,
+                totalArea: stat._sum?.fieldAffectedArea || 0,
+                avgSeverity: Math.round((stat._sum?.severityPercent || 0) / (stat._count?._all || 1)),
+                avgIncidence: Math.round((stat._sum?.incidencePercent || 0) / (stat._count?._all || 1))
+            }))
+    );
+
     return {
         stats: { totalReports, verifiedReports, pendingReports, rejectedReports },
-        reports: recentReports.map(r => ({
+        reports: recentReports.slice(0, 10).map(r => ({
             id: r.id,
             createdAt: r.createdAt,
             province: r.province,
@@ -274,7 +303,16 @@ export async function getUserPersonalData(userId: string): Promise<{
             plantName: r.plant.plantNameEn,
             status: r.status,
             rejectionReason: r.rejectionReason,
-        }))
+        })),
+        mapData: recentReports.map(r => ({
+            id: r.id,
+            lat: r.latitude,
+            lng: r.longitude,
+            severity: r.severityPercent,
+            incidence: r.incidencePercent,
+            pestName: r.pest.pestNameEn,
+        })),
+        pestRanking
     };
 }
 

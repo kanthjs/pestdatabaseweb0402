@@ -10,12 +10,16 @@ export default async function DashboardPage() {
 
     let userStats = undefined;
     let userReports = undefined;
+    let personalMapData = undefined;
+    let personalPestRanking = undefined;
 
     // If logged in, fetch their personal data too
     if (userInfo.role !== "guest" && userInfo.userId) {
         const personalData = await getUserPersonalData(userInfo.userId);
         userStats = personalData.stats;
         userReports = personalData.reports;
+        personalMapData = personalData.mapData;
+        personalPestRanking = personalData.pestRanking;
     }
 
     return (
@@ -26,6 +30,8 @@ export default async function DashboardPage() {
             metrics={metrics}
             userStats={userStats}
             userReports={userReports}
+            personalMapData={personalMapData}
+            personalPestRanking={personalPestRanking}
         />
     );
 }

@@ -21,10 +21,11 @@ import {
     Eye,
     BarChart3,
     Shield,
+    User,
 } from "lucide-react";
 import { MetricsCards } from "./components/MetricsCards";
 import { PestRankingChart } from "./components/PestRankingChart";
-import { DashboardMetrics, UserStats, UserReportItem, exportUserReportsToCSV } from "./actions";
+import { DashboardMetrics, UserStats, UserReportItem, PestRanking, exportUserReportsToCSV } from "./actions";
 
 const AdvancedMap = dynamic(() => import("./components/AdvancedMap"), { ssr: false });
 
@@ -36,6 +37,8 @@ interface DashboardClientProps {
     metrics: DashboardMetrics;
     userStats?: UserStats;
     userReports?: UserReportItem[];
+    personalMapData?: DashboardMetrics["mapData"];
+    personalPestRanking?: PestRanking[];
 }
 
 // ─── Status Badge ─────────────────────────────────────────────────
@@ -74,6 +77,8 @@ export default function DashboardClient({
     metrics,
     userStats,
     userReports,
+    personalMapData,
+    personalPestRanking,
 }: DashboardClientProps) {
     const [isExporting, setIsExporting] = useState(false);
 
@@ -145,7 +150,7 @@ export default function DashboardClient({
                     </div>
                 </div>
 
-                {/* ── Tabs: Global / My Reports ─────────────────── */}
+                {/* ── Tabs: Global / My Overview ─────────────────── */}
                 {role === "guest" ? (
                     // Guest: no tabs, just global view
                     <GlobalOverview metrics={metrics} />
@@ -156,9 +161,9 @@ export default function DashboardClient({
                                 <MapPin className="w-4 h-4" />
                                 ภาพรวมทั้งหมด
                             </TabsTrigger>
-                            <TabsTrigger value="my-reports" className="gap-2">
-                                <FileText className="w-4 h-4" />
-                                รายงานของฉัน
+                            <TabsTrigger value="my-overview" className="gap-2">
+                                <User className="w-4 h-4" />
+                                ภาพรวมข้อมูลของฉัน
                             </TabsTrigger>
                         </TabsList>
 
@@ -167,12 +172,14 @@ export default function DashboardClient({
                             <GlobalOverview metrics={metrics} />
                         </TabsContent>
 
-                        {/* My Reports Tab */}
-                        <TabsContent value="my-reports" className="mt-6 space-y-6">
-                            {userStats && userReports && (
-                                <MyReportsSection
+                        {/* My Data Overview Tab */}
+                        <TabsContent value="my-overview" className="mt-6 space-y-6">
+                            {userStats && userReports && personalMapData && personalPestRanking && (
+                                <MyOverviewSection
                                     stats={userStats}
                                     reports={userReports}
+                                    mapData={personalMapData}
+                                    pestRanking={personalPestRanking}
                                     onExportCSV={handleExportCSV}
                                     isExporting={isExporting}
                                 />
@@ -219,20 +226,24 @@ function GlobalOverview({ metrics }: { metrics: DashboardMetrics }) {
     );
 }
 
-// ─── My Reports Section ───────────────────────────────────────────
-function MyReportsSection({
+// ─── My Data Overview Section ───────────────────────────────────────
+function MyOverviewSection({
     stats,
     reports,
+    mapData,
+    pestRanking,
     onExportCSV,
     isExporting,
 }: {
     stats: UserStats;
     reports: UserReportItem[];
+    mapData: DashboardMetrics["mapData"];
+    pestRanking: PestRanking[];
     onExportCSV: () => void;
     isExporting: boolean;
 }) {
     return (
-        <>
+        <div className="space-y-8">
             {/* Personal Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <StatCard
@@ -265,12 +276,39 @@ function MyReportsSection({
                 />
             </div>
 
+            {/* Personal Map + Personal Pest Ranking */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-xl font-bold flex items-center gap-2">
+                            <span className="w-2 h-6 bg-primary rounded-full" />
+                            แผนที่การรายงานของฉัน
+                        </CardTitle>
+                        <CardDescription>
+                            ตำแหน่งที่คุณเคยรายงานล่าสุด
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="h-[400px] rounded-lg overflow-hidden">
+                            <AdvancedMap reports={mapData} />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <PestRankingChart
+                    data={pestRanking}
+                    loading={false}
+                    title="ศัตรูพืชที่ฉันพบบ่อย"
+                    description="วิเคราะห์จากประวัติการรายงานของคุณ"
+                />
+            </div>
+
             {/* Recent Reports Table */}
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-4">
                     <div>
-                        <CardTitle className="text-lg">รายงานล่าสุดของฉัน</CardTitle>
-                        <CardDescription>รายงาน 10 รายการล่าสุดที่คุณบันทึก</CardDescription>
+                        <CardTitle className="text-lg">ประวัติการรายงานล่าสุด</CardTitle>
+                        <CardDescription>รายการล่าสุดที่คุณบันทึกในระบบ</CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
                         <Button
@@ -352,7 +390,7 @@ function MyReportsSection({
                     )}
                 </CardContent>
             </Card>
-        </>
+        </div>
     );
 }
 

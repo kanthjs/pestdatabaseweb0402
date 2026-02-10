@@ -10,6 +10,7 @@ const noto_sans_thai = Noto_Sans_Thai({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: "Thai Rice Pest Monitoring Network | RicePestNet",
   description: "Safeguarding Rice Harvests Together - เครือข่ายเฝ้าระวังศัตรูพืชข้าวแห่งประเทศไทย",
   icons: {

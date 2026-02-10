@@ -57,7 +57,10 @@ const nextConfig: NextConfig = {
 
     // Image Optimization
     images: {
-        domains: ["localhost", "*.supabase.co"],
+        remotePatterns: [
+            { protocol: "https", hostname: "localhost" },
+            { protocol: "https", hostname: "*.supabase.co" },
+        ],
         formats: ["image/webp", "image/avif"],
     },
 

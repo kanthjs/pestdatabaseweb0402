@@ -123,14 +123,6 @@ export default function UserMenu({ user, isLoading = false, role }: UserMenuProp
                             Dashboard
                         </Link>
                         <Link
-                            href="/my-reports"
-                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            <span className="material-icons-outlined text-lg">description</span>
-                            My Reports
-                        </Link>
-                        <Link
                             href="/profile"
                             className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
                             onClick={() => setIsOpen(false)}
