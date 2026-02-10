@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata = {
     title: "Privacy Policy | RicePestNet",
-    description: "Privacy Policy for the Thai Rice Pest Monitoring Network",
+    description: "นโยบายความเป็นส่วนตัวของเครือข่ายเฝ้าระวังภัยศัตรูข้าว (TRPMN)",
 };
 
 export default function PrivacyPage() {
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
                         นโยบายความเป็นส่วนตัว
                     </h1>
                     <p className="text-xl text-primary-foreground/80 font-light">
-                        Privacy Policy
+
                     </p>
                 </div>
             </section>
@@ -26,155 +26,155 @@ export default function PrivacyPage() {
                 <div className="max-w-4xl mx-auto prose prose-green dark:prose-invert max-w-none">
                     <div className="bg-card border border-border rounded-2xl p-8 md:p-12 shadow-sm">
                         <p className="text-muted-foreground mb-8 italic">
-                            อัปเดตล่าสุด: 20 กันยายน 2019
+                            อัปเดตล่าสุด: 10 กุมภาพันธ์ 2569
                         </p>
 
                         <div className="space-y-8 text-foreground leading-relaxed">
                             <p>
-                                This is the Privacy Policy of Plant Health Australia Limited (PHA) (Privacy Policy) which applies to the collection of information via the Plant Surveillance Network Australasia Pacific (PSNAP) website and portal (website and portal).
+                                นี่คือนโยบายความเป็นส่วนตัวของ ระบบเครือข่ายเฝ้าระวังภัยศัตรูข้าว หรือ Thai Rice Pest Monitoring Network (TRPMN) ซึ่งใช้บังคับกับการจัดเก็บข้อมูลผ่านเว็บไซต์และระบบพอร์ทัล ผ่านทางโดเมน ricepestmonitor.net.th
                             </p>
 
                             <p>
-                                PHA understands your privacy is important and is committed to respecting your rights and complying with all privacy obligations under the Privacy Act 1988 (Cth) (Privacy Act), including the Australian Privacy Principles (APPs). The APPs are designed to protect your privacy by regulating the way personal information is managed.
+                                คณะผู้จัดทำโครงการ TRPMN ตระหนักดีว่าความเป็นส่วนตัวของท่านเป็นสิ่งสำคัญ และเรามุ่งมั่นที่จะเคารพสิทธิของท่านรวมถึงปฏิบัติตามภาระผูกพันด้านความเป็นส่วนตัวทั้งหมดภายใต้ พระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) ซึ่งถูกออกแบบมาเพื่อคุ้มครองความเป็นส่วนตัวของท่าน โดยการกำกับดูแลวิธีการจัดการข้อมูลส่วนบุคคลให้เป็นระบบและปลอดภัย
                             </p>
 
                             <p>
-                                Under the Privacy Act, personal information is defined as information or an opinion about an identified individual, or an individual who is reasonably identifiable, irrespective of whether the information or opinion is true or is recorded in a material form (Personal Information).
+                                ภายใต้กฎหมายคุ้มครองข้อมูลส่วนบุคคล &quot;ข้อมูลส่วนบุคคล&quot; หมายถึง ข้อมูลเกี่ยวกับบุคคลซึ่งทำให้สามารถระบุตัวบุคคลนั้นได้ ไม่ว่าทางตรงหรือทางอ้อม ทั้งนี้ไม่ว่าข้อมูลนั้นจะเป็นจริงหรือไม่ หรือจะอยู่ในรูปแบบเอกสารหรือดิจิทัลก็ตาม (เรียกว่า &quot;ข้อมูลส่วนบุคคล&quot;)
                             </p>
 
                             <p>
-                                This Privacy Policy sets out how and when PHA will collect, use and disclose Personal Information obtained via the website and portal, and how you may access your Personal Information.
+                                นโยบายความเป็นส่วนตัวฉบับนี้ จะกำหนดรายละเอียดเกี่ยวกับ วิธีการและระยะเวลาที่เครือข่าย TRPMN จะทำการจัดเก็บ ใช้ และเปิดเผยข้อมูลส่วนบุคคลที่ได้รับผ่านเว็บไซต์และระบบพอร์ทัล รวมถึงวิธีการที่ท่านจะสามารถเข้าถึงและจัดการข้อมูลส่วนบุคคลของท่านได้
                             </p>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">Collection of Personal Information</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">การจัดเก็บข้อมูลส่วนบุคคล</h2>
 
-                                <h3 className="text-xl font-semibold">1. Purpose</h3>
+                                <h3 className="text-xl font-semibold">1. วัตถุประสงค์</h3>
                                 <p>
-                                    PHA collects and holds Personal Information that is reasonably necessary for, or related to, the activities and services PHA provides, and to administrative functions associated with these services. Accordingly, PHA collects Personal Information of visitors to the website (visitors) for the primary purposes of improving its services. PHA will only use Personal Information for this purpose, or for a related secondary purpose for which such information was collected.
-                                </p>
-
-                                <h3 className="text-xl font-semibold">2. Kinds of Personal Information collected</h3>
-                                <p>
-                                    The kind of Personal Information collected and held by PHA may include your name, email address, home or work address and telephone number, which are encrypted for your security.
-                                </p>
-                                <p>
-                                    The kind of computer hardware and software information collected and held by PHA may include IP addresses, browser type, domain names, access time, referring website addresses, average hits per day, most visited pages, length of visit, most and least active day/week/time/date, top referring URLs, top search engines, top search phrases, top search keywords, top browsers and versions and top operating systems.
-                                </p>
-                                <p>
-                                    Based upon this information, PHA may record statistics on successful site hits, page hits, document views, visitors who visit the website once and visitors who visit the website more than once.
+                                    เครือข่าย TRPMN จัดเก็บและถือครองข้อมูลส่วนบุคคลที่มีความจำเป็นตามสมควร หรือมีความเกี่ยวข้องกับกิจกรรมและการดำเนินงานที่เครือข่ายจัดทำขึ้น รวมถึงหน้าที่ด้านการบริหารจัดการที่เกี่ยวข้องกับการบริการเหล่านี้ ทั้งนี้ เครือข่ายจะจัดเก็บข้อมูลส่วนบุคคลของผู้เยี่ยมชมเว็บไซต์โดยมีวัตถุประสงค์หลักเพื่อนำมาพัฒนาปรับปรุงการให้บริการให้ดียิ่งขึ้น เครือข่ายจะใช้ข้อมูลส่วนบุคคลเพื่อวัตถุประสงค์นี้ หรือเพื่อวัตถุประสงค์รองที่เกี่ยวข้องโดยตรงกับวัตถุประสงค์หลักในการจัดเก็บข้อมูลเท่านั้น
                                 </p>
 
-                                <h3 className="text-xl font-semibold">3. Method of collection</h3>
+                                <h3 className="text-xl font-semibold">2. ประเภทของข้อมูลส่วนบุคคลที่จัดเก็บ</h3>
                                 <p>
-                                    PHA may collect Personal Information from a range of sources including: directly from you, your use of the PHA website and the use of standard forms.
+                                    ประเภทของข้อมูลส่วนบุคคลที่เครือข่ายจัดเก็บและถือครองอาจประกอบด้วย ชื่อ-นามสกุล, อีเมล, ที่อยู่บ้านหรือที่ทำงาน และหมายเลขโทรศัพท์ ซึ่งข้อมูลทั้งหมดจะถูกเข้ารหัส (Encrypted) เพื่อความปลอดภัยของท่าน
+                                </p>
+                                <p>
+                                    นอกจากนี้ ข้อมูลด้านคอมพิวเตอร์ ฮาร์ดแวร์ และซอฟต์แวร์ที่เครือข่ายอาจจัดเก็บประกอบด้วย ที่อยู่ IP (IP Address), ประเภทของเบราว์เซอร์, ชื่อโดเมน, เวลาที่เข้าชม, ที่อยู่เว็บไซต์ที่อ้างอิงถึง, สถิติการเข้าชมเฉลี่ยต่อวัน, หน้าที่ถูกเข้าชมบ่อยที่สุด, ระยะเวลาในการเข้าชม, วัน/เวลา/สัปดาห์ที่มีการใช้งานมากที่สุดและน้อยที่สุด, URL ที่ส่งต่อมายังเว็บไซต์, โปรแกรมค้นหา (Search Engines) ที่ใช้งาน, ข้อความหรือคีย์เวิร์ดที่ใช้ในการค้นหา, รุ่นของเบราว์เซอร์ และระบบปฏิบัติการที่ใช้งาน
+                                </p>
+                                <p>
+                                    เครือข่ายอาจนำข้อมูลเหล่านี้ไปบันทึกสถิติเกี่ยวกับการเข้าชมไซต์ จำนวนการเข้าชมหน้าเพจ การเปิดดูเอกสาร รวมถึงเปรียบเทียบระหว่างผู้เข้าชมครั้งแรกและผู้เข้าชมที่กลับมาใช้งานซ้ำ เพื่อนำข้อมูลไปวิเคราะห์ประสิทธิภาพของระบบ
+                                </p>
+
+                                <h3 className="text-xl font-semibold">3. วิธีการจัดเก็บข้อมูล (Method of collection)</h3>
+                                <p>
+                                    เครือข่ายอาจจัดเก็บข้อมูลส่วนบุคคลจากแหล่งข้อมูลที่หลากหลาย ได้แก่: จากท่านโดยตรง, จากการที่ท่านใช้งานเว็บไซต์ของเครือข่าย และจากการกรอกข้อมูลผ่านแบบฟอร์มมาตรฐานต่างๆ ของระบบ
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">Use and disclosure of information</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">การใช้และการเปิดเผยข้อมูล</h2>
 
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">4.</span>
-                                    <span>PHA may use Personal Information to manage your account, assess eligibility for access to the members portal, respond to any enquiries made or complaints lodged by you, provide services you have requested, analyse usage and accuracy of the website, and monitor and investigate security breaches.</span>
+                                    <span>เครือข่าย TRPMN อาจใช้ข้อมูลส่วนบุคคลเพื่อบริหารจัดการบัญชีผู้ใช้งานของท่าน, ประเมินคุณสมบัติในการเข้าถึงระบบพอร์ทัลสมาชิก (รวมถึงกระบวนการตรวจสอบสถานะผู้เชี่ยวชาญ), ตอบกลับข้อสอบถามหรือข้อร้องเรียนจากท่าน, ให้บริการตามที่ท่านร้องขอ, วิเคราะห์การใช้งานและความถูกต้องของเว็บไซต์ ตลอดจนติดตามและตรวจสอบกรณีการละเมิดความปลอดภัยของระบบ</span>
                                 </p>
 
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">5.</span>
-                                    <span>PHA will only disclose your Personal Information for the purpose it was collected, for a reasonably expected or related secondary purpose, or for other purposes explained at the time of collection.</span>
+                                    <span>เครือข่าย TRPMN จะเปิดเผยข้อมูลส่วนบุคคลของท่านเพื่อวัตถุประสงค์ที่กำหนดไว้ในการจัดเก็บข้อมูลเท่านั้น หรือเพื่อวัตถุประสงค์รองที่เกี่ยวข้องและสามารถคาดหมายได้ตามสมควร หรือเพื่อวัตถุประสงค์อื่นๆ ที่ได้แจ้งให้ทราบในขณะที่มีการจัดเก็บข้อมูล</span>
                                 </p>
 
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">6.</span>
-                                    <span>PHA will only record the email address of the individual who is granted access to the portal. This e-mail address will only be used for the purpose for which it was provided, and will not be added to any mailing list or disclosed to a third party without your consent.</span>
+                                    <span>เครือข่าย TRPMN จะบันทึกเฉพาะที่อยู่อีเมลของบุคคลที่ได้รับอนุมัติให้เข้าถึงระบบพอร์ทัลเท่านั้น โดยอีเมลนี้จะถูกใช้เพื่อวัตถุประสงค์ตามที่ท่านได้ระบุไว้ และจะไม่ถูกนำไปเพิ่มในรายการส่งเมลประชาสัมพันธ์ (Mailing List) หรือเปิดเผยแก่บุคคลที่สามโดยปราศจากความยินยอมของท่าน</span>
                                 </p>
 
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">7.</span>
-                                    <span>No attempt will be made to identify you or your browsing activities individually, except in the unlikely event of an investigation (for example, where a law enforcement agency may exercise a warrant to inspect the Internet Service Provider’s logs).</span>
+                                    <span>เครือข่ายจะไม่พยายามระบุตัวตนของท่านหรือกิจกรรมการใช้งานเว็บไซต์ของท่านเป็นรายบุคคล เว้นแต่ในกรณีที่อาจมีการสืบสวนสอบสวนทางกฎหมาย (ตัวอย่างเช่น กรณีที่หน่วยงานบังคับใช้กฎหมายใช้อำนาจตามหมายศาลในการตรวจสอบบันทึกข้อมูล (Logs) ของผู้ให้บริการอินเทอร์เน็ต)</span>
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">Security of your Personal Information</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">ความปลอดภัยของข้อมูลส่วนบุคคล</h2>
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">8.</span>
-                                    <span>PHA will take all reasonable steps as defined by the APPs to ensure your Personal Information is kept securely and is not misused, interfered with or disclosed unless authorised by this Privacy Policy.</span>
+                                    <span>เครือข่าย TRPMN จะดำเนินมาตรการที่เหมาะสมทุกประการตามมาตรฐานการคุ้มครองข้อมูลส่วนบุคคล เพื่อให้มั่นใจว่าข้อมูลส่วนบุคคลของท่านจะถูกเก็บรักษาอย่างปลอดภัย และไม่ถูกนำไปใช้ในทางที่ผิด ถูกรบกวน หรือถูกเปิดเผยโดยไม่ได้รับอนุญาต เว้นแต่จะได้รับความยินยอมภายใต้นโยบายความเป็นส่วนตัวนี้</span>
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">Access to, and correction of, your Personal Information</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">การเข้าถึงและการแก้ไขข้อมูลส่วนบุคคล</h2>
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">9.</span>
-                                    <span>PHA will take reasonable steps to ensure that the Personal Information collected, used or disclosed is accurate, complete or up to date. You can help us to do this by letting us know if your personal details change. You are able to manage your Personal Information including updating, changing or removing Personal Information.</span>
+                                    <span>เครือข่ายจะดำเนินการตามสมควรเพื่อให้มั่นใจว่าข้อมูลส่วนบุคคลที่จัดเก็บ ใช้ หรือเปิดเผยนั้นมีความถูกต้อง ครบถ้วน และเป็นปัจจุบัน ท่านสามารถช่วยเหลือเราได้โดยการแจ้งให้เราทราบหากมีการเปลี่ยนแปลงข้อมูลส่วนบุคคลของท่าน ทั้งนี้ ท่านสามารถบริหารจัดการข้อมูลส่วนบุคคลของท่านเองได้ รวมถึงการอัปเดต เปลี่ยนแปลง หรือลบข้อมูลส่วนบุคคลออกจากระบบ</span>
                                 </p>
 
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">10.</span>
-                                    <span>You are entitled to request access to your Personal Information held by PHA by contacting PHA on 02 6215 7700 or by emailing PSNAP@phau.com.au. PHA may deny your request to access or correct your Personal Information in limited circumstances, in accordance with the APPs. In these circumstances, PHA will provide you with a reason for its decision, and, in the case of a request for correction, PHA will include a statement about the requested correction.</span>
+                                    <span>ท่านมีสิทธิ์ร้องขอเข้าถึงข้อมูลส่วนบุคคลของท่านที่เครือข่ายถือครองไว้ โดยติดต่อผ่าน 0-XXXX-XXXX หรืออีเมล contact@ricepestnet.go.th ทั้งนี้ เครือข่ายอาจปฏิเสธคำร้องขอเข้าถึงหรือแก้ไขข้อมูลในบางกรณีตามที่กฎหมายกำหนด ซึ่งในกรณีดังกล่าว เครือข่ายจะแจ้งเหตุผลประกอบคำวินิจฉัยให้ทราบ และหากเป็นคำขอให้แก้ไขข้อมูล เครือข่ายจะบันทึกข้อความชี้แจงเกี่ยวกับคำขอแก้ไขนั้นไว้ในระบบด้วย</span>
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">Use of Cookies</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">การใช้คุกกี้ (Use of Cookies)</h2>
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">11.</span>
-                                    <span>PHA uses cookies to record your viewing preferences or other input submitted by you to provide a secure, personalised experience on the website. Cookies are small data files that a website is able to place on a user’s computer hard drive or in its memory to record aspects of that user’s experience of the website.</span>
+                                    <span>เครือข่ายใช้คุกกี้เพื่อบันทึกการตั้งค่าการเข้าชมหรือข้อมูลอื่นๆ ที่ท่านส่งมา เพื่อมอบประสบการณ์การใช้งานเว็บไซต์ที่ปลอดภัยและเป็นส่วนตัว คุกกี้คือไฟล์ข้อมูลขนาดเล็กที่เว็บไซต์ส่งไปจัดเก็บไว้ในฮาร์ดไดรฟ์หรือหน่วยความจำคอมพิวเตอร์ของผู้ใช้ เพื่อบันทึกข้อมูลประวัติการใช้งานเว็บไซต์ของท่าน</span>
                                 </p>
 
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">12.</span>
-                                    <span>You have the ability to accept or decline cookies, most browsers automatically accept cookies however you can modify your browser settings to decline cookies if you prefer.</span>
+                                    <span>ท่านสามารถเลือกยอมรับหรือปฏิเสธคุกกี้ได้ โดยปกติเบราว์เซอร์จะยอมรับคุกกี้โดยอัตโนมัติ แต่ท่านสามารถปรับแต่งการตั้งค่าเบราว์เซอร์เพื่อปฏิเสธคุกกี้ได้ตามความต้องการ</span>
                                 </p>
 
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">13.</span>
-                                    <span>Cookies are not used by the website or portal for identifying or tracking site visitors or for passing details to third parties.</span>
+                                    <span>เว็บไซต์และระบบพอร์ทัลไม่มีการใช้คุกกี้เพื่อระบุตัวตน ติดตามผู้เยี่ยมชม หรือส่งต่อรายละเอียดข้อมูลไปยังบุคคลที่สาม</span>
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">Links</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">ลิงก์ไปยังเว็บไซต์ภายนอก</h2>
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">14.</span>
-                                    <span>The website may contain links to websites operated by third parties. PHA makes no representations or warranties in relation to the privacy practices of third party websites and is not responsible for the privacy practices or the content of any third party website. Third party websites are responsible for informing you about their own privacy practices.</span>
+                                    <span>เว็บไซต์นี้อาจมีลิงก์ไปยังเว็บไซต์ที่ดำเนินงานโดยบุคคลที่สาม เครือข่าย TRPMN ไม่ได้รับรองหรือรับประกันนโยบายความเป็นส่วนตัวของเว็บไซต์เหล่านั้น และไม่ต้องรับผิดชอบต่อแนวปฏิบัติหรือเนื้อหาของเว็บไซต์บุคคลที่สาม เว็บไซต์บุคคลที่สามเหล่านั้นมีหน้าที่รับผิดชอบในการแจ้งนโยบายความเป็นส่วนตัวของตนเองให้ท่านทราบ</span>
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">Complaints</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">การร้องเรียน</h2>
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">15.</span>
-                                    <span>You are able to make a complaint with regard to the collection, disclosure or retention of your Personal Information by contacting PHA on 02 6215 7700 or by emailing PSNAP@phau.com.au .</span>
+                                    <span>ท่านสามารถร้องเรียนเกี่ยวกับการจัดเก็บ การเปิดเผย หรือการเก็บรักษาข้อมูลส่วนบุคคลได้ โดยติดต่อผ่าน 0-XXXX-XXXX หรืออีเมล contact@ricepestnet.go.th</span>
                                 </p>
 
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">16.</span>
-                                    <span>PHA will consider your complaint to determine whether there are simple or immediate steps which can be taken to resolve the complaint.</span>
+                                    <span>เครือข่ายจะพิจารณาข้อร้องเรียนของท่านเพื่อกำหนดขั้นตอนเบื้องต้นหรือมาตรการเร่งด่วนที่สามารถดำเนินการได้ทันทีเพื่อแก้ไขปัญหาดังกล่าว</span>
                                 </p>
 
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">17.</span>
-                                    <span>If your complaint requires more detailed consideration or investigation, PHA will endeavour to complete the investigation into your complaint promptly. PHA may ask you to provide further information about your complaint and the outcome you are seeking. PHA will then typically gather facts, locate and review relevant documents and speak with individuals involved. In most cases, PHA will investigate and respond to a complaint within 30 days of receipt of your complaint. If the matter is more complex or the investigation may take longer, PHA will let you know.</span>
+                                    <span>หากข้อร้องเรียนต้องการการตรวจสอบที่ละเอียดขึ้น เครือข่ายจะพยายามดำเนินการให้เสร็จสิ้นโดยเร็วที่สุด โดยอาจขอข้อมูลเพิ่มเติมจากท่านเพื่อประกอบการพิจารณา ซึ่งปกติจะใช้เวลาดำเนินการและตอบกลับภายใน 30 วันนับจากได้รับข้อร้องเรียน หากเรื่องมีความซับซ้อนและต้องใช้เวลามากกว่านั้น เครือข่ายจะแจ้งให้ท่านทราบล่วงหน้า</span>
                                 </p>
 
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">18.</span>
-                                    <span>If you are not satisfied with the response to your query or with the resolution of your request or complaint, you may make a further complaint to the Office of the Australian Information Commissioner on 1300 363 992 or by using the contact details found at oaic.gov.au.</span>
+                                    <span>หากท่านไม่พึงพอใจกับการตอบกลับหรือการแก้ไขปัญหา ท่านมีสิทธิ์ยื่นเรื่องร้องเรียนต่อ สำนักงานคณะกรรมการคุ้มครองข้อมูลส่วนบุคคล (สคส.) ของประเทศไทย</span>
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">Variations and Updates to this Privacy Policy</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">การเปลี่ยนแปลงนโยบายความเป็นส่วนตัว</h2>
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">19.</span>
-                                    <span>PHA will review this Privacy Policy regularly, and may make changes from time to time. If so, PHA will update this Privacy Policy to reflect those changes. The updated version of this Privacy Policy will be effective from the date of posting on the website. PHA recommend that you visit the website regularly to keep up to date with any changes.</span>
+                                    <span>เครือข่าย TRPMN จะทบทวนนโยบายนี้อย่างสม่ำเสมอและอาจมีการแก้ไขเป็นระยะ โดยจะปรับปรุงข้อมูลบนหน้าเว็บไซต์เพื่อให้สะท้อนถึงการเปลี่ยนแปลงดังกล่าว นโยบายฉบับปรับปรุงจะมีผลทันทีนับจากวันที่ประกาศบนเว็บไซต์ เราแนะนำให้ท่านตรวจสอบหน้านี้อย่างสม่ำเสมอเพื่อรับทราบความเปลี่ยนแปลง</span>
                                 </p>
 
                                 <p className="flex items-start gap-4">
                                     <span className="font-bold text-primary">20.</span>
-                                    <span>This Privacy Policy was last updated on 20 September 2019.</span>
+                                    <span>นโยบายความเป็นส่วนตัวนี้ปรับปรุงล่าสุดเมื่อวันที่ 10 กุมภาพันธ์ 2569</span>
                                 </p>
                             </div>
                         </div>

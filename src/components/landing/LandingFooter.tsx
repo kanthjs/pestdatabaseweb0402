@@ -3,6 +3,7 @@ import Image from "next/image";
 
 const quickLinks = [
   { name: "หน้าหลัก", href: "/" },
+  { name: "เกี่ยวกับเรา", href: "/about" },
   { name: "ข้อมูลศัตรูพืช", href: "/dashboard" },
   { name: "รายงานศัตรูพืช", href: "/survey" },
   { name: "เข้าร่วมเครือข่าย", href: "/signup" },
@@ -41,7 +42,7 @@ export function LandingFooter() {
               </span>
             </Link>
             <p className="text-primary-foreground/70 text-sm leading-relaxed mb-6">
-              เครือข่ายเฝ้าระวังศัตรูพืชข้าวแห่งประเทศไทย
+              เครือข่ายเฝ้าระวังภัยศัตรูข้าว
               ร่วมมือกันเพื่อความมั่นคงทางอาหารของชาติ
             </p>
           </div>

@@ -62,7 +62,7 @@ export function NetworkActivities() {
 
         <CTABanner
           title="พร้อมที่จะเข้าร่วมกับเราหรือยัง"
-          description="มาเป็นส่วนหนึ่งของเครือข่ายเฝ้าระวังศัตรูพืชที่ใหญ่ที่สุดในประเทศไทย"
+          description="มาเป็นส่วนหนึ่งของเครือข่ายเฝ้าระวังศัตรูข้าว"
           buttonText="เข้าร่วมเครือข่าย"
           href="/signup"
         />

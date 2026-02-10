@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 
 export interface UserProfileData {
     firstName: string | null;
@@ -39,10 +40,10 @@ export async function getProfileData(): Promise<UserProfileData | null> {
 
     if (!profile) {
         // Create a new profile if it doesn't exist
-        const userName = user.email 
+        const userName = user.email
             ? user.email.split('@')[0] + '_' + Date.now().toString(36)
             : 'user_' + Date.now().toString(36);
-        
+
         try {
             profile = await prisma.userProfile.create({
                 data: {
@@ -53,9 +54,9 @@ export async function getProfileData(): Promise<UserProfileData | null> {
                     lastName: user.user_metadata?.last_name || null,
                 },
             });
-        } catch (error: any) {
+        } catch (error) {
             // If unique constraint fails, try to fetch the existing profile
-            if (error.code === "P2002") {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
                 profile = await prisma.userProfile.findUnique({
                     where: { email: user.email || "" },
                 });
@@ -111,10 +112,10 @@ export async function updateProfile(formData: FormData) {
             });
         } else {
             // Create new profile with unique userName
-            const userName = user.email 
+            const userName = user.email
                 ? user.email.split('@')[0] + '_' + Date.now().toString(36)
                 : 'user_' + Date.now().toString(36);
-            
+
             try {
                 await prisma.userProfile.create({
                     data: {
@@ -124,9 +125,9 @@ export async function updateProfile(formData: FormData) {
                         ...profileData,
                     },
                 });
-            } catch (createError: any) {
+            } catch (createError) {
                 // If unique constraint fails on email, try to update the existing record
-                if (createError.code === "P2002" && user.email) {
+                if (createError instanceof Prisma.PrismaClientKnownRequestError && createError.code === "P2002" && user.email) {
                     const existingProfile = await prisma.userProfile.findUnique({
                         where: { email: user.email },
                     });
@@ -152,7 +153,7 @@ export async function updateProfile(formData: FormData) {
     }
 }
 
-export async function requestExpertStatus() {
+export async function requestExpertStatus(proofUrl: string) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -165,11 +166,12 @@ export async function requestExpertStatus() {
             where: { id: user.id },
             data: {
                 expertRequest: "PENDING",
+                expertProofUrl: proofUrl
             },
         });
 
         revalidatePath("/profile");
-        return { success: true, message: "Expert request submitted" };
+        return { success: true, message: "Expert request submitted with proof" };
     } catch (error) {
         console.error("Error requesting expert status:", error);
         return { success: false, message: "Failed to submit request" };

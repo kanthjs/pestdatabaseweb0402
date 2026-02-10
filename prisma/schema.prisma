@@ -66,6 +66,7 @@ model UserProfile {
   phone           String?
   occupationRoles String?
   expertRequest   ExpertStatus   @default(NONE)
+  expertProofUrl  String? // รูปถ่ายบัตรเจ้าหน้าที่/หลักฐาน
   address         String?
   province        String?
   district        String?

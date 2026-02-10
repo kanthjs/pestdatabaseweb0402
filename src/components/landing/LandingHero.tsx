@@ -65,22 +65,33 @@ export function LandingHero({
 
           {/* ปุ่มเรียกร้องให้ดำเนินการ (Call to Action - CTA) - นำทางไปสู่ฟีเจอร์หลัก */}
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
+            {/* ปุ่มรายงานศัตรูข้าว: ปุ่มหลักสำหรับเกษตรกรรายงานปัญหา (/survey) */}
+            <Link href="/survey">
+              <Button
+                size="lg"
+                className="w-full sm:w-auto bg-cta text-cta-foreground hover:bg-cta/90 rounded-full px-10 py-7 text-lg font-semibold shadow-xl shadow-orange-500/20 transition-all hover:-translate-y-1"
+              >
+                <span className="material-icons-outlined mr-2">bug_report</span>
+                รายงานศัตรูข้าว
+              </Button>
+            </Link>
             {/* ปุ่มสมัครสมาชิก: นำผู้ใช้ใหม่ไปยังหน้าลงทะเบียน (/signup) */}
             <Link href="/signup">
               <Button
+                variant="outline"
                 size="lg"
-                className="bg-cta text-cta-foreground hover:bg-cta/90 rounded-full px-10 py-7 text-lg font-semibold shadow-xl shadow-orange-500/20 transition-all hover:-translate-y-1"
+                className="w-full sm:w-auto rounded-full px-8 py-7 text-lg font-medium border-2"
               >
                 <span className="material-icons-outlined mr-2">person_add</span>
                 เข้าร่วมเครือข่าย (ฟรี)
               </Button>
             </Link>
             {/* ปุ่มแดชบอร์ด: นำผู้ใช้ไปดูข้อมูลการระบาดและแผนที่ (/dashboard) */}
-            <Link href="/dashboard">
+            <Link href="/dashboard" className="hidden sm:block">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="lg"
-                className="rounded-full px-8 py-7 text-lg font-medium border-2"
+                className="rounded-full px-8 py-7 text-lg font-medium"
               >
                 <span className="material-icons-outlined mr-2">visibility</span>
                 ดูข้อมูลศัตรูพืช

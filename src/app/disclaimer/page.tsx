@@ -28,22 +28,22 @@ export default function DisclaimerPage() {
                         <div className="prose prose-green dark:prose-invert max-w-none space-y-8 text-foreground leading-relaxed">
                             <div className="space-y-6">
                                 <p>
-                                    The material included on this website is provided for general use and information purposes only. Information has been drawn from a range of sources outside of the Plant Surveillance Network Australasia-Pacific (PSNAP).
+                                    เนื้อหาที่ปรากฏบนเว็บไซต์นี้จัดทำขึ้นเพื่อวัตถุประสงค์ในการให้ข้อมูลทั่วไปเท่านั้น โดยข้อมูลส่วนหนึ่งได้ถูกรวบรวมมาจากแหล่งข้อมูลภายนอกเครือข่ายติดตามและเฝ้าระวังศัตรูพืชข้าวไทย (TRPMN)
                                 </p>
                                 <p>
-                                    Although reasonable care is taken in its preparation and publication, the PSNAP does not warrant the accuracy, reliability, completeness or currency of any material contained in the site, or its usefulness is achieving any purpose. To the fullest extent permitted by law, the PSNAP will not be liable for any loss, damage, cost or expense incurred in, or arising by, reason of any person relying on the information on this website. Users of information derived from this website should make and rely on their own assessment and enquiries to verify its accuracy.
-                                </p>
-                            </div>
-
-                            <div className="space-y-6 pt-6 border-t border-border">
-                                <p>
-                                    References to other sites are provided as an information service only and do not necessarily constitute endorsement. Conversely, omissions should not be construed as non-endorsement. Every care is taken to provide links to suitable material from this site, however the PSNAP does not guarantee the suitability, completeness or accuracy of any material encountered through a linked site. Further, the PSNAP does not guarantee the availability of any of the sites listed.
+                                    แม้ว่าเครือข่าย TRPMN จะใช้ความระมัดระวังตามสมควรในการจัดเตรียมและเผยแพร่ข้อมูล แต่เครือข่ายไม่รับรองความถูกต้อง ความน่าเชื่อถือ ความครบถ้วน หรือความเป็นปัจจุบันของเนื้อหาใดๆ ที่ปรากฏบนเว็บไซต์ รวมถึงไม่รับประกันประโยชน์ในการนำไปใช้เพื่อวัตถุประสงค์เฉพาะเจาะจงใดๆ ภายใต้ขอบเขตสูงสุดที่กฎหมายอนุญาต เครือข่าย TRPMN จะไม่รับผิดชอบต่อความสูญเสีย ความเสียหาย ค่าใช้จ่าย หรือภาระใดๆ ที่เกิดขึ้นจากการที่บุคคลหนึ่งบุคคลใดนำข้อมูลบนเว็บไซต์นี้ไปใช้หรืออ้างอิง ผู้ใช้งานควรทำการประเมินและตรวจสอบความถูกต้องของข้อมูลด้วยตนเองก่อนนำไปตัดสินใจดำเนินการใดๆ
                                 </p>
                             </div>
 
                             <div className="space-y-6 pt-6 border-t border-border">
                                 <p>
-                                    Despite its best efforts, the PSNAP does not warrant that the information in its site is free of infection by computer viruses or other contamination.
+                                    การอ้างอิงถึงเว็บไซต์อื่นๆ จัดทำขึ้นเพื่อเป็นบริการข้อมูลเท่านั้น และไม่ถือเป็นการให้การรับรองเว็บไซต์เหล่านั้น ในทางกลับกัน การไม่ได้อ้างถึงเว็บไซต์ใดก็มิให้ตีความว่าเป็นการไม่รับรองเช่นกัน แม้เครือข่ายจะพยายามคัดเลือกกระบวนการเชื่อมโยงไปยังเว็บไซต์ที่เหมาะสม แต่เครือข่ายไม่รับประกันความเหมาะสม ความครบถ้วน หรือความถูกต้องของเนื้อหาที่พบผ่านลิงก์ภายนอกเหล่านั้น นอกจากนี้ เครือข่ายไม่รับประกันความพร้อมใช้งานของเว็บไซต์ต่างๆ ที่มีการระบุไว้
+                                </p>
+                            </div>
+
+                            <div className="space-y-6 pt-6 border-t border-border">
+                                <p>
+                                    แม้เครือข่ายจะพยายามอย่างเต็มที่แล้ว แต่เครือข่ายไม่รับประกันว่าข้อมูลภายในเว็บไซต์นี้จะปราศจากการติดไวรัสคอมพิวเตอร์หรือมัลแวร์อ่น ๆ 
                                 </p>
                             </div>
                         </div>

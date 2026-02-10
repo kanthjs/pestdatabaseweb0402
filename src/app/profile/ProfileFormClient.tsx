@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { updateProfile, requestExpertStatus, UserProfileData } from "./actions";
+import { createClient } from "@/lib/supabase/client";
 
 const occupationRoles = [
     { reporterId: "OCC001", labelTH: "เกษตรกร", labelEN: "Farmer" },
@@ -41,6 +42,7 @@ const thaiProvinces = [
 export default function ProfileFormClient({ initialData }: ProfileFormClientProps) {
     const [isPending, startTransition] = useTransition();
     const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+    const [expertProofFile, setExpertProofFile] = useState<File | null>(null);
     const [formData, setFormData] = useState({
         firstName: initialData.firstName || "",
         lastName: initialData.lastName || "",
@@ -67,13 +69,46 @@ export default function ProfileFormClient({ initialData }: ProfileFormClientProp
         });
     };
 
-    const handleExpertRequest = () => {
+    const handleExpertRequest = async () => {
+        if (!expertProofFile) {
+            setMessage({ type: "error", text: "กรุณาแนบรูปถ่ายบัตรเจ้าหน้าที่หรือหลักฐาน / Please upload proof of identity" });
+            return;
+        }
+
         startTransition(async () => {
-            const result = await requestExpertStatus();
-            setMessage({
-                type: result.success ? "success" : "error",
-                text: result.message,
-            });
+            try {
+                // Upload to Supabase
+                const supabase = createClient();
+                const fileExt = expertProofFile.name.split('.').pop();
+                const fileName = `expert-proofs/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('pestPics')
+                    .upload(fileName, expertProofFile);
+
+                if (uploadError) {
+                    console.error("Upload error:", uploadError);
+                    setMessage({ type: "error", text: "การอัปโหลดรูปภาพล้มเหลว / Upload failed" });
+                    return;
+                }
+
+                const { data } = supabase.storage
+                    .from('pestPics')
+                    .getPublicUrl(fileName);
+
+                const result = await requestExpertStatus(data.publicUrl);
+                setMessage({
+                    type: result.success ? "success" : "error",
+                    text: result.message,
+                });
+
+                if (result.success) {
+                    setExpertProofFile(null); // Clear file on success
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                setMessage({ type: "error", text: "เกิดข้อผิดพลาดในการส่งคำขอ / Submission failed" });
+            }
             setTimeout(() => setMessage(null), 3000);
         });
     };
@@ -311,24 +346,68 @@ export default function ProfileFormClient({ initialData }: ProfileFormClientProp
                                                 <span className="material-icons-outlined text-base">cancel</span>
                                                 คำขอถูกปฏิเสธ
                                             </p>
+
+                                            <div className="mt-4 space-y-3">
+                                                <div>
+                                                    <label htmlFor="expertProofFileRejected" className="block text-sm font-medium text-foreground mb-1">
+                                                        อัปโหลดหลักฐานใหม่ (บัตรเจ้าหน้าที่ / ใบรับรอง)
+                                                    </label>
+                                                    <input
+                                                        id="expertProofFileRejected"
+                                                        title="Upload new proof"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => setExpertProofFile(e.target.files?.[0] || null)}
+                                                        className="w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleExpertRequest}
+                                                    disabled={isPending || !expertProofFile}
+                                                    className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center gap-2"
+                                                >
+                                                    {isPending ? "กำลังส่ง..." : "ยื่นคำขอใหม่"}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="mt-4 space-y-3">
+                                            <div>
+                                                <label htmlFor="expertProofFileNew" className="block text-sm font-medium text-foreground mb-1">
+                                                    หลักฐานยืนยันตัวตน (บัตรเจ้าหน้าที่ / ใบรับรอง)
+                                                </label>
+                                                <input
+                                                    id="expertProofFileNew"
+                                                    title="Upload proof"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => setExpertProofFile(e.target.files?.[0] || null)}
+                                                    className="w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                                                />
+                                                <p className="text-xs text-muted-foreground mt-1">
+                                                    * กรุณาแนบรูปถ่ายบัตรประจำตัวเจ้าหน้าที่ หรือใบรับรองหน่วยงานเพื่อยืนยัน
+                                                </p>
+                                            </div>
                                             <button
                                                 type="button"
                                                 onClick={handleExpertRequest}
-                                                disabled={isPending}
-                                                className="mt-2 px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors disabled:opacity-50"
+                                                disabled={isPending || !expertProofFile}
+                                                className="px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center gap-2"
                                             >
-                                                ยื่นคำขอใหม่
+                                                {isPending ? (
+                                                    <>
+                                                        <span className="material-icons-outlined animate-spin text-sm">refresh</span>
+                                                        กำลังส่ง...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span className="material-icons-outlined text-sm">send</span>
+                                                        ยื่นคำขอ
+                                                    </>
+                                                )}
                                             </button>
                                         </div>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            onClick={handleExpertRequest}
-                                            disabled={isPending}
-                                            className="mt-3 px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition-colors disabled:opacity-50"
-                                        >
-                                            {isPending ? "กำลังส่ง..." : "ยื่นคำขอ"}
-                                        </button>
                                     )}
                                 </div>
                             </div>

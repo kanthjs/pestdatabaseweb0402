@@ -8,6 +8,7 @@ import {
   // Transformation, // ยังไม่พร้อมแสดง - รอโปรเจคโตขึ้นก่อน
   SecondaryCTA,
   LandingFooter,
+  MobileReportFAB,
 } from "@/components/landing";
 
 export const dynamic = "force-dynamic";
@@ -48,6 +49,9 @@ export default async function HomePage() {
 
       {/* 8. FOOTER - Professional legitimacy */}
       <LandingFooter />
+
+      {/* ปุ่มลอยสำหรับมือถือ - ให้กดรายงานศัตรูข้าวได้ง่าย */}
+      <MobileReportFAB />
     </div>
   );
 }

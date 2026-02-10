@@ -26,191 +26,167 @@ export default function TermsPage() {
                 <div className="max-w-4xl mx-auto">
                     <div className="bg-card border border-border rounded-2xl p-8 md:p-12 shadow-sm">
                         <p className="text-muted-foreground mb-8 italic">
-                            Last Updated: February 10, 2026
+                            ปรับปรุงล่าสุด: 10 กุมภาพันธ์ 2569
                         </p>
 
                         <div className="prose prose-green dark:prose-invert max-w-none space-y-8 text-foreground leading-relaxed">
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">1. Acceptance of Terms</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">1. การยอมรับเงื่อนไข</h2>
                                 <p>
-                                    By accessing and using the Thai Rice Pest Monitoring Network website and portal (collectively, the "Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this Service.
-                                </p>
-                                <p>
-                                    These Terms of Use ("Terms") govern your access to and use of our Service, including any content, functionality, and services offered on or through the Service.
+                                    การเข้าถึงและใช้งานเว็บไซต์และพอร์ทัลของเครือข่ายติดตามและเฝ้าระวังศัตรูพืชข้าวไทย (รวมเรียกว่า &quot;การบริการ&quot;) ถือว่าท่านยอมรับและตกลงที่จะผูกพันตามข้อกำหนดและเงื่อนไขของข้อตกลงฉบับนี้ หากท่านไม่ตกลงตามเงื่อนไขดังกล่าว โปรดงดเว้นการใช้งานการบริการนี้ เงื่อนไขการใช้งานเหล่านี้ (&quot;เงื่อนไข&quot;) ใช้บังคับกับการเข้าถึงและการใช้งานการบริการของท่าน รวมถึงเนื้อหา ฟังก์ชันการทำงาน และบริการต่างๆ ที่นำเสนอผ่านระบบ
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">2. Use of the Service</h2>
-                                <h3 className="text-xl font-semibold">2.1 Permitted Use</h3>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">2. การใช้งานการบริการ</h2>
+                                <h3 className="text-xl font-semibold">2.1 การใช้งานที่อนุญาต</h3>
                                 <p>
-                                    You may use the Service only for lawful purposes and in accordance with these Terms. The Service is intended to facilitate the monitoring, reporting, and management of rice pest and disease information across Thailand.
+                                    ท่านสามารถใช้งานการบริการเพื่อวัตถุประสงค์ที่ชอบด้วยกฎหมายและเป็นไปตามเงื่อนไขเหล่านี้เท่านั้น โดยการบริการนี้มีวัตถุประสงค์เพื่ออำนวยความสะดวกในการติดตาม รายงาน และจัดการข้อมูลศัตรูพืชและโรคข้าวทั่วประเทศไทย
                                 </p>
 
-                                <h3 className="text-xl font-semibold">2.2 Prohibited Activities</h3>
-                                <p>You agree not to:</p>
+                                <h3 className="text-xl font-semibold">2.2 กิจกรรมที่ต้องห้าม</h3>
+                                <p>ท่านตกลงที่จะไม่:</p>
                                 <ul className="list-disc pl-6 space-y-2">
-                                    <li>Use the Service in any way that violates any applicable national or international law or regulation</li>
-                                    <li>Submit false, misleading, or inaccurate information or reports</li>
-                                    <li>Impersonate or attempt to impersonate another user, person, or entity</li>
-                                    <li>Engage in any conduct that restricts or inhibits anyone's use or enjoyment of the Service</li>
-                                    <li>Use any robot, spider, or other automatic device, process, or means to access the Service for any purpose</li>
-                                    <li>Introduce any viruses, trojan horses, worms, logic bombs, or other material that is malicious or technologically harmful</li>
-                                    <li>Attempt to gain unauthorized access to, interfere with, damage, or disrupt any parts of the Service</li>
+                                    <li>ใช้งานการบริการในลักษณะใดก็ตามที่ละเมิดกฎหมายหรือกฎระเบียบระดับชาติหรือระหว่างประเทศ</li>
+                                    <li>ส่งข้อมูลหรือรายงานที่เป็นเท็จ ทำให้เข้าใจผิด หรือไม่ถูกต้อง</li>
+                                    <li>ปลอมตัวหรือพยายามปลอมตัวเป็นผู้ใช้งานบุคคล หรือหน่วยงานอื่น</li>
+                                    <li>ดำเนินการใดๆ ที่ขัดขวางหรือจำกัดการใช้งานการบริการของผู้อื่น</li>
+                                    <li>ใช้โรบอท สไปเดอร์ หรืออุปกรณ์อัตโนมัติ กระบวนการ หรือวิธีการใดๆ เพื่อเข้าถึงการบริการไม่ว่าเพื่อวัตถุประสงค์ใดก็ตาม</li>
+                                    <li>นำไวรัส ม้าโทรจัน เวิร์ม ลอจิกบอมบ์ หรือเนื้อหาอื่นๆ ที่ประสงค์ร้ายหรือเป็นอันตรายทางเทคโนโลยีเข้าสู่ระบบ</li>
+                                    <li>พยายามเข้าถึงโดยไม่ได้รับอนุญาต รบกวน สร้างความเสียหาย หรือขัดขวางส่วนใดส่วนหนึ่งของการบริการ</li>
                                 </ul>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">3. User Accounts and Registration</h2>
-                                <h3 className="text-xl font-semibold">3.1 Account Creation</h3>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">3. บัญชีผู้ใช้งานและการลงทะเบียน</h2>
+                                <h3 className="text-xl font-semibold">3.1 การสร้างบัญชี</h3>
                                 <p>
-                                    To access certain features of the Service, you may be required to register for an account. When you register, you agree to provide accurate, current, and complete information about yourself and to maintain and update this information to keep it accurate, current, and complete.
+                                    ในการเข้าถึงฟีเจอร์บางประการ ท่านอาจต้องลงทะเบียนบัญชี โดยท่านตกลงที่จะให้ข้อมูลที่ถูกต้อง เป็นปัจจุบัน และครบถ้วน และจะปรับปรุงข้อมูลดังกล่าวให้ถูกต้องอยู่เสมอ
                                 </p>
 
-                                <h3 className="text-xl font-semibold">3.2 Account Security</h3>
+                                <h3 className="text-xl font-semibold">3.2 ความปลอดภัยของบัญชี</h3>
                                 <p>
-                                    You are responsible for safeguarding the password that you use to access the Service and for any activities or actions under your password. We encourage you to use "strong" passwords (passwords that use a combination of upper and lower case letters, numbers, and symbols) with your account. You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account.
+                                    ท่านมีหน้าที่รับผิดชอบในการรักษาความลับของรหัสผ่านและกิจกรรมใดๆ ที่เกิดขึ้นภายใต้รหัสผ่านของท่าน เราแนะนำให้ท่านใช้รหัสผ่านที่ &quot;คาดเดายาก&quot; (ผสมตัวอักษรพิมพ์เล็ก-ใหญ่ ตัวเลข และสัญลักษณ์) และท่านต้องแจ้งให้เราทราบทันทีหากพบการละเมิดความปลอดภัยหรือการใช้งานบัญชีโดยไม่ได้รับอนุญาต
                                 </p>
 
-                                <h3 className="text-xl font-semibold">3.3 Account Termination</h3>
+                                <h3 className="text-xl font-semibold">3.3 การยกเลิกบัญชี</h3>
                                 <p>
-                                    We reserve the right to terminate or suspend your account and access to the Service at our sole discretion, without notice, for conduct that we believe violates these Terms or is harmful to other users of the Service, us, or third parties, or for any other reason.
+                                    เราขอสงวนสิทธิ์ในการยกเลิกหรือระงับบัญชีและการเข้าถึงการบริการของท่านตามดุลยพินิจของเรา โดยไม่ต้องแจ้งให้ทราบล่วงหน้า หากพบพฤติกรรมที่ละเมิดเงื่อนไขเหล่านี้ หรือก่อให้เกิดอันตรายต่อผู้ใช้อื่น ต่อเรา หรือต่อบุคคลที่สาม
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">4. User Content and Data Submission</h2>
-                                <h3 className="text-xl font-semibold">4.1 Responsibility for Content</h3>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">4. เนื้อหาของผู้ใช้งานและการส่งข้อมูล</h2>
+                                <h3 className="text-xl font-semibold">4.1 ความรับผิดชอบต่อเนื้อหา</h3>
                                 <p>
-                                    You are solely responsible for any data, reports, photographs, information, or other content that you submit, post, or display on or through the Service ("User Content"). By submitting User Content, you represent and warrant that:
+                                    ท่านเป็นผู้รับผิดชอบแต่เพียงผู้เดียวต่อข้อมูล รายงาน รูปภาพ หรือเนื้อหาอื่นๆ ที่ท่านส่งหรือแสดงผ่านการบริการ (&quot;เนื้อหาผู้ใช้งาน&quot;) โดยท่านรับรองว่า:
                                 </p>
                                 <ul className="list-disc pl-6 space-y-2">
-                                    <li>You own or have the necessary rights, licenses, and permissions to submit the User Content</li>
-                                    <li>The User Content is accurate and truthful to the best of your knowledge</li>
-                                    <li>The User Content does not violate any third-party rights, including intellectual property rights</li>
-                                    <li>The User Content complies with these Terms and applicable laws</li>
+                                    <li>ท่านเป็นเจ้าของหรือได้รับสิทธิ์และอนุญาตที่จำเป็นในการส่งเนื้อหาดังกล่าว</li>
+                                    <li>เนื้อหาผู้ใช้งานมีความถูกต้องและเป็นจริงตามความรู้ความเข้าใจของท่าน</li>
+                                    <li>เนื้อหาไม่ละเมิดสิทธิ์ของบุคคลที่สาม รวมถึงสิทธิ์ในทรัพย์สินทางปัญญา</li>
                                 </ul>
 
-                                <h3 className="text-xl font-semibold">4.2 License to User Content</h3>
+                                <h3 className="text-xl font-semibold">4.2 การอนุญาตให้ใช้สิทธิ์ในเนื้อหา</h3>
                                 <p>
-                                    By submitting User Content to the Service, you grant us a worldwide, non-exclusive, royalty-free, perpetual, irrevocable license to use, reproduce, modify, adapt, publish, translate, create derivative works from, distribute, and display such User Content for the purposes of operating, promoting, and improving the Service, and for research and public health purposes related to agricultural pest management.
+                                    การส่งเนื้อหาผู้ใช้งานเข้าสู่ระบบ ถือว่าท่านอนุญาตให้เราใช้ ทำซ้ำ แก้ไข ปรับปรุง เผยแพร่ แปล และแสดงเนื้อหาดังกล่าวไปทั่วโลกโดยไม่มีค่าลิขสิทธิ์ เพื่อวัตถุประสงค์ในการดำเนินงาน ส่งเสริม และพัฒนาการบริการ รวมถึงเพื่อการวิจัยและประโยชน์ด้านสาธารณสุขที่เกี่ยวข้องกับการจัดการศัตรูพืชทางการเกษตร
                                 </p>
 
-                                <h3 className="text-xl font-semibold">4.3 Data Accuracy</h3>
+                                <h3 className="text-xl font-semibold">4.3 ความถูกต้องของข้อมูล</h3>
                                 <p>
-                                    While we strive to verify submitted reports and data, we cannot guarantee the accuracy, completeness, or reliability of any User Content. Users should independently verify any information before making decisions based on data from the Service.
+                                    แม้เราจะพยายามตรวจสอบรายงานและข้อมูลที่ส่งเข้ามา แต่เราไม่รับประกันความถูกต้อง ครบถ้วน หรือความน่าเชื่อถือของเนื้อหาผู้ใช้งานใดๆ ผู้ใช้งานควรตรวจสอบข้อมูลอย่างเป็นอิสระก่อนตัดสินใจใดๆ โดยอ้างอิงจากข้อมูลในการบริการ
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">5. Intellectual Property Rights</h2>
-                                <h3 className="text-xl font-semibold">5.1 Service Content</h3>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">5. สิทธิ์ในทรัพย์สินทางปัญญา</h2>
+                                <h3 className="text-xl font-semibold">5.1 เนื้อหาของการบริการ</h3>
                                 <p>
-                                    The Service and its original content (excluding User Content), features, and functionality are and will remain the exclusive property of the Thai Rice Pest Monitoring Network and its licensors. The Service is protected by copyright, trademark, and other laws. Our trademarks and trade dress may not be used in connection with any product or service without our prior written consent.
+                                    การบริการและเนื้อหาต้นฉบับ (ไม่รวมเนื้อหาผู้ใช้งาน) ฟีเจอร์ และฟังก์ชันการทำงาน เป็นทรัพย์สินของเครือข่าย TRPMN และผู้ให้สิทธิ์แต่เพียงผู้เดียว โดยได้รับความคุ้มครองตามกฎหมายลิขสิทธิ์ เครื่องหมายการค้า และกฎหมายอื่นๆ ห้ามใช้เครื่องหมายการค้าของเราโดยไม่ได้รับความยินยอมเป็นลายลักษณ์อักษร
                                 </p>
 
-                                <h3 className="text-xl font-semibold">5.2 Limited License</h3>
+                                <h3 className="text-xl font-semibold">5.2 การอนุญาตอย่างจำกัด</h3>
                                 <p>
-                                    Subject to these Terms, we grant you a limited, non-exclusive, non-transferable, non-sublicensable license to access and use the Service for your personal or organizational use in connection with rice pest monitoring and agricultural management activities.
+                                    เรามอบสิทธิ์อย่างจำกัดในการเข้าถึงและใช้งานการบริการเพื่อการใช้งานส่วนตัวหรือภายในองค์กรที่เกี่ยวข้องกับการติดตามศัตรูพืชและการจัดการทางการเกษตรเท่านั้น
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">6. Privacy and Data Protection</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">6. ความเป็นส่วนตัวและการคุ้มครองข้อมูล</h2>
                                 <p>
-                                    Our collection and use of personal information in connection with your use of the Service is described in our <Link href="/privacy" className="text-primary hover:text-primary/80 underline">Privacy Policy</Link>. By using the Service, you consent to such collection and use.
+                                    การจัดเก็บและการใช้ข้อมูลส่วนบุคคลของท่านเป็นไปตามที่ระบุไว้ใน <Link href="/privacy" className="text-primary hover:text-primary/80 underline">นโยบายความเป็นส่วนตัว (Privacy Policy)</Link> ของเรา
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">7. Disclaimer of Warranties</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">7. การปฏิเสธการรับประกัน</h2>
                                 <p>
-                                    The Service is provided on an "AS IS" and "AS AVAILABLE" basis, without any warranties of any kind, either express or implied. Neither the Thai Rice Pest Monitoring Network nor any person associated with it makes any warranty or representation with respect to the completeness, security, reliability, quality, accuracy, or availability of the Service.
-                                </p>
-                                <p>
-                                    We do not warrant that:
+                                    การบริการนี้จัดทำขึ้นตามสภาพที่เป็นอยู่ (&quot;AS IS&quot;) และตามที่มีอยู่ (&quot;AS AVAILABLE&quot;) โดยไม่มีการรับประกันใดๆ เครือข่าย TRPMN ไม่รับรองว่า:
                                 </p>
                                 <ul className="list-disc pl-6 space-y-2">
-                                    <li>The Service will be available at any particular time or location, uninterrupted or secure</li>
-                                    <li>Any defects or errors will be corrected</li>
-                                    <li>The Service is free of viruses or other harmful components</li>
-                                    <li>The results of using the Service will meet your requirements</li>
+                                    <li>การบริการจะพร้อมใช้งานตลอดเวลาในทุกสถานที่ โดยไม่ขัดข้องหรือปลอดภัย</li>
+                                    <li>ข้อบกพร่องหรือข้อผิดพลาดจะได้รับการแก้ไข</li>
+                                    <li>การบริการปราศจากไวรัสหรือส่วนประกอบที่เป็นอันตราย (โปรดดูรายละเอียดเพิ่มเติมในหน้า <Link href="/disclaimer" className="text-primary hover:text-primary/80 underline">ข้อสงวนสิทธิ์ (Disclaimer)</Link>)</li>
                                 </ul>
+                            </div>
+
+                            <div className="space-y-6">
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">8. การจำกัดความรับผิด</h2>
                                 <p>
-                                    For additional disclaimers, please refer to our <Link href="/disclaimer" className="text-primary hover:text-primary/80 underline">Disclaimer page</Link>.
+                                    ภายใต้ขอบเขตสูงสุดที่กฎหมายอนุญาต เครือข่าย TRPMN และผู้เกี่ยวข้องจะไม่รับผิดชอบต่อความเสียหายทางอ้อม ความเสียหายที่เกิดขึ้นโดยบังเอิญ หรือการสูญเสียผลกำไร ข้อมูล และผลประโยชน์ที่จับต้องไม่ได้อื่นๆ ที่เกิดจากการเข้าถึงหรือใช้งาน หรือการไม่สามารถเข้าถึงการบริการของท่าน
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">8. Limitation of Liability</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">9. การชดใช้ค่าเสียหาย</h2>
                                 <p>
-                                    To the fullest extent permitted by applicable law, in no event will the Thai Rice Pest Monitoring Network, its affiliates, officers, directors, employees, agents, suppliers, or licensors be liable for:
-                                </p>
-                                <ul className="list-disc pl-6 space-y-2">
-                                    <li>Any indirect, incidental, special, consequential, or punitive damages</li>
-                                    <li>Any loss of profits, revenues, data, use, goodwill, or other intangible losses</li>
-                                    <li>Any damages resulting from your access to or use of or inability to access or use the Service</li>
-                                    <li>Any damages resulting from any conduct or content of any third party on the Service</li>
-                                    <li>Any damages resulting from unauthorized access, use, or alteration of your transmissions or content</li>
-                                </ul>
-                                <p>
-                                    This limitation of liability applies whether the alleged liability is based on contract, tort, negligence, strict liability, or any other basis, even if we have been advised of the possibility of such damage.
+                                    ท่านตกลงที่จะปกป้อง ชดใช้ค่าเสียหาย และทำให้เครือข่าย TRPMN พ้นจากการเรียกร้อง ความรับผิด ความเสียหาย หรือค่าใช้จ่ายใดๆ (รวมถึงค่าทนายความตามสมควร) ที่เกิดจากการที่ท่านละเมิดเงื่อนไขเหล่านี้หรือการใช้งานการบริการของท่าน
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">9. Indemnification</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">10. ลิงก์ไปยังเว็บไซต์อื่น</h2>
                                 <p>
-                                    You agree to defend, indemnify, and hold harmless the Thai Rice Pest Monitoring Network, its affiliates, licensors, and service providers, and its and their respective officers, directors, employees, contractors, agents, licensors, suppliers, successors, and assigns from and against any claims, liabilities, damages, judgments, awards, losses, costs, expenses, or fees (including reasonable attorneys' fees) arising out of or relating to your violation of these Terms or your use of the Service.
+                                    การบริการอาจมีลิงก์ไปยังเว็บไซต์บุคคลที่สามซึ่งเราไม่ได้เป็นเจ้าของหรือควบคุม เราจะไม่รับผิดชอบต่อเนื้อหา นโยบายความเป็นส่วนตัว หรือแนวปฏิบัติของเว็บไซต์เหล่านั้น
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">10. Links to Other Websites</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">11. การเปลี่ยนแปลงเงื่อนไข</h2>
                                 <p>
-                                    The Service may contain links to third-party websites or services that are not owned or controlled by us. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party websites or services. You further acknowledge and agree that we shall not be responsible or liable, directly or indirectly, for any damage or loss caused or alleged to be caused by or in connection with the use of or reliance on any such content, goods, or services available on or through any such websites or services.
+                                    เราขอสงวนสิทธิ์ในการปรับปรุงหรือเปลี่ยนเงื่อนไขเหล่านี้ได้ตลอดเวลา หากมีการเปลี่ยนแปลงที่เป็นสาระสำคัญ เราจะพยายามแจ้งให้ทราบล่วงหน้าอย่างน้อย 30 วันก่อนเงื่อนไขใหม่จะมีผลบังคับใช้
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">11. Changes to Terms</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">12. กฎหมายที่ใช้บังคับและเขตอำนาจศาล</h2>
                                 <p>
-                                    We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will make reasonable efforts to provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion.
-                                </p>
-                                <p>
-                                    By continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms. If you do not agree to the new terms, in whole or in part, please stop using the Service.
+                                    เงื่อนไขเหล่านี้ให้ใช้บังคับและตีความตามกฎหมายของ ราชอาณาจักรไทย ข้อพิพาทใดๆ ที่เกิดขึ้นจะอยู่ภายใต้เขตอำนาจศาลของศาลไทยแต่เพียงผู้เดียว
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">12. Governing Law and Jurisdiction</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">13. การแยกส่วนของข้อตกลง</h2>
                                 <p>
-                                    These Terms shall be governed and construed in accordance with the laws of the Kingdom of Thailand, without regard to its conflict of law provisions. Any disputes arising out of or relating to these Terms or the Service shall be subject to the exclusive jurisdiction of the courts of Thailand.
+                                    หากข้อกำหนดใดในเงื่อนไขเหล่านี้ถือเป็นโมฆะหรือไม่สามารถบังคับใช้ได้ ให้ถือว่าข้อกำหนดที่เหลือยังคงมีผลสมบูรณ์และบังคับใช้ได้ต่อไป
                                 </p>
                             </div>
 
                             <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">13. Severability</h2>
+                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">14. ข้อมูลการติดต่อ (Contact Information)</h2>
                                 <p>
-                                    If any provision of these Terms is held to be invalid, illegal, or unenforceable, the validity, legality, and enforceability of the remaining provisions shall not in any way be affected or impaired, and a valid, legal, and enforceable provision shall be substituted for the invalid, illegal, or unenforceable provision.
-                                </p>
-                            </div>
-
-                            <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-primary border-b border-border pb-2">14. Contact Information</h2>
-                                <p>
-                                    If you have any questions about these Terms, please contact us at:
+                                    หากท่านมีคำถามเกี่ยวกับเงื่อนไขเหล่านี้ โปรดติดต่อเราที่:
                                 </p>
                                 <div className="bg-muted/30 p-6 rounded-lg border border-border">
                                     <p className="mb-2">
-                                        <strong>Thai Rice Pest Monitoring Network</strong>
+                                        <strong>ระบบเครือข่ายเฝ้าระวังภัยศัตรูข้าว (TRPMN)</strong>
                                     </p>
                                     <p className="mb-2">
-                                        Email: contact@ricepestnet.go.th
+                                        อีเมล: contact@ricepestnet.go.th
                                     </p>
                                     <p>
-                                        Phone: 0-XXXX-XXXX
+                                        โทรศัพท์: 0-XXXX-XXXX
                                     </p>
                                 </div>
                             </div>

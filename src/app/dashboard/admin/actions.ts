@@ -21,6 +21,7 @@ export interface UserListItem {
     createdAt: Date;
     reportCount: number;
     expertRequest: ExpertStatus;
+    expertProofUrl: string | null;
 }
 
 export interface SystemHealth {
@@ -87,7 +88,7 @@ async function checkAdminAccess() {
         where: { id: user.id },
         select: { role: true }
     });
-    
+
     // If not found by ID and user has email, try looking up by email
     if (!userProfile && user.email) {
         userProfile = await prisma.userProfile.findUnique({
@@ -133,6 +134,7 @@ export async function getAdminDashboardData() {
             role: true,
             createdAt: true,
             expertRequest: true,
+            expertProofUrl: true,
             _count: {
                 select: { pestReports: true }
             }
@@ -147,7 +149,8 @@ export async function getAdminDashboardData() {
         role: u.role,
         createdAt: u.createdAt,
         reportCount: u._count.pestReports,
-        expertRequest: u.expertRequest
+        expertRequest: u.expertRequest,
+        expertProofUrl: u.expertProofUrl
     }));
 
     // 3. System Health

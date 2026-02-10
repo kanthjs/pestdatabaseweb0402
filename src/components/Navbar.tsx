@@ -76,6 +76,7 @@ export default function Navbar() {
 
     const menuItems = [
         { name: "หน้าหลัก", href: "/" },
+        { name: "เกี่ยวกับเรา", href: "/about" },
         { name: "ข้อมูลศัตรูพืช", href: dashboardHref },
     ];
 

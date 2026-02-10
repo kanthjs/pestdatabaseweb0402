@@ -9,6 +9,7 @@ export { LandingFooter } from "./LandingFooter";
 
 // Utility components
 export { CTABanner } from "./CTABanner";
+export { MobileReportFAB } from "./MobileReportFAB";
 
 // Legacy components (kept for reference, not used in main page)
 export { ValueProposition } from "./ValueProposition";
