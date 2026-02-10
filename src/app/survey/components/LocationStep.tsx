@@ -42,13 +42,13 @@ export function LocationStep({ provinces, formData, setFormData }: LocationStepP
                             <select
                                 title="Select province"
                                 className="w-full h-12 px-4 rounded-xl border border-border bg-background focus:ring-2 ring-primary/20 outline-none transition-all appearance-none cursor-pointer"
-                                value={formData.province}
+                                value={formData.provinceCode}
                                 onChange={(e) => handleInputChange("province", e.target.value)}
                             >
                                 <option value="">Select a province</option>
                                 {provinces.map((p) => (
-                                    <option key={p.provinceId} value={p.provinceNameEn}>
-                                        {p.provinceNameEn}
+                                    <option key={p.provinceId} value={p.provinceCode}>
+                                        {p.provinceNameTh || p.provinceNameEn}
                                     </option>
                                 ))}
                             </select>

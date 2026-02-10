@@ -4,7 +4,10 @@ import SurveyFormClient from "./SurveyFormClient";
 export default async function SurveyPage() {
     // ดึงข้อมูล Master Data ทั้งหมดจาก Database
     const [provinces, plants, pests] = await Promise.all([
-        prisma.province.findMany({ orderBy: { provinceNameEn: "asc" } }),
+        prisma.province.findMany({
+            orderBy: { provinceNameEn: "asc" },
+            select: { provinceId: true, provinceCode: true, provinceNameEn: true, provinceNameTh: true }
+        }),
         prisma.plant.findMany({ orderBy: { plantNameEn: "asc" } }),
         prisma.pest.findMany({ orderBy: { pestNameEn: "asc" } }),
     ]);

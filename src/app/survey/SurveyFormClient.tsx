@@ -18,23 +18,29 @@ import { User } from "@supabase/supabase-js";
 // Dynamic import for the Map component to avoid SSR errors
 const ReportMap = dynamic(() => import("@/components/ReportMap"), {
     ssr: false,
-    loading: () => <div className="h-[300px] w-full bg-muted animate-pulse rounded-lg flex items-center justify-center text-muted-foreground">Loading Map...</div>
+    loading: () => <div className="h-[300px] w-full bg-muted animate-pulse rounded-lg flex items-center justify-center text-muted-foreground">กำลังโหลดแผนที่...</div>
 });
 
 // Types for the props from database
 interface Province {
     provinceId: number;
+    provinceCode: string;
     provinceNameEn: string;
+    provinceNameTh: string | null;
 }
 
 interface Plant {
     plantId: string;
     plantNameEn: string;
+    plantNameTh?: string | null;
+    imageUrl?: string | null;
 }
 
 interface Pest {
     pestId: string;
     pestNameEn: string;
+    pestNameTh?: string | null;
+    imageUrl?: string | null;
 }
 
 interface SurveyFormClientProps {
@@ -45,7 +51,7 @@ interface SurveyFormClientProps {
 
 // Form data type matching Prisma schema
 interface PestReportFormData {
-    province: string;
+    provinceCode: string;
     latitude: number;
     longitude: number;
     plantId: string;
@@ -65,24 +71,24 @@ interface PestReportFormData {
 
 // Reporter Roles
 const REPORTER_ROLES = [
-    { id: "REP001", label: "Farmer (เกษตรกร)" },
-    { id: "REP002", label: "Agriculture Volunteer (อาสาสมัครเกษตร)" },
-    { id: "REP003", label: "Agricultural Extension Officer (เจ้าหน้าที่ส่งเสริมการเกษตร)" },
-    { id: "REP004", label: "Rice Research Center Staff (เจ้าหน้าที่ศูนย์วิจัยข้าว)" },
-    { id: "REP005", label: "Government Officials (เจ้าหน้าที่ราชการ)" },
-    { id: "REP006", label: "Community Leader (ผู้นำชุมชน)" },
-    { id: "REP007", label: "University Researcher (อาจารย์มหาวิทยาลัย)" },
-    { id: "REP008", label: "Student (นักศึกษา)" },
-    { id: "REP009", label: "Not Specified (ไม่ระบุ)" },
+    { id: "REP001", label: "เกษตรกร" },
+    { id: "REP002", label: "อาสาสมัครเกษตร" },
+    { id: "REP003", label: "เจ้าหน้าที่ส่งเสริมการเกษตร" },
+    { id: "REP004", label: "เจ้าหน้าที่ศูนย์วิจัยข้าว" },
+    { id: "REP005", label: "เจ้าหน้าที่ราชการ" },
+    { id: "REP006", label: "ผู้นำชุมชน" },
+    { id: "REP007", label: "อาจารย์มหาวิทยาลัย" },
+    { id: "REP008", label: "นักศึกษา" },
+    { id: "REP009", label: "ไม่ระบุ" },
 ];
 
 // 5 Step configuration
 const STEPS = [
-    { id: "location", label: "Location", icon: "location_on" },
-    { id: "plant", label: "Plant", icon: "grass" },
-    { id: "pest", label: "Pest", icon: "bug_report" },
-    { id: "issue", label: "Issue Details", icon: "pest_control" },
-    { id: "reporter", label: "Reporter", icon: "person" },
+    { id: "location", label: "ตำแหน่งที่พบ", icon: "location_on" },
+    { id: "plant", label: "ชนิดพืช", icon: "grass" },
+    { id: "pest", label: "ศัตรูข้าว", icon: "bug_report" },
+    { id: "issue", label: "รายละเอียด", icon: "pest_control" },
+    { id: "reporter", label: "ผู้รายงาน", icon: "person" },
 ] as const;
 
 type StepId = (typeof STEPS)[number]["id"];
@@ -94,7 +100,7 @@ export default function SurveyFormClient({
 }: SurveyFormClientProps) {
     const [currentStep, setCurrentStep] = useState<StepId>("location");
     const [formData, setFormData] = useState<PestReportFormData>({
-        province: "",
+        provinceCode: "",
         latitude: 0,
         longitude: 0,
         plantId: "",
@@ -116,6 +122,7 @@ export default function SurveyFormClient({
     const [user, setUser] = useState<User | null>(null);
     const [authLoading, setAuthLoading] = useState(true);
     const [autoFilled, setAutoFilled] = useState(false);
+    const [isLocating, setIsLocating] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
 
@@ -163,9 +170,83 @@ export default function SurveyFormClient({
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
+    const handleGetCurrentLocation = () => {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser / บราวเซอร์ของคุณไม่รองรับการระบุตำแหน่ง");
+            return;
+        }
+
+        setIsLocating(true);
+
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                const { latitude, longitude } = pos.coords;
+
+                // 1. Set Lat/Long immediately
+                setFormData((prev) => ({
+                    ...prev,
+                    latitude,
+                    longitude,
+                }));
+
+                // 2. Reverse Geocoding to identify Province
+                try {
+                    // Using OpenStreetMap Nominatim API with Thai language preference
+                    const response = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1&accept-language=th`
+                    );
+                    const data = await response.json();
+
+                    if (data && data.address) {
+                        // Nominatim returns 'state' for province, or 'city' for Bangkok sometimes
+                        const stateName = data.address.state || data.address.province || data.address.city;
+
+                        if (stateName) {
+                            // Helper to normalize strings for comparison (remove common prefixes/suffixes)
+                            const normalize = (str: string) =>
+                                str ? str.toLowerCase().replace(/จังหวัด|province|islands|city of/g, "").replace(/\s+/g, "").trim() : "";
+
+                            const target = normalize(stateName);
+
+                            // Find matching province in props
+                            const matchedProvince = provinces.find(p => {
+                                const th = p.provinceNameTh ? normalize(p.provinceNameTh) : "";
+                                const en = normalize(p.provinceNameEn);
+                                // Check for partial matches to handle variations
+                                return th === target || en === target ||
+                                    (th && target.includes(th)) || (th && th.includes(target)) ||
+                                    target.includes(en) || en.includes(target);
+                            });
+
+                            if (matchedProvince) {
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    provinceCode: matchedProvince.provinceCode
+                                }));
+                            } else {
+                                // Fallback: try to just alert the user if strict match fails, but let them choose
+                                console.warn("Could not auto-match province:", stateName);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error reverse geocoding:", error);
+                } finally {
+                    setIsLocating(false);
+                }
+            },
+            (error) => {
+                console.error("Error getting location:", error);
+                alert("Unable to retrieve your location / ไม่สามารถระบุตำแหน่งได้");
+                setIsLocating(false);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    };
+
     const goToNextStep = () => {
         // Validation before moving to next step
-        if (currentStep === "location" && !formData.province) {
+        if (currentStep === "location" && !formData.provinceCode) {
             alert("Please select a province / กรุณาเลือกจังหวัด");
             return;
         }
@@ -226,7 +307,7 @@ export default function SurveyFormClient({
     const handleSubmit = async () => {
         if (isSubmitting) return;
 
-        if (!formData.province || !formData.plantId || !formData.pestId || selectedFiles.length === 0) {
+        if (!formData.provinceCode || !formData.plantId || !formData.pestId || selectedFiles.length === 0) {
             if (selectedFiles.length === 0) {
                 alert("Please upload at least 1 photo / กรุณาแนบรูปภาพอย่างน้อย 1 รูป");
                 setCurrentStep("issue");
@@ -260,9 +341,10 @@ export default function SurveyFormClient({
                 alert(`Failed to submit report: ${result.error || "Please try again."}`);
                 setIsSubmitting(false);
             }
-        } catch (error: any) {
+        } catch (error) {
             console.error("Submission error:", error);
-            alert(`An error occurred during submission: ${error.message || "Unknown error"}`);
+            const message = error instanceof Error ? error.message : "Unknown error";
+            alert(`An error occurred during submission: ${message}`);
             setIsSubmitting(false);
         }
     };
@@ -276,7 +358,7 @@ export default function SurveyFormClient({
                         <span className="material-icons-outlined text-2xl">agriculture</span>
                     </div>
                     <h2 className="text-lg font-bold tracking-tight text-primary font-display">
-                        Rice Pest Survey Network
+                        เครือข่ายเฝ้าระวังภัยศัตรูข้าว
                     </h2>
                 </Link>
                 <div className="hidden md:flex flex-1 justify-end gap-8 items-center">
@@ -285,13 +367,13 @@ export default function SurveyFormClient({
                             className="text-sm font-medium text-primary hover:opacity-80 transition-colors"
                             href="/survey"
                         >
-                            Report
+                            รายงาน
                         </Link>
                         <Link
                             className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
                             href="/dashboard"
                         >
-                            Manage
+                            จัดการข้อมูล
                         </Link>
                     </nav>
                     <Separator orientation="vertical" className="h-8 border-border" />
@@ -310,7 +392,7 @@ export default function SurveyFormClient({
                                 href={`/login?redirectTo=${pathname}`}
                                 className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
                             >
-                                Log In
+                                เข้าสู่ระบบ
                             </Link>
                         )
                     )}
@@ -369,7 +451,7 @@ export default function SurveyFormClient({
                 <div className="max-w-4xl mx-auto w-full px-6 pb-20">
                     <Card className="border-none shadow-xl shadow-black/5 bg-card overflow-hidden rounded-2xl">
                         <div className="bg-primary/5 px-8 py-1 border-b border-primary/10">
-                            <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Pest Monitoring Form</span>
+                            <span className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">แบบฟอร์มรายงานศัตรูข้าว</span>
                         </div>
                         {/* ===== STEP 1: Location ===== */}
                         {currentStep === "location" && (
@@ -379,31 +461,31 @@ export default function SurveyFormClient({
                                         <span className="material-icons-outlined text-2xl">location_on</span>
                                     </div>
                                     <div>
-                                        <CardTitle className="text-xl font-display text-primary">Location Information</CardTitle>
-                                        <p className="text-sm text-muted-foreground mt-0.5">Where did you find the pest?</p>
+                                        <CardTitle className="text-xl font-display text-primary">ข้อมูลตำแหน่งที่พบ</CardTitle>
+                                        <p className="text-sm text-muted-foreground mt-0.5">คุณพบศัตรูข้าวที่ไหน?</p>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="pt-8">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
                                         {/* Province Selection */}
                                         <div className="col-span-1 space-y-3">
-                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Province</Label>
+                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">จังหวัด</Label>
                                             <div className="relative">
                                                 <select
-                                                    title="Select province"
+                                                    title="เลือกจังหวัด"
                                                     className="w-full h-12 px-4 rounded-xl border border-border bg-background focus:ring-2 ring-primary/20 outline-none transition-all appearance-none cursor-pointer"
-                                                    value={formData.province}
+                                                    value={formData.provinceCode}
                                                     onChange={(e) =>
-                                                        handleInputChange("province", e.target.value)
+                                                        handleInputChange("provinceCode", e.target.value)
                                                     }
                                                 >
-                                                    <option value="">Select a province</option>
+                                                    <option value="">เลือกจังหวัด</option>
                                                     {provinces.map((p) => (
                                                         <option
                                                             key={p.provinceId}
-                                                            value={p.provinceNameEn}
+                                                            value={p.provinceCode}
                                                         >
-                                                            {p.provinceNameEn}
+                                                            {p.provinceNameTh ?? p.provinceNameEn}
                                                         </option>
                                                     ))}
                                                 </select>
@@ -418,13 +500,13 @@ export default function SurveyFormClient({
                                         {/* Lat/Long display */}
                                         <div className="col-span-1 grid grid-cols-2 gap-4">
                                             <div className="space-y-3">
-                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Latitude</Label>
+                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">ละติจูด</Label>
                                                 <div className="h-12 px-4 rounded-xl border border-border bg-muted/30 flex items-center text-primary font-mono text-sm">
                                                     {formData.latitude.toFixed(6)}
                                                 </div>
                                             </div>
                                             <div className="space-y-3">
-                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Longitude</Label>
+                                                <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">ลองจิจูด</Label>
                                                 <div className="h-12 px-4 rounded-xl border border-border bg-muted/30 flex items-center text-primary font-mono text-sm">
                                                     {formData.longitude.toFixed(6)}
                                                 </div>
@@ -437,28 +519,26 @@ export default function SurveyFormClient({
                                                 type="button"
                                                 variant="outline"
                                                 className="w-full h-12 rounded-xl border-border bg-background text-primary hover:bg-muted/50"
-                                                onClick={() => {
-                                                    if (navigator.geolocation) {
-                                                        navigator.geolocation.getCurrentPosition((pos) => {
-                                                            setFormData((prev) => ({
-                                                                ...prev,
-                                                                latitude: pos.coords.latitude,
-                                                                longitude: pos.coords.longitude,
-                                                            }));
-                                                        });
-                                                    }
-                                                }}
+                                                onClick={handleGetCurrentLocation}
+                                                disabled={isLocating}
                                             >
-                                                <span className="material-icons-outlined mr-2">
-                                                    my_location
-                                                </span>
-                                                Use Current Location
+                                                {isLocating ? (
+                                                    <>
+                                                        <span className="material-icons-outlined mr-2 animate-spin">refresh</span>
+                                                        กำลังระบุตำแหน่ง...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span className="material-icons-outlined mr-2">my_location</span>
+                                                        ใช้ตำแหน่งปัจจุบัน
+                                                    </>
+                                                )}
                                             </Button>
 
                                             {/* Map Integration */}
                                             {(formData.latitude !== 0 || formData.longitude !== 0) && (
                                                 <div className="space-y-2 animate-in fade-in slide-in-from-top-4 duration-500">
-                                                    <Label className="text-sm text-muted-foreground font-normal">Location Preview</Label>
+                                                    <Label className="text-sm text-muted-foreground font-normal">ตำแหน่งที่พบศัตรูข้าว</Label>
                                                     <ReportMap
                                                         latitude={formData.latitude}
                                                         longitude={formData.longitude}
@@ -486,8 +566,8 @@ export default function SurveyFormClient({
                                         <span className="material-icons-outlined text-2xl">grass</span>
                                     </div>
                                     <div>
-                                        <CardTitle className="text-xl font-display text-primary">Plant Selection</CardTitle>
-                                        <p className="text-sm text-muted-foreground mt-0.5">Select the affected crop</p>
+                                        <CardTitle className="text-xl font-display text-primary">พืชที่พบศัตรูข้าว</CardTitle>
+                                        <p className="text-sm text-muted-foreground mt-0.5">เลือกพืชที่พบศัตรูข้าว</p>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="pt-8">
@@ -502,14 +582,27 @@ export default function SurveyFormClient({
                                                     onChange={() => handleInputChange("plantId", plant.plantId)}
                                                     className="peer sr-only"
                                                 />
-                                                <div className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all duration-300 transform peer-checked:scale-105 ${formData.plantId === plant.plantId
-                                                    ? "border-primary bg-primary/5 text-primary shadow-lg shadow-primary/5"
-                                                    : "border-border bg-card text-muted-foreground hover:border-secondary/50 hover:bg-muted/30"
+                                                <div className={`flex flex-col items-center justify-center p-2 rounded-2xl transition-all duration-300 transform peer-checked:scale-105 ${formData.plantId === plant.plantId
+                                                    ? "text-primary"
+                                                    : "text-muted-foreground hover:text-primary"
                                                     }`}>
-                                                    <div className={`size-12 rounded-xl flex items-center justify-center mb-3 transition-colors ${formData.plantId === plant.plantId ? "bg-primary text-primary-foreground" : "bg-muted group-hover:bg-secondary/10 group-hover:text-secondary"}`}>
-                                                        <span className="material-icons-outlined text-2xl">grass</span>
+                                                    <div className={`size-32 md:size-44 rounded-full overflow-hidden flex items-center justify-center mb-3 transition-all border-4 ${formData.plantId === plant.plantId ? "border-primary shadow-xl shadow-primary/20" : "border-border group-hover:border-primary/50"}`}>
+                                                        {plant.imageUrl ? (
+                                                            <img
+                                                                src={plant.imageUrl}
+                                                                alt={plant.plantNameEn}
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    const target = e.target as HTMLImageElement;
+                                                                    target.onerror = null;
+                                                                    target.src = `https://placehold.co/300x300.png?text=${encodeURIComponent(plant.plantNameEn)}`;
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <span className="material-icons-outlined text-4xl">grass</span>
+                                                        )}
                                                     </div>
-                                                    <span className="text-sm font-bold text-center">{plant.plantNameEn}</span>
+                                                    <span className="text-sm font-bold text-center">{plant.plantNameTh ?? plant.plantNameEn}</span>
                                                 </div>
                                             </label>
                                         ))}
@@ -525,12 +618,12 @@ export default function SurveyFormClient({
                                         <span className="material-icons-outlined text-2xl">bug_report</span>
                                     </div>
                                     <div>
-                                        <CardTitle className="text-xl font-display text-primary">Pest & Disease</CardTitle>
-                                        <p className="text-sm text-muted-foreground mt-0.5">What is affecting the plant?</p>
+                                        <CardTitle className="text-xl font-display text-primary">ชนิดศัตรูข้าวและโรคข้าว</CardTitle>
+                                        <p className="text-sm text-muted-foreground mt-0.5">คุณพบศัตรูข้าวประเภทใด?</p>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="pt-8">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         {pests.map((pest) => (
                                             <label key={pest.pestId} className="cursor-pointer group">
                                                 <input
@@ -541,14 +634,27 @@ export default function SurveyFormClient({
                                                     onChange={() => handleInputChange("pestId", pest.pestId)}
                                                     className="peer sr-only"
                                                 />
-                                                <div className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all duration-300 peer-checked:scale-[1.02] ${formData.pestId === pest.pestId
-                                                    ? "border-primary bg-primary/5 text-primary shadow-lg shadow-primary/5"
-                                                    : "border-border bg-card text-muted-foreground hover:border-secondary/50 hover:bg-muted/30"
+                                                <div className={`flex flex-col items-center justify-center p-2 rounded-2xl transition-all duration-300 transform peer-checked:scale-105 ${formData.pestId === pest.pestId
+                                                    ? "text-primary"
+                                                    : "text-muted-foreground hover:text-primary"
                                                     }`}>
-                                                    <div className={`size-10 rounded-xl flex items-center justify-center transition-colors ${formData.pestId === pest.pestId ? "bg-primary text-primary-foreground" : "bg-muted group-hover:bg-secondary/10 group-hover:text-secondary"}`}>
-                                                        <span className="material-icons-outlined text-xl">bug_report</span>
+                                                    <div className={`size-24 md:size-32 rounded-full overflow-hidden flex items-center justify-center mb-3 transition-all border-4 ${formData.pestId === pest.pestId ? "border-primary shadow-xl shadow-primary/20" : "border-border group-hover:border-primary/50"}`}>
+                                                        {pest.imageUrl ? (
+                                                            <img
+                                                                src={pest.imageUrl}
+                                                                alt={pest.pestNameEn}
+                                                                className="w-full h-full object-cover"
+                                                                onError={(e) => {
+                                                                    const target = e.target as HTMLImageElement;
+                                                                    target.onerror = null;
+                                                                    target.src = `https://placehold.co/300x300.png?text=${encodeURIComponent(pest.pestNameEn)}`;
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <span className="material-icons-outlined text-2xl">bug_report</span>
+                                                        )}
                                                     </div>
-                                                    <span className="text-sm font-bold">{pest.pestNameEn}</span>
+                                                    <span className="text-sm font-bold text-center">{pest.pestNameTh ?? pest.pestNameEn}</span>
                                                 </div>
                                             </label>
                                         ))}
@@ -564,15 +670,15 @@ export default function SurveyFormClient({
                                         <span className="material-icons-outlined text-2xl">pest_control</span>
                                     </div>
                                     <div>
-                                        <CardTitle className="text-xl font-display text-primary">Issue Details</CardTitle>
-                                        <p className="text-sm text-muted-foreground mt-0.5">Tell us more about the outbreak</p>
+                                        <CardTitle className="text-xl font-display text-primary">รายละเอียดการระบาด</CardTitle>
+                                        <p className="text-sm text-muted-foreground mt-0.5">กรุณาระบุข้อมูลการตรวจสอบเบื้องต้น</p>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="pt-8">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
                                         {/* Symptom Onset Date */}
                                         <div className="col-span-1 space-y-3">
-                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Symptom Onset Date</Label>
+                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">วันที่เริ่มพบระบาด</Label>
                                             <Input
                                                 type="date"
                                                 className="h-12 rounded-xl border-border bg-background focus:ring-primary/20"
@@ -585,7 +691,7 @@ export default function SurveyFormClient({
 
                                         {/* Affected Area */}
                                         <div className="col-span-1 space-y-3">
-                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Affected Area (Rai)</Label>
+                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">พื้นที่ที่ได้รับผลกระทบ (ไร่)</Label>
                                             <div className="relative">
                                                 <Input
                                                     type="number"
@@ -601,14 +707,14 @@ export default function SurveyFormClient({
                                                     }
                                                 />
                                                 <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-muted-foreground text-sm font-bold">
-                                                    Rai
+                                                    ไร่
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* Incidence Percent */}
                                         <div className="col-span-1 space-y-3">
-                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Incidence Percent</Label>
+                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">เปอร์เซ็นต์การพบ (Incidence)</Label>
                                             <div className="relative">
                                                 <Input
                                                     type="number"
@@ -631,7 +737,7 @@ export default function SurveyFormClient({
 
                                         {/* Severity Percent */}
                                         <div className="col-span-1 space-y-3">
-                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Severity Percent</Label>
+                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">ระดับความรุนแรง (Severity)</Label>
                                             <div className="relative">
                                                 <Input
                                                     type="number"
@@ -656,10 +762,10 @@ export default function SurveyFormClient({
                                         <div className="col-span-1 md:col-span-2 space-y-4">
                                             <div className="flex items-center justify-between">
                                                 <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-                                                    Photo Evidence
+                                                    รูปภาพหลักฐาน
                                                 </Label>
                                                 <span className="text-xs text-muted-foreground">
-                                                    {selectedFiles.length}/2 images selected
+                                                    เลือกแล้ว {selectedFiles.length}/2 รูป
                                                 </span>
                                             </div>
 
@@ -675,10 +781,10 @@ export default function SurveyFormClient({
                                                                     </span>
                                                                 </div>
                                                                 <p className="mb-1 text-sm text-muted-foreground font-medium">
-                                                                    <span className="font-bold text-primary">Click to upload</span> or drag and drop
+                                                                    <span className="font-bold text-primary">คลิกเพื่ออัปโหลด</span> หรือลากไฟล์มาวาง
                                                                 </p>
                                                                 <p className="text-xs text-muted-foreground/70">
-                                                                    PNG, JPG or GIF (max. 5MB, up to 2 images)
+                                                                    PNG, JPG หรือ GIF (สูงสุด 5MB, ไม่เกิน 2 รูป)
                                                                 </p>
                                                             </div>
                                                             <input
@@ -718,7 +824,7 @@ export default function SurveyFormClient({
                                                         </div>
                                                         <div className="flex-1 space-y-2 min-w-0">
                                                             <div className="flex items-center justify-between">
-                                                                <Label className="text-xs font-bold text-muted-foreground">Caption</Label>
+                                                                <Label className="text-xs font-bold text-muted-foreground">คำอธิบายภาพ</Label>
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => {
@@ -737,7 +843,7 @@ export default function SurveyFormClient({
                                                             </div>
                                                             <Input
                                                                 type="text"
-                                                                placeholder="Describe this photo..."
+                                                                placeholder="อธิบายภาพนี้..."
                                                                 className="h-8 text-sm rounded-lg border-border bg-background"
                                                                 value={formData.imageCaptions[index]}
                                                                 onChange={(e) => {
@@ -766,7 +872,7 @@ export default function SurveyFormClient({
                                                     </div>
                                                     <div className="flex-1">
                                                         <p className="text-sm font-medium text-foreground dark:text-accent">
-                                                            Tip: Clear photos help experts verify the pest type accurately.
+                                                            คำแนะนำ: รูปภาพที่ชัดเจนจะช่วยให้ผู้เชี่ยวชาญระบุชนิดศัตรูข้าวได้แม่นยำขึ้น
                                                         </p>
                                                     </div>
                                                 </CardContent>
@@ -784,8 +890,8 @@ export default function SurveyFormClient({
                                         <span className="material-icons-outlined text-2xl">person</span>
                                     </div>
                                     <div>
-                                        <CardTitle className="text-xl font-display text-primary">Reporter Information</CardTitle>
-                                        <p className="text-sm text-muted-foreground mt-0.5">Who is reporting this outbreak?</p>
+                                        <CardTitle className="text-xl font-display text-primary">ข้อมูลผู้รายงาน</CardTitle>
+                                        <p className="text-sm text-muted-foreground mt-0.5">ระบุข้อมูลเพื่อความน่าเชื่อถือของรายงาน</p>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="pt-8">
@@ -799,9 +905,9 @@ export default function SurveyFormClient({
                                                     <span className="material-icons-outlined text-xl">check_circle</span>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-bold text-primary">Logged in as {user.email}</p>
+                                                    <p className="text-sm font-bold text-primary">เข้าสู่ระบบในชื่อ {user.email}</p>
                                                     <p className="text-xs text-muted-foreground mt-0.5">
-                                                        Your information has been auto-filled. You can still edit or submit anonymously.
+                                                        ข้อมูลของคุณถูกกรอกอัตโนมัติแล้ว คุณสามารถแก้ไขหรือเลือกรายงานแบบไม่เปิดเผยตัวตนได้
                                                     </p>
                                                 </div>
                                             </div>
@@ -812,9 +918,9 @@ export default function SurveyFormClient({
                                                     <span className="material-icons-outlined text-xl">login</span>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-bold text-primary">Have an account?</p>
+                                                    <p className="text-sm font-bold text-primary">มีบัญชีผู้ใช้งานอยู่แล้ว?</p>
                                                     <p className="text-xs text-muted-foreground mt-0.5">
-                                                        Log in to auto-fill your info and track your reports.
+                                                        เข้าสู่ระบบเพื่อกรอกข้อมูลอัตโนมัติและติดตามรายงานของคุณ
                                                     </p>
                                                 </div>
                                                 <Link
@@ -822,7 +928,7 @@ export default function SurveyFormClient({
                                                     className="shrink-0 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-all"
                                                 >
                                                     <span className="material-icons-outlined text-lg">login</span>
-                                                    Log In to Autofill
+                                                    เข้าสู่ระบบ
                                                 </Link>
                                             </div>
                                         )}
@@ -830,9 +936,9 @@ export default function SurveyFormClient({
                                         {/* Anonymous Toggle */}
                                         <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/20">
                                             <div className="space-y-0.5">
-                                                <Label className="text-base font-bold text-primary">Report Anonymously</Label>
+                                                <Label className="text-base font-bold text-primary">รายงานแบบไม่เปิดเผยตัวตน</Label>
                                                 <p className="text-sm text-muted-foreground">
-                                                    Hide your identity from the public report.
+                                                    ซ่อนตัวตนของคุณจากรายงานสาธารณะ
                                                 </p>
                                             </div>
                                             <Switch
@@ -858,46 +964,46 @@ export default function SurveyFormClient({
                                         {(!user || formData.isAnonymous) && (
                                             <div className={`grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 transition-all duration-300 ${formData.isAnonymous ? "opacity-50 pointer-events-none grayscale" : ""}`}>
                                                 <div className="space-y-3">
-                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">First Name</Label>
+                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">ชื่อ</Label>
                                                     <Input
                                                         disabled={formData.isAnonymous}
                                                         value={formData.reporterFirstName}
                                                         onChange={(e) => handleInputChange("reporterFirstName", e.target.value)}
                                                         className="h-12 rounded-xl border-border bg-background"
-                                                        placeholder={user ? "Auto-filled from your account" : "Enter your first name"}
+                                                        placeholder={user ? "กรอกอัตโนมัติจากบัญชีของคุณ" : "กรอกชื่อของคุณ"}
                                                     />
                                                 </div>
                                                 <div className="space-y-3">
-                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Last Name</Label>
+                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">นามสกุล</Label>
                                                     <Input
                                                         disabled={formData.isAnonymous}
                                                         value={formData.reporterLastName}
                                                         onChange={(e) => handleInputChange("reporterLastName", e.target.value)}
                                                         className="h-12 rounded-xl border-border bg-background"
-                                                        placeholder={user ? "Auto-filled from your account" : "Enter your last name"}
+                                                        placeholder={user ? "กรอกอัตโนมัติจากบัญชีของคุณ" : "กรอกนามสกุลของคุณ"}
                                                     />
                                                 </div>
                                                 <div className="space-y-3">
-                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Phone Number</Label>
+                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">เบอร์โทรศัพท์ติดต่อ</Label>
                                                     <Input
                                                         disabled={formData.isAnonymous}
                                                         value={formData.reporterPhone}
                                                         onChange={(e) => handleInputChange("reporterPhone", e.target.value)}
                                                         className="h-12 rounded-xl border-border bg-background"
-                                                        placeholder="Enter your phone number"
+                                                        placeholder="กรอกเบอร์โทรศัพท์"
                                                     />
                                                 </div>
                                                 <div className="space-y-3">
-                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Role</Label>
+                                                    <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">บทบาท/ตำแหน่ง</Label>
                                                     <div className="relative">
                                                         <select
-                                                            title="Select reporter role"
+                                                            title="เลือกบทบาท"
                                                             disabled={formData.isAnonymous}
                                                             value={formData.reporterRole}
                                                             onChange={(e) => handleInputChange("reporterRole", e.target.value)}
                                                             className="w-full h-12 px-4 rounded-xl border border-border bg-background appearance-none outline-none disabled:cursor-not-allowed"
                                                         >
-                                                            <option value="">Select your role</option>
+                                                            <option value="">เลือกบทบาทของคุณ</option>
                                                             {REPORTER_ROLES.map((role) => (
                                                                 <option key={role.id} value={role.id}>
                                                                     {role.label}
@@ -927,7 +1033,7 @@ export default function SurveyFormClient({
                                         onClick={goToPrevStep}
                                     >
                                         <span className="material-icons-outlined mr-2">west</span>
-                                        Back
+                                        กลับ
                                     </Button>
                                 ) : (
                                     <Button
@@ -937,7 +1043,7 @@ export default function SurveyFormClient({
                                     >
                                         <Link href="/">
                                             <span className="material-icons-outlined mr-2">close</span>
-                                            Cancel
+                                            ยกเลิก
                                         </Link>
                                     </Button>
                                 )}
@@ -948,7 +1054,7 @@ export default function SurveyFormClient({
                                             className="grow sm:grow-0 px-10 h-12 rounded-full bg-primary text-primary-foreground hover:opacity-90 shadow-lg shadow-primary/20 transition-all font-bold"
                                             onClick={goToNextStep}
                                         >
-                                            Next Step
+                                            ขั้นต่อ
                                             <span className="material-icons-outlined ml-2">east</span>
                                         </Button>
                                     ) : (
@@ -960,11 +1066,11 @@ export default function SurveyFormClient({
                                             {isSubmitting ? (
                                                 <span className="flex items-center">
                                                     <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-                                                    Submitting...
+                                                    กำลังส่งข้อมูล...
                                                 </span>
                                             ) : (
                                                 <>
-                                                    Submit Report
+                                                    ส่งรายงาน
                                                     <span className="material-icons-outlined ml-2">check</span>
                                                 </>
                                             )}
@@ -978,7 +1084,7 @@ export default function SurveyFormClient({
                     {/* Footer Credits */}
                     <div className="mt-8 text-center px-4">
                         <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.3em] mb-2">
-                            Agricultural Intelligence System
+                            เครือข่ายเฝ้าระวังภัยศัตรูข้าว
                         </p>
                         <p className="text-xs text-muted-foreground">
                             RicePestNet System • Ver 1.4.2 • Secured with End-to-End Encryption

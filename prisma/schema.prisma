@@ -11,8 +11,11 @@ datasource db {
 
 // ข้อมูลจังหวัด
 model Province {
-  provinceId     Int    @id
-  provinceNameEn String @unique
+  provinceId     Int          @id
+  provinceCode   String       @unique  // รหัสจังหวัด ISO 3166-2:TH
+  provinceNameEn String       @unique
+  provinceNameTh String?
+  pestReports    PestReport[]
 }
 
 // ข้อมูลพืช
@@ -86,8 +89,9 @@ model PestReport {
   updatedAt DateTime @updatedAt
 
   // ข้อมูลพื้นที่และพืช
-  province String
-  plantId  String // ID อ้างอิงประเภทพืช
+  provinceCode String
+  province     Province @relation(fields: [provinceCode], references: [provinceCode])
+  plantId      String // ID อ้างอิงประเภทพืช
   plant    Plant  @relation(fields: [plantId], references: [plantId])
 
   // ข้อมูลศัตรูพืช
@@ -138,7 +142,7 @@ model PestReport {
   notifications Notification[]
 
   // การทำ Index เพื่อให้ค้นหาข้อมูลตามจังหวัดหรือศัตรูพืชได้เร็วขึ้น
-  @@index([province])
+  @@index([provinceCode])
   @@index([pestId])
   @@index([plantId])
   @@index([status])

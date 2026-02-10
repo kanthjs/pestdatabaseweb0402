@@ -2,7 +2,9 @@
 
 export interface Province {
     provinceId: number;
+    provinceCode: string;
     provinceNameEn: string;
+    provinceNameTh: string | null;
 }
 
 export interface Plant {
@@ -16,7 +18,7 @@ export interface Pest {
 }
 
 export interface PestReportFormData {
-    province: string;
+    provinceCode: string;
     latitude: number;
     longitude: number;
     plantId: string;

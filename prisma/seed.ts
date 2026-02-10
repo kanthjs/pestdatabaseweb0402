@@ -98,42 +98,43 @@ const provinces = [
 ]
 
 const plants = [
-  { plantId: "PLT001", plantNameTh: "ข้าว", plantNameEn: "Rice" },
-  { plantId: "PLT002", plantNameTh: "ข้าวโพด", plantNameEn: "Corn" },
+  { plantId: "PLT001", plantNameTh: "ข้าว", plantNameEn: "Rice", imageUrl: "https://plantix.net/en/library/assets/custom/crop-images/rice.jpeg" },
 ]
 
 const pests = [
   // --- กลุ่มสัตว์ศัตรูข้าว (Animals) ---
-  { pestId: "PST001", pestNameTh: "หอยเชอรี่", pestNameEn: "Golden Apple Snail" },
-  { pestId: "PST002", pestNameTh: "หนู", pestNameEn: "Rat" },
-  { pestId: "PST003", pestNameTh: "นกกระติ๊ดตะโพกขาว", pestNameEn: "White-rumped Munia" },
+  { pestId: "PST001", pestNameTh: "หอยเชอรี่", pestNameEn: "Golden Apple Snail", imageUrl: "http://www.knowledgebank.irri.org/images/stories/golden-apple-snail-2.jpg" },
+  { pestId: "PST002", pestNameTh: "หนู", pestNameEn: "Rat", imageUrl: "http://www.knowledgebank.irri.org/images/stories/pests-rat.jpg" },
   // --- กลุ่มแมลงศัตรูข้าว (Insects) ---
-  { pestId: "PST004", pestNameTh: "เพลี้ยกระโดดสีน้ำตาล", pestNameEn: "Brown Planthopper" },
-  { pestId: "PST005", pestNameTh: "หนอนกระทู้ข้าวโพดลายจุด", pestNameEn: "Fall Armyworm" },
-  { pestId: "PST006", pestNameTh: "หนอนกอข้าว", pestNameEn: "Rice Stem Borer" },
-  { pestId: "PST007", pestNameTh: "เพลี้ยไฟข้าว", pestNameEn: "Rice Thrips" },
-  { pestId: "PST008", pestNameTh: "หนอนห่อใบข้าว", pestNameEn: "Rice Leaf Folder" },
-  { pestId: "PST009", pestNameTh: "แมลงสิง", pestNameEn: "Rice Bug" },
-  { pestId: "PST010", pestNameTh: "เพลี้ยกระโดดหลังขาว", pestNameEn: "White-backed Planthopper" },
-  { pestId: "PST011", pestNameTh: "บั่ว", pestNameEn: "Rice Gall Midge" },
-  { pestId: "PST012", pestNameTh: "เพลี้ยจักจั่นสีเขียว", pestNameEn: "Green Leafhopper" },
-  { pestId: "PST013", pestNameTh: "แมลงดำหนามข้าว", pestNameEn: "Rice Hispa" },
-  { pestId: "PST014", pestNameTh: "หนอนปลอกข้าว", pestNameEn: "Rice Caseworm" },
-  { pestId: "PST015", pestNameTh: "หนอนกระทู้กล้า", pestNameEn: "Rice Swarming Caterpillar" },
-  { pestId: "PST016", pestNameTh: "แมลงหล่า", pestNameEn: "Black Rice Bug" },
-  { pestId: "PST017", pestNameTh: "เพลี้ยจักจั่นหยัก", pestNameEn: "Zigzag Leafhopper" },
+  { pestId: "PST003", pestNameTh: "เพลี้ยกระโดดสีน้ำตาล", pestNameEn: "Brown Planthopper", imageUrl: "http://www.knowledgebank.irri.org/images/stories/factsheet-planthopper-1.jpg" },
+  { pestId: "PST004", pestNameTh: "เพลี้ยกระโดดหลังขาว", pestNameEn: "White-backed Planthopper", imageUrl: "https://www.mindenpictures.com/cache/pcache2/80107609.jpg" },
+  { pestId: "PST005", pestNameTh: "เพลี้ยจักจั่นสีเขียว", pestNameEn: "Green Leafhopper", imageUrl: "http://www.knowledgebank.irri.org/images/stories/factsheet-green-leafhopper-1.jpg" },
+  { pestId: "PST006", pestNameTh: "เพลี้ยจั้กจั่นปีกลายหยัก", pestNameEn: "Zigzag Leafhopper", imageUrl: "http://www.knowledgebank.irri.org/images/stories/zigzag-leafhopper.jpg" },
+  { pestId: "PST007", pestNameTh: "เพลี้ยไฟข้าว", pestNameEn: "Rice Thrips", imageUrl: "/rice_thrips.png" },
+  { pestId: "PST008", pestNameTh: "หนอนกอข้าว", pestNameEn: "Rice Stem Borer", imageUrl: "http://www.knowledgebank.irri.org/images/stories/stem-borer-whitehead.jpg" },
+  { pestId: "PST009", pestNameTh: "หนอนห่อใบข้าว", pestNameEn: "Rice Leaf Folder", imageUrl: "http://www.knowledgebank.irri.org/images/stories/leaf-folder.jpg" },
+  { pestId: "PST010", pestNameTh: "บั่ว", pestNameEn: "Rice Gall Midge", imageUrl: "https://us-central1-plantix-8e0ce.cloudfunctions.net/v1/image/w400/f1c7e9c8-59f3-4e74-ab32-c36856be8d34" },
+  { pestId: "PST011", pestNameTh: "แมลงสิง", pestNameEn: "Rice Bug", imageUrl: "http://www.knowledgebank.irri.org/images/stories/factsheet-ricebug-2.jpg" },
+  { pestId: "PST012", pestNameTh: "แมลงดำหนาม", pestNameEn: "Rice Hispa", imageUrl: "http://www.knowledgebank.irri.org/images/stories/rice-hispa-elongated-feeding.jpg" },
+  { pestId: "PST013", pestNameTh: "หนอนปลอกข้าว", pestNameEn: "Rice Caseworm", imageUrl: "https://discuss.farmnest.com/uploads/default/original/2X/2/289923616cbdbae167c5a95081411115e1aefb5f.jpg" },
+  { pestId: "PST014", pestNameTh: "หนอนกระทู้กล้า", pestNameEn: "Rice Swarming Caterpillar", imageUrl: "https://erawanagri.com/wp-content/uploads/2023/01/rice-seedling-armyworm-600x600.png" },
+  { pestId: "PST015", pestNameTh: "แมลงหล่า", pestNameEn: "Black Rice Bug", imageUrl: "http://www.knowledgebank.irri.org/images/stories/factsheet-black-bug.jpg" },
   // --- กลุ่มโรคข้าว (Diseases) ---
-  { pestId: "PST018", pestNameTh: "โรคไหม้ข้าว", pestNameEn: "Rice Blast Disease" },
-  { pestId: "PST019", pestNameTh: "โรคขอบใบแห้ง", pestNameEn: "Bacterial Leaf Blight" },
-  { pestId: "PST020", pestNameTh: "โรคใบสีส้ม", pestNameEn: "Rice Tungro Disease" },
-  { pestId: "PST021", pestNameTh: "โรคใบขีดโปร่งแสง", pestNameEn: "Bacterial Leaf Streak" },
-  { pestId: "PST022", pestNameTh: "โรคเมล็ดด่าง", pestNameEn: "Dirty Panicle Disease" },
-  { pestId: "PST023", pestNameTh: "โรคกาบใบแห้ง", pestNameEn: "Sheath Blight" },
-  { pestId: "PST024", pestNameTh: "โรคใบจุดสีน้ำตาล", pestNameEn: "Brown Spot" },
-  { pestId: "PST025", pestNameTh: "โรคใบขีดสีน้ำตาล", pestNameEn: "Narrow Brown Spot" },
-  { pestId: "PST026", pestNameTh: "โรคไหม้คอรวง", pestNameEn: "Neck Blast Disease" },
-  { pestId: "PST027", pestNameTh: "โรคถอดฝักดาบ", pestNameEn: "Bakanae Disease" },
-  { pestId: "PST028", pestNameTh: "โรคกาบใบเน่า", pestNameEn: "Sheath Rot" },
+  { pestId: "PST016", pestNameTh: "โรคไหม้ข้าว", pestNameEn: "Rice Blast Disease", imageUrl: "http://www.knowledgebank.irri.org/images/stories/blast-leaf-1.jpg" },
+  { pestId: "PST017", pestNameTh: "โรคไหม้คอรวง", pestNameEn: "Neck Blast Disease", imageUrl: "https://bugwoodcloud.org/images/384x256/5390479.jpg" },
+  { pestId: "PST018", pestNameTh: "โรคขอบใบแห้ง", pestNameEn: "Bacterial Leaf Blight", imageUrl: "http://www.knowledgebank.irri.org/images/stories/bacterial-leaf-blight-2.JPG" },
+  { pestId: "PST019", pestNameTh: "โรคใบขีดโปร่งแสง", pestNameEn: "Bacterial Leaf Streak", imageUrl: "http://www.knowledgebank.irri.org/images/stories/bacterial-leaf-streak-1.jpg" },
+  { pestId: "PST020", pestNameTh: "โรคใบจุดสีน้ำตาล", pestNameEn: "Brown Spot", imageUrl: "http://www.knowledgebank.irri.org/images/stories/brown-spot-4.jpg" },
+  { pestId: "PST021", pestNameTh: "โรคใบขีดสีน้ำตาล", pestNameEn: "Narrow Brown Spot", imageUrl: "http://www.knowledgebank.irri.org/images/stories/narrow-brown-spot-2.jpg" },
+  { pestId: "PST022", pestNameTh: "โรคใบสีส้ม (ทรุโก)", pestNameEn: "Rice Tungro Disease", imageUrl: "http://www.knowledgebank.irri.org/images/stories/tungro-1.jpg" },
+  { pestId: "PST023", pestNameTh: "โรคถอดฝักดาบ (หลาว)", pestNameEn: "Bakanae Disease", imageUrl: "http://www.knowledgebank.irri.org/images/stories/bakanae-1.jpg" },
+  { pestId: "PST024", pestNameTh: "โรคกาบใบไหม้", pestNameEn: "Sheath Blight", imageUrl: "http://www.knowledgebank.irri.org/images/stories/sheath-blight-2.jpg" },
+  { pestId: "PST025", pestNameTh: "โรคกาบใบเน่า", pestNameEn: "Sheath Rot", imageUrl: "http://www.knowledgebank.irri.org/images/stories/sheath-rot-4.jpg" },
+  { pestId: "PST026", pestNameTh: "โรคเมล็ดด่าง", pestNameEn: "Dirty Panicle Disease", imageUrl: "https://www.lsuagcenter.com/~/media/system/1/7/1/d/171d1d505d596e81cff85dc550ed3e8a/bpb7.jpg?h=3872&la=en&w=2592" },
+  { pestId: "PST027", pestNameTh: "โรคดอกกระถิน", pestNameEn: "False Smut", imageUrl: "http://www.knowledgebank.irri.org/images/stories/Factsheet_false-smut-002.jpg" },
+  { pestId: "PST030", pestNameTh: "โรคใบแถบแดง", pestNameEn: "Red Stripe", imageUrl: "http://www.knowledgebank.irri.org/images/stories/red-stripe.jpg" },
+  // { pestId: "PST005", pestNameTh: "หนอนกระทู้ข้าวโพดลายจุด", pestNameEn: "Fall Armyworm" },
+  //  { pestId: "PST003", pestNameTh: "นกกระติ๊ดตะโพกขาว", pestNameEn: "White-rumped Munia" },
 ];
 
 export const occupationRoles = [
@@ -163,11 +164,23 @@ async function main() {
 
   // Seed Province
   console.log('Seeding provinces...')
-  for (const p of provinces) {
+  const uniqueProvinces = provinces.reduce((acc, current) => {
+    const currentCode = current.iso ?? current.code;
+    const x = acc.find(item => (item.iso ?? item.code) === currentCode || item.provinceNameEn === current.provinceNameEn);
+    if (!x) {
+      return acc.concat([current]);
+    } else {
+      return acc;
+    }
+  }, [] as typeof provinces);
+
+  for (const p of uniqueProvinces) {
     await prisma.province.create({
       data: {
         provinceId: p.id,
+        provinceCode: p.iso ?? p.code,
         provinceNameEn: p.provinceNameEn,
+        provinceNameTh: p.provinceNameTh,
       }
     })
   }
@@ -180,6 +193,8 @@ async function main() {
       data: {
         plantId: plant.plantId,
         plantNameEn: plant.plantNameEn,
+        plantNameTh: plant.plantNameTh,
+        imageUrl: plant.imageUrl,
       }
     })
   }
@@ -192,6 +207,8 @@ async function main() {
       data: {
         pestId: pest.pestId,
         pestNameEn: pest.pestNameEn,
+        pestNameTh: pest.pestNameTh,
+        imageUrl: pest.imageUrl,
       }
     })
   }
@@ -200,7 +217,7 @@ async function main() {
   // Seed PestReport
   const seedData = [
     {
-      province: "ปทุมธานี",
+      provinceCode: "TH-10",
       plantId: "PLT001",
       pestId: "PST001", // เพลี้ยกระโดดสีน้ำตาล
       symptomOnSet: new Date('2026-01-10'),
@@ -215,7 +232,7 @@ async function main() {
       status: ReportStatus.APPROVED,
     },
     {
-      province: "พระนครศรีอยุธยา",
+      provinceCode: "TH-10",
       plantId: "PLT001",
       pestId: "PST013", // หอยเชอรี่
       symptomOnSet: new Date('2026-01-15'),
@@ -234,7 +251,7 @@ async function main() {
       status: ReportStatus.APPROVED,
     },
     {
-      province: "สุพรรณบุรี",
+      provinceCode: "TH-11",
       plantId: "PLT001",
       pestId: "PST003", // โรคไหม้ข้าว
       symptomOnSet: new Date('2026-01-20'),
@@ -254,7 +271,7 @@ async function main() {
       status: ReportStatus.APPROVED,
     },
     {
-      province: "นครสวรรค์",
+      provinceCode: "TH-12",
       plantId: "PLT001",
       pestId: "PST004", // หนอนกอข้าว
       symptomOnSet: new Date('2026-01-25'),
@@ -269,7 +286,7 @@ async function main() {
       status: ReportStatus.APPROVED,
     },
     {
-      province: "ชัยนาท",
+      provinceCode: "TH-13",
       plantId: "PLT001",
       pestId: "PST009", // โรคขอบใบแห้ง
       symptomOnSet: new Date('2026-01-28'),
@@ -289,7 +306,7 @@ async function main() {
       status: ReportStatus.APPROVED,
     },
     {
-      province: "พิจิตร",
+      provinceCode: "TH-14",
       plantId: "PLT001",
       pestId: "PST027", // หนูนา
       symptomOnSet: new Date('2026-02-01'),
@@ -304,7 +321,7 @@ async function main() {
       status: ReportStatus.APPROVED,
     },
     {
-      province: "ขอนแก่น",
+      provinceCode: "TH-15",
       plantId: "PLT001",
       pestId: "PST014", // บั่ว
       symptomOnSet: new Date('2026-02-02'),
@@ -324,7 +341,7 @@ async function main() {
       status: ReportStatus.APPROVED,
     },
     {
-      province: "อุบลราชธานี",
+      provinceCode: "TH-16",
       plantId: "PLT001",
       pestId: "PST021", // โรคกาบใบแห้ง
       symptomOnSet: new Date('2026-02-03'),
@@ -344,7 +361,7 @@ async function main() {
       status: ReportStatus.APPROVED,
     },
     {
-      province: "ร้อยเอ็ด",
+      provinceCode: "TH-17",
       plantId: "PLT001",
       pestId: "PST007", // แมลงสิง
       symptomOnSet: new Date('2026-02-04'),
@@ -359,7 +376,7 @@ async function main() {
       status: ReportStatus.APPROVED,
     },
     {
-      province: "ฉะเชิงเทรา",
+      provinceCode: "TH-18",
       plantId: "PLT001",
       pestId: "PST005", // เพลี้ยไฟข้าว
       symptomOnSet: new Date('2026-02-05'),
@@ -380,7 +397,7 @@ async function main() {
     },
     // Report from Expert (auto-approved)
     {
-      province: "เชียงใหม่",
+      provinceCode: "TH-19",
       plantId: "PLT001",
       pestId: "PST018", // โรคไหม้ข้าว
       symptomOnSet: new Date('2026-02-06'),
@@ -404,7 +421,7 @@ async function main() {
     },
     // Pending report from regular user (for expert to review)
     {
-      province: "ขอนแก่น",
+      provinceCode: "TH-20",
       plantId: "PLT001",
       pestId: "PST005", // หนอนกระทู้ข้าวโพดลายจุด
       symptomOnSet: new Date('2026-02-05'),
@@ -426,7 +443,7 @@ async function main() {
     },
     // Another pending report from regular user
     {
-      province: "นครราชสีมา",
+      provinceCode: "TH-21",
       plantId: "PLT001",
       pestId: "PST006", // หนอนกอข้าว
       symptomOnSet: new Date('2026-02-04'),

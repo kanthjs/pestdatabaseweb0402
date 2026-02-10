@@ -8,7 +8,7 @@ import { ReportStatus, UserRole } from "@prisma/client";
 import { rateLimiters } from "@/lib/rate-limit";
 
 interface PestReportSubmission {
-    province: string;
+    provinceCode: string;
     latitude: number;
     longitude: number;
     plantId: string;
@@ -121,7 +121,7 @@ export async function submitPestReport(data: PestReportSubmission) {
 
         const report = await prisma.pestReport.create({
             data: {
-                province: data.province,
+                provinceCode: data.provinceCode,
                 latitude: data.latitude,
                 longitude: data.longitude,
                 plantId: data.plantId,
