@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import UserMenu from "@/components/UserMenu";
 import { NotificationBell } from "@/components/NotificationBell";
@@ -18,22 +19,17 @@ export default function Navbar() {
     const [user, setUser] = useState<User | null>(null);
     const [userRole, setUserRole] = useState<UserRole | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const pathname = usePathname();
 
     useEffect(() => {
         const supabase = createClient();
 
-        const fetchRole = async (userId: string) => {
+        const fetchRole = async () => {
             try {
-                console.log("Navbar: Fetching role for userId:", userId);
                 const res = await fetch("/api/user-role");
-                console.log("Navbar: API response status:", res.status);
                 if (res.ok) {
                     const data = await res.json();
-                    console.log("Navbar: API response data:", data);
                     setUserRole(data.role);
-                    console.log("Navbar: Set userRole to:", data.role);
-                } else {
-                    console.error("Navbar: API error:", res.statusText);
                 }
             } catch (error) {
                 console.error("Navbar: Failed to fetch user role:", error);
@@ -45,7 +41,9 @@ export default function Navbar() {
             const { data: { user } } = await supabase.auth.getUser();
             setUser(user);
             if (user) {
-                await fetchRole(user.id);
+                await fetchRole();
+            } else {
+                setUserRole(null);
             }
             setIsLoading(false);
         };
@@ -53,12 +51,11 @@ export default function Navbar() {
         fetchUserAndRole();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log("Navbar: Auth state change:", event);
             const currentUser = session?.user ?? null;
             setUser(currentUser);
 
             if (currentUser) {
-                await fetchRole(currentUser.id);
+                await fetchRole();
             } else {
                 setUserRole(null);
             }
@@ -66,7 +63,7 @@ export default function Navbar() {
         });
 
         return () => subscription.unsubscribe();
-    }, []);
+    }, [pathname]);
 
     const isExpertOrAdmin = userRole === "EXPERT" || userRole === "ADMIN";
 
