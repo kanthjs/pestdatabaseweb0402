@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -12,7 +13,7 @@ datasource db {
 // ข้อมูลจังหวัด
 model Province {
   provinceId     Int          @id
-  provinceCode   String       @unique  // รหัสจังหวัด ISO 3166-2:TH
+  provinceCode   String       @unique // รหัสจังหวัด ISO 3166-2:TH
   provinceNameEn String       @unique
   provinceNameTh String?
   pestReports    PestReport[]
@@ -92,7 +93,7 @@ model PestReport {
   provinceCode String
   province     Province @relation(fields: [provinceCode], references: [provinceCode])
   plantId      String // ID อ้างอิงประเภทพืช
-  plant    Plant  @relation(fields: [plantId], references: [plantId])
+  plant        Plant    @relation(fields: [plantId], references: [plantId])
 
   // ข้อมูลศัตรูพืช
   pestId String // ID อ้างอิงศัตรูพืช
