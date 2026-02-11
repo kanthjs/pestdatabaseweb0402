@@ -24,26 +24,26 @@ export default function SignupPage() {
                         </span>
                     </Link>
                     <p className="text-muted-foreground mt-2">
-                        Create an account to submit reports
+                        สร้างบัญชีเพื่อรายงานการระบาด
                     </p>
                 </div>
 
                 {/* Signup Card */}
                 <div className="bg-card rounded-2xl border border-border shadow-lg p-8">
                     <h1 className="text-xl font-display font-bold text-primary mb-6">
-                        Create Account
+                        สร้างบัญชีใหม่
                     </h1>
 
                     <SignupForm />
 
                     <div className="mt-6 pt-6 border-t border-border text-center">
                         <p className="text-sm text-muted-foreground">
-                            Already have an account?{" "}
+                            มีบัญชีอยู่แล้ว?{" "}
                             <Link
                                 href="/login"
                                 className="text-primary font-medium hover:underline"
                             >
-                                Sign in
+                                เข้าสู่ระบบ
                             </Link>
                         </p>
                     </div>
@@ -55,7 +55,7 @@ export default function SignupPage() {
                         href="/"
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                        ← Back to home
+                        ← กลับหน้าหลัก
                     </Link>
                 </div>
             </div>

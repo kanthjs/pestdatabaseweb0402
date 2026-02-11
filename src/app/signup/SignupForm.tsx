@@ -15,7 +15,7 @@ export default function SignupForm() {
         const confirmPassword = formData.get("confirmPassword") as string;
 
         if (password !== confirmPassword) {
-            setError("Passwords do not match");
+            setError("รหัสผ่านไม่ตรงกัน");
             setIsLoading(false);
             return;
         }
@@ -23,7 +23,7 @@ export default function SignupForm() {
         const result = await signup(formData);
 
         if (result && !result.success) {
-            setError(result.message ?? "Signup failed");
+            setError(result.message ?? "สมัครสมาชิกล้มเหลว");
             setIsLoading(false);
         }
     }
@@ -43,7 +43,7 @@ export default function SignupForm() {
                     htmlFor="email"
                     className="block text-sm font-medium text-foreground mb-2"
                 >
-                    Email
+                    อีเมล
                 </label>
                 <input
                     id="email"
@@ -60,7 +60,7 @@ export default function SignupForm() {
                     htmlFor="password"
                     className="block text-sm font-medium text-foreground mb-2"
                 >
-                    Password
+                    รหัสผ่าน
                 </label>
                 <input
                     id="password"
@@ -72,7 +72,7 @@ export default function SignupForm() {
                     placeholder="••••••••"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                    At least 6 characters
+                    อย่างน้อย 6 ตัวอักษร
                 </p>
             </div>
 
@@ -81,7 +81,7 @@ export default function SignupForm() {
                     htmlFor="confirmPassword"
                     className="block text-sm font-medium text-foreground mb-2"
                 >
-                    Confirm Password
+                    ยืนยันรหัสผ่าน
                 </label>
                 <input
                     id="confirmPassword"
@@ -104,14 +104,14 @@ export default function SignupForm() {
                         <span className="material-icons-outlined animate-spin text-lg">
                             autorenew
                         </span>
-                        Creating account...
+                        กำลังสร้างบัญชี...
                     </>
                 ) : (
                     <>
                         <span className="material-icons-outlined text-lg">
                             person_add
                         </span>
-                        Create Account
+                        สร้างบัญชี
                     </>
                 )}
             </button>

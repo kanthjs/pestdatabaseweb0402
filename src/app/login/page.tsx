@@ -22,7 +22,7 @@ export default async function LoginPage({
                         </span>
                     </Link>
                     <p className="text-muted-foreground mt-2">
-                        Log in to access expert features
+                        เข้าสู่ระบบเพื่อใช้งานฟีเจอร์ผู้เชี่ยวชาญ
                     </p>
                 </div>
 
@@ -36,19 +36,19 @@ export default async function LoginPage({
                 {/* Login Card */}
                 <div className="bg-card rounded-2xl border border-border shadow-lg p-8">
                     <h1 className="text-xl font-display font-bold text-primary mb-6">
-                        Welcome Back
+                        ยินดีต้อนรับกลับ
                     </h1>
 
                     <LoginForm redirectTo={params.redirectTo} />
 
                     <div className="mt-6 pt-6 border-t border-border text-center">
                         <p className="text-sm text-muted-foreground">
-                            Don&apos;t have an account?{" "}
+                            ยังไม่มีบัญชี?{" "}
                             <Link
                                 href="/signup"
                                 className="text-primary font-medium hover:underline"
                             >
-                                Sign up
+                                สมัครสมาชิก
                             </Link>
                         </p>
                     </div>
@@ -60,7 +60,7 @@ export default async function LoginPage({
                         href="/"
                         className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                        ← Back to home
+                        ← กลับหน้าหลัก
                     </Link>
                 </div>
             </div>

@@ -18,7 +18,7 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
         const result = await login(formData);
 
         if (result && !result.success) {
-            setError(result.message ?? "Login failed");
+            setError(result.message ?? "เข้าสู่ระบบล้มเหลว");
             setIsLoading(false);
         }
     }
@@ -36,7 +36,7 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
                     htmlFor="email"
                     className="block text-sm font-medium text-foreground mb-2"
                 >
-                    Email
+                    อีเมล
                 </label>
                 <input
                     id="email"
@@ -53,7 +53,7 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
                     htmlFor="password"
                     className="block text-sm font-medium text-foreground mb-2"
                 >
-                    Password
+                    รหัสผ่าน
                 </label>
                 <input
                     id="password"
@@ -75,12 +75,12 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
                         <span className="material-icons-outlined animate-spin text-lg">
                             autorenew
                         </span>
-                        Signing in...
+                        กำลังเข้าสู่ระบบ...
                     </>
                 ) : (
                     <>
                         <span className="material-icons-outlined text-lg">login</span>
-                        Log In
+                        เข้าสู่ระบบ
                     </>
                 )}
             </button>
