@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import SurveyFormClient from "./SurveyFormClient";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SurveyPage() {
     // ดึงข้อมูล Master Data ทั้งหมดจาก Database
     const [provinces, plants, pests] = await Promise.all([
