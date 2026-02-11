@@ -1,4 +1,4 @@
-import { PrismaClient, ReportStatus, UserRole, ExpertStatus } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
 import 'dotenv/config'
@@ -153,14 +153,14 @@ async function main() {
   console.log('กำลังเริ่มทำการ Seed ข้อมูล...')
 
   // ล้างข้อมูลเก่าออกก่อนในลำดับที่ถูกต้องเพื่อป้องกัน Foreign Key Constraint
-  console.log('Clearing existing data...')
-  await prisma.activityLog.deleteMany()
-  await prisma.notification.deleteMany()
-  await prisma.pestReport.deleteMany()
-  await prisma.userProfile.deleteMany()
-  await prisma.province.deleteMany()
-  await prisma.plant.deleteMany()
-  await prisma.pest.deleteMany()
+  // console.log('Clearing existing data...')
+  // await prisma.activityLog.deleteMany()
+  // await prisma.notification.deleteMany()
+  // await prisma.pestReport.deleteMany()
+  // await prisma.userProfile.deleteMany()
+  // await prisma.province.deleteMany()
+  // await prisma.plant.deleteMany()
+  // await prisma.pest.deleteMany()
 
   // Seed Province
   console.log('Seeding provinces...')
@@ -175,8 +175,13 @@ async function main() {
   }, [] as typeof provinces);
 
   for (const p of uniqueProvinces) {
-    await prisma.province.create({
-      data: {
+    await prisma.province.upsert({
+      where: { provinceCode: p.iso ?? p.code },
+      update: {
+        provinceNameEn: p.provinceNameEn,
+        provinceNameTh: p.provinceNameTh,
+      },
+      create: {
         provinceId: p.id,
         provinceCode: p.iso ?? p.code,
         provinceNameEn: p.provinceNameEn,
@@ -189,8 +194,14 @@ async function main() {
   // Seed Plant
   console.log('Seeding plants...')
   for (const plant of plants) {
-    await prisma.plant.create({
-      data: {
+    await prisma.plant.upsert({
+      where: { plantId: plant.plantId },
+      update: {
+        plantNameEn: plant.plantNameEn,
+        plantNameTh: plant.plantNameTh,
+        imageUrl: plant.imageUrl,
+      },
+      create: {
         plantId: plant.plantId,
         plantNameEn: plant.plantNameEn,
         plantNameTh: plant.plantNameTh,
@@ -203,8 +214,14 @@ async function main() {
   // Seed Pest
   console.log('Seeding pests...')
   for (const pest of pests) {
-    await prisma.pest.create({
-      data: {
+    await prisma.pest.upsert({
+      where: { pestId: pest.pestId },
+      update: {
+        pestNameEn: pest.pestNameEn,
+        pestNameTh: pest.pestNameTh,
+        imageUrl: pest.imageUrl,
+      },
+      create: {
         pestId: pest.pestId,
         pestNameEn: pest.pestNameEn,
         pestNameTh: pest.pestNameTh,
@@ -214,355 +231,35 @@ async function main() {
   }
   console.log(`Seeded ${pests.length} pests`)
 
-  // Seed PestReport
+  // Seed PestReport (Example data - only if db is empty or for specific test cases, but generally we don't want to auto-seed reports in prod if they don't exist)
+  // For now, I will comment out the report seeding to make this strictly about reference data. 
+  // If you want to seed dummy reports, you can uncomment this part, but use caution in production.
+  /*
   const seedData = [
-    {
-      provinceCode: "TH-10",
-      plantId: "PLT001",
-      pestId: "PST001", // เพลี้ยกระโดดสีน้ำตาล
-      symptomOnSet: new Date('2026-01-10'),
-      fieldAffectedArea: 15.0,
-      incidencePercent: 30,
-      severityPercent: 20,
-      latitude: 14.0208,
-      longitude: 100.7250,
-      imageUrls: ["https://picsum.photos/seed/pest1/400/300"],
-      imageCaptions: ["พบกลุ่มเพลี้ยบริเวณโคนต้น"],
-      isAnonymous: true,
-      status: ReportStatus.APPROVED,
-    },
-    {
-      provinceCode: "TH-10",
-      plantId: "PLT001",
-      pestId: "PST013", // หอยเชอรี่
-      symptomOnSet: new Date('2026-01-15'),
-      fieldAffectedArea: 5.5,
-      incidencePercent: 50,
-      severityPercent: 40,
-      latitude: 14.3532,
-      longitude: 100.5681,
-      imageUrls: ["https://picsum.photos/seed/pest2/400/300"],
-      imageCaptions: ["พบไข่หอยเชอรี่สีชมพูตามกอข้าว"],
-      isAnonymous: false,
-      reporterFirstName: "สมหญิง",
-      reporterLastName: "รักนา",
-      reporterPhone: "082-345-6789",
-      occupationRoles: "OCC001",
-      status: ReportStatus.APPROVED,
-    },
-    {
-      provinceCode: "TH-11",
-      plantId: "PLT001",
-      pestId: "PST003", // โรคไหม้ข้าว
-      symptomOnSet: new Date('2026-01-20'),
-      fieldAffectedArea: 25.0,
-      incidencePercent: 60,
-      severityPercent: 50,
-      latitude: 14.4742,
-      longitude: 100.1177,
-      imageUrls: ["https://picsum.photos/seed/pest3/400/300"],
-      imageCaptions: ["ใบข้าวมีแผลจุดสีน้ำตาลรูปร่างคล้ายตา"],
-      isAnonymous: false,
-      reporterFirstName: "Reporter",
-      reporterLastName: "One",
-      reporterEmail: "reporter1@demo.com",
-      reporterPhone: "1234567890",
-      occupationRoles: "OCC001",
-      status: ReportStatus.APPROVED,
-    },
-    {
-      provinceCode: "TH-12",
-      plantId: "PLT001",
-      pestId: "PST004", // หนอนกอข้าว
-      symptomOnSet: new Date('2026-01-25'),
-      fieldAffectedArea: 10.0,
-      incidencePercent: 20,
-      severityPercent: 15,
-      latitude: 15.7048,
-      longitude: 100.1372,
-      imageUrls: ["https://picsum.photos/seed/pest4/400/300"],
-      imageCaptions: ["ยอดข้าวแห้งตาย (อาการยอดเหี่ยว)"],
-      isAnonymous: true,
-      status: ReportStatus.APPROVED,
-    },
-    {
-      provinceCode: "TH-13",
-      plantId: "PLT001",
-      pestId: "PST009", // โรคขอบใบแห้ง
-      symptomOnSet: new Date('2026-01-28'),
-      fieldAffectedArea: 40.0,
-      incidencePercent: 45,
-      severityPercent: 30,
-      latitude: 15.1851,
-      longitude: 100.1251,
-      imageUrls: ["https://picsum.photos/seed/pest5/400/300"],
-      imageCaptions: ["ขอบใบข้าวมีลักษณะแห้งเป็นสีขาวซีด"],
-      isAnonymous: false,
-      reporterFirstName: "Expert",
-      reporterLastName: "One",
-      reporterEmail: "expert1@demo.com",
-      reporterPhone: "1234567890",
-      occupationRoles: "OCC007",
-      status: ReportStatus.APPROVED,
-    },
-    {
-      provinceCode: "TH-14",
-      plantId: "PLT001",
-      pestId: "PST027", // หนูนา
-      symptomOnSet: new Date('2026-02-01'),
-      fieldAffectedArea: 8.0,
-      incidencePercent: 15,
-      severityPercent: 10,
-      latitude: 16.4404,
-      longitude: 100.3488,
-      imageUrls: ["https://picsum.photos/seed/pest6/400/300"],
-      imageCaptions: ["ต้นข้าวถูกกัดขาดเป็นหย่อมๆ"],
-      isAnonymous: true,
-      status: ReportStatus.APPROVED,
-    },
-    {
-      provinceCode: "TH-15",
-      plantId: "PLT001",
-      pestId: "PST014", // บั่ว
-      symptomOnSet: new Date('2026-02-02'),
-      fieldAffectedArea: 12.0,
-      incidencePercent: 35,
-      severityPercent: 25,
-      latitude: 16.4322,
-      longitude: 102.8236,
-      imageUrls: ["https://picsum.photos/seed/pest7/400/300"],
-      imageCaptions: ["ใบข้าวมีลักษณะเป็นหลอดคล้ายใบหอม"],
-      isAnonymous: false,
-      reporterFirstName: "Expert",
-      reporterLastName: "One",
-      reporterEmail: "expert1@demo.com",
-      reporterPhone: "1234567890",
-      occupationRoles: "OCC007",
-      status: ReportStatus.APPROVED,
-    },
-    {
-      provinceCode: "TH-16",
-      plantId: "PLT001",
-      pestId: "PST021", // โรคกาบใบแห้ง
-      symptomOnSet: new Date('2026-02-03'),
-      fieldAffectedArea: 30.0,
-      incidencePercent: 55,
-      severityPercent: 40,
-      latitude: 15.2287,
-      longitude: 104.8564,
-      imageUrls: ["https://picsum.photos/seed/pest8/400/300"],
-      imageCaptions: ["แผลบนกาบใบมีลักษณะคล้ายเมฆ"],
-      isAnonymous: false,
-      reporterFirstName: "Expert",
-      reporterLastName: "One",
-      reporterEmail: "expert1@demo.com",
-      reporterPhone: "1234567890",
-      occupationRoles: "OCC007",
-      status: ReportStatus.APPROVED,
-    },
-    {
-      provinceCode: "TH-17",
-      plantId: "PLT001",
-      pestId: "PST007", // แมลงสิง
-      symptomOnSet: new Date('2026-02-04'),
-      fieldAffectedArea: 18.0,
-      incidencePercent: 40,
-      severityPercent: 20,
-      latitude: 16.0544,
-      longitude: 103.6521,
-      imageUrls: ["https://picsum.photos/seed/pest9/400/300"],
-      imageCaptions: ["พบแมลงสิงดูดกินน้ำเลี้ยงเมล็ดข้าวระยะน้ำนม"],
-      isAnonymous: true,
-      status: ReportStatus.APPROVED,
-    },
-    {
-      provinceCode: "TH-18",
-      plantId: "PLT001",
-      pestId: "PST005", // เพลี้ยไฟข้าว
-      symptomOnSet: new Date('2026-02-05'),
-      fieldAffectedArea: 22.0,
-      incidencePercent: 70,
-      severityPercent: 50,
-      latitude: 13.6904,
-      longitude: 101.0703,
-      imageUrls: ["https://picsum.photos/seed/pest10/400/300"],
-      imageCaptions: ["ปลายใบข้าวม้วนเป็นเกลียวและแห้ง"],
-      isAnonymous: false,
-      reporterFirstName: "Expert",
-      reporterLastName: "One",
-      reporterEmail: "expert1@demo.com",
-      reporterPhone: "1234567890",
-      occupationRoles: "OCC007",
-      status: ReportStatus.PENDING,
-    },
-    // Report from Expert (auto-approved)
-    {
-      provinceCode: "TH-19",
-      plantId: "PLT001",
-      pestId: "PST018", // โรคไหม้ข้าว
-      symptomOnSet: new Date('2026-02-06'),
-      fieldAffectedArea: 12.5,
-      incidencePercent: 35,
-      severityPercent: 25,
-      latitude: 18.7883,
-      longitude: 98.9853,
-      imageUrls: ["https://picsum.photos/seed/expert1/400/300"],
-      imageCaptions: ["พบอาการไหม้ที่ใบข้าวระยะต้น"],
-      isAnonymous: false,
-      reporterFirstName: "Expert",
-      reporterLastName: "One",
-      reporterPhone: "1234567890",
-      occupationRoles: "OCC007",
-      status: ReportStatus.APPROVED,
-      reporterUserId: "550e8400-e29b-41d4-a716-446655440003", // Expert user
-      reporterEmail: "expert1@demo.com",
-      verifiedAt: new Date('2026-02-06'),
-      verifiedBy: "550e8400-e29b-41d4-a716-446655440003",
-    },
-    // Pending report from regular user (for expert to review)
-    {
-      provinceCode: "TH-20",
-      plantId: "PLT001",
-      pestId: "PST005", // หนอนกระทู้ข้าวโพดลายจุด
-      symptomOnSet: new Date('2026-02-05'),
-      fieldAffectedArea: 8.0,
-      incidencePercent: 25,
-      severityPercent: 20,
-      latitude: 16.4322,
-      longitude: 102.8236,
-      imageUrls: ["https://picsum.photos/seed/pending1/400/300"],
-      imageCaptions: ["พบหนอนกระทู้ในแปลงข้าว"],
-      isAnonymous: false,
-      reporterFirstName: "Reporter",
-      reporterLastName: "One",
-      reporterPhone: "1234567890",
-      occupationRoles: "OCC001",
-      status: ReportStatus.PENDING,
-      reporterUserId: "550e8400-e29b-41d4-a716-446655440001", // Regular user
-      reporterEmail: "reporter1@demo.com",
-    },
-    // Another pending report from regular user
-    {
-      provinceCode: "TH-21",
-      plantId: "PLT001",
-      pestId: "PST006", // หนอนกอข้าว
-      symptomOnSet: new Date('2026-02-04'),
-      fieldAffectedArea: 15.0,
-      incidencePercent: 40,
-      severityPercent: 30,
-      latitude: 14.9799,
-      longitude: 102.0977,
-      imageUrls: ["https://picsum.photos/seed/pending2/400/300"],
-      imageCaptions: ["อาการยอดเหี่ยวจากหนอนกอข้าว"],
-      isAnonymous: false,
-      reporterFirstName: "Reporter",
-      reporterLastName: "One",
-      reporterPhone: "1234567890",
-      occupationRoles: "OCC001",
-      status: ReportStatus.PENDING,
-      reporterUserId: "550e8400-e29b-41d4-a716-446655440002", // Regular user
-      reporterEmail: "reporter1@demo.com",
-    },
+   ...
   ];
-
-  // Seed UserProfile
-  const seedUserProfile = [
-    {
-      id: "550e8400-e29b-41d4-a716-446655440001",
-      userName: "REP001",
-      email: "reporter1@demo.com",
-      firstName: "Reporter",
-      lastName: "One",
-      phone: "1234567890",
-      occupationRoles: "OCC001",
-      role: UserRole.USER,
-      expertRequest: ExpertStatus.PENDING,
-      address: "123 Main St",
-      province: "Bangkok",
-      district: "Bangkok",
-      subDistrict: "Bangkok",
-      zipCode: "10110",
-    },
-    {
-      id: "550e8400-e29b-41d4-a716-446655440002",
-      userName: "REP002",
-      email: "reporter2@demo.com",
-      firstName: "Reporter",
-      lastName: "Two",
-      phone: "0987654321",
-      occupationRoles: "OCC001",
-      role: UserRole.USER,
-      expertRequest: ExpertStatus.PENDING,
-      address: "123 Main St",
-      province: "Bangkok",
-      district: "Bangkok",
-      subDistrict: "Bangkok",
-      zipCode: "10110",
-    },
-    {
-      id: "550e8400-e29b-41d4-a716-446655440003",
-      userName: "EXP001",
-      email: "expert1@demo.com",
-      firstName: "Expert",
-      lastName: "One",
-      phone: "1234567890",
-      occupationRoles: "OCC007",
-      role: UserRole.EXPERT,
-      expertRequest: ExpertStatus.APPROVED,
-      address: "123 Main St",
-      province: "Bangkok",
-      district: "Bangkok",
-      subDistrict: "Bangkok",
-      zipCode: "10110",
-    },
-    {
-      id: "550e8400-e29b-41d4-a716-446655440004",
-      userName: "USER001",
-      email: "user1@demo.com",
-      firstName: "User",
-      lastName: "One",
-      phone: "1234567890",
-      occupationRoles: "OCC009",
-      role: UserRole.USER,
-      expertRequest: ExpertStatus.PENDING,
-      address: "123 Main St",
-      province: "Bangkok",
-      district: "Bangkok",
-      subDistrict: "Bangkok",
-      zipCode: "10110",
-    },
-    {
-      id: "550e8400-e29b-41d4-a716-446655440005",
-      userName: "ADMIN001",
-      email: "admin1@demo.com",
-      firstName: "Admin",
-      lastName: "One",
-      phone: "1234567890",
-      occupationRoles: "OCC005",
-      role: UserRole.ADMIN,
-      expertRequest: ExpertStatus.APPROVED,
-      address: "123 Main St",
-      province: "Bangkok",
-      district: "Bangkok",
-      subDistrict: "Bangkok",
-      zipCode: "10110",
-    },
-  ];
-
-  console.log('Seeding user profiles...')
-  for (const profile of seedUserProfile) {
-    await prisma.userProfile.create({
-      data: profile
-    })
-  }
-  console.log(`Seeded ${seedUserProfile.length} user profiles`)
-
   console.log('Seeding pest reports...')
   for (const data of seedData) {
     await prisma.pestReport.create({ data })
   }
+  */
 
-  console.log('Seed ข้อมูลทั้งหมดสำเร็จแล้ว!')
+  // Seed UserProfile (Users should register, but we can seed admin/expert if needed using upsert)
+  /*
+  const seedUserProfile = [
+    ...
+  ];
+  console.log('Seeding user profiles...')
+  for (const profile of seedUserProfile) {
+    await prisma.userProfile.upsert({
+        where: { id: profile.id },
+        update: profile,
+        create: profile
+    })
+  }
+  */
+
+  console.log('Seed ข้อมูล Master Data สำเร็จแล้ว!')
 }
 
 main()

@@ -3,7 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { ReportStatus, UserRole } from "@prisma/client";
 import { rateLimiters } from "@/lib/rate-limit";
 
@@ -51,7 +50,6 @@ export async function submitPestReport(data: PestReportSubmission) {
 
     // If user is logged in, ensure their profile exists in our database
     let effectiveUserId = user?.id;
-    let userRole: UserRole = UserRole.USER;
     let isExpert = false;
 
     if (user) {
@@ -88,9 +86,13 @@ export async function submitPestReport(data: PestReportSubmission) {
                             role: UserRole.USER,
                         },
                     });
-                } catch (createError: any) {
-                    // If unique constraint fails on email, the profile already exists with different id
-                    if (createError.code === "P2002" && user.email) {
+                } catch (createError: unknown) {
+                    const isUniqueConstraintError =
+                        createError instanceof Error &&
+                        'code' in createError &&
+                        createError.code === "P2002";
+
+                    if (isUniqueConstraintError && user.email) {
                         profile = await prisma.userProfile.findUnique({
                             where: { email: user.email },
                         });
@@ -103,7 +105,6 @@ export async function submitPestReport(data: PestReportSubmission) {
             // If profile exists with different id, use that id for the report
             if (profile) {
                 effectiveUserId = profile.id;
-                userRole = profile.role;
                 isExpert = profile.role === UserRole.EXPERT || profile.role === UserRole.ADMIN;
             }
         } catch (profileError) {
@@ -121,11 +122,11 @@ export async function submitPestReport(data: PestReportSubmission) {
 
         const report = await prisma.pestReport.create({
             data: {
-                provinceCode: data.provinceCode,
+                province: { connect: { provinceCode: data.provinceCode } },
                 latitude: data.latitude,
                 longitude: data.longitude,
-                plantId: data.plantId,
-                pestId: data.pestId,
+                plant: { connect: { plantId: data.plantId } },
+                pest: { connect: { pestId: data.pestId } },
                 symptomOnSet: new Date(data.symptomOnSet),
                 fieldAffectedArea: data.fieldAffectedArea,
                 incidencePercent: data.incidencePercent,
@@ -140,7 +141,7 @@ export async function submitPestReport(data: PestReportSubmission) {
                 status: reportStatus,
                 verifiedAt,
                 verifiedBy,
-                reporterUserId: effectiveUserId,
+                reporterUser: effectiveUserId ? { connect: { id: effectiveUserId } } : undefined,
                 reporterEmail: user?.email,
             },
         });
