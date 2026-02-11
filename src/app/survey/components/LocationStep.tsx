@@ -43,7 +43,7 @@ export function LocationStep({ provinces, formData, setFormData }: LocationStepP
                                 title="Select province"
                                 className="w-full h-12 px-4 rounded-xl border border-border bg-background focus:ring-2 ring-primary/20 outline-none transition-all appearance-none cursor-pointer"
                                 value={formData.provinceCode}
-                                onChange={(e) => handleInputChange("province", e.target.value)}
+                                onChange={(e) => handleInputChange("provinceCode", e.target.value)}
                             >
                                 <option value="">Select a province</option>
                                 {provinces.map((p) => (

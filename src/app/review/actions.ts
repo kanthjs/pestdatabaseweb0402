@@ -100,7 +100,7 @@ export async function getReviewData(statusFilter: ReportStatus = ReportStatus.PE
         id: r.id,
         createdAt: r.createdAt,
         reportedAt: r.reportedAt,
-        province: r.province,
+        province: r.provinceCode,
         pestName: r.pest.pestNameEn,
         plantName: r.plant.plantNameEn,
         fieldAffectedArea: r.fieldAffectedArea,

@@ -224,7 +224,7 @@ export async function exportReportsToCSV() {
         return [
             r.id,
             date,
-            escape(r.province),
+            escape(r.provinceCode),
             escape(r.pest.pestNameEn),
             escape(r.plant.plantNameEn),
             escape(reporter),
@@ -304,7 +304,7 @@ export async function getAdminReports(
     const formattedReports: AdminReportItem[] = reports.map(r => ({
         id: r.id,
         createdAt: r.createdAt,
-        province: r.province,
+        province: r.provinceCode,
         pestName: r.pest.pestNameEn,
         plantName: r.plant.plantNameEn,
         reporterName: r.reporterUser?.userName || (r.isAnonymous ? "Anonymous" : r.reporterFirstName || "Unknown"),

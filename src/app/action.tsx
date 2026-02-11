@@ -25,9 +25,9 @@ export async function createPestReport(formData: {
     try {
         const report = await prisma.pestReport.create({
             data: {
-                province: formData.province,
-                plantId: formData.plantId,
-                pestId: formData.pestId,
+                province: { connect: { provinceCode: formData.province } },
+                plant: { connect: { plantId: formData.plantId } },
+                pest: { connect: { pestId: formData.pestId } },
                 symptomOnSet: new Date(formData.symptomOnSet),
                 fieldAffectedArea: parseFloat(formData.fieldAffectedArea),
                 incidencePercent: parseFloat(formData.incidencePercent),

@@ -131,7 +131,7 @@ export default async function ReportDetailPage({ params }: ReportDetailPageProps
                         <CardContent className="space-y-4">
                             <div>
                                 <label className="text-sm text-muted-foreground">Province</label>
-                                <p className="font-medium text-lg">{report.province}</p>
+                                <p className="font-medium text-lg">{report.provinceCode}</p>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>

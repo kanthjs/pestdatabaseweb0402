@@ -6,7 +6,7 @@ import { verifyReport, rejectReport } from "./actions";
 interface PestReport {
     id: string;
     createdAt: Date;
-    province: string;
+    provinceCode: string;
     plantId: string;
     pestId: string;
     symptomOnSet: Date;
@@ -61,7 +61,7 @@ const ReportTableRow = memo(function ReportTableRow({
                 {formatDate(report.createdAt)}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground font-medium">
-                {report.province}
+                {report.provinceCode}
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-destructive/10 text-destructive">
@@ -256,7 +256,7 @@ export default function ReviewQueueClient({ reports }: ReviewQueueClientProps) {
                                         Province
                                     </p>
                                     <p className="text-foreground font-medium">
-                                        {selectedReport.province}
+                                        {selectedReport.provinceCode}
                                     </p>
                                 </div>
                                 <div>

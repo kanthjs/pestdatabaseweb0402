@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/admin/
+Disallow: /profile/
+Disallow: /my-reports/
+
+Sitemap: https://ricepestnet.or.th/sitemap.xml

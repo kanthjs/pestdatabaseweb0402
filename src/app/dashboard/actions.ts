@@ -156,7 +156,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
             _sum: { fieldAffectedArea: true, severityPercent: true, incidencePercent: true }
         }),
         prisma.pestReport.groupBy({
-            by: ['province'],
+            by: ['provinceCode'],
             where: baseWhere,
             _count: { _all: true },
             _sum: { fieldAffectedArea: true, severityPercent: true }
@@ -211,7 +211,7 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     if (provinceStats.length > 0) {
         const hotStats = provinceStats
             .map(stat => ({
-                province: stat.province,
+                province: stat.provinceCode,
                 count: stat._count?._all || 0,
                 totalArea: stat._sum?.fieldAffectedArea || 0,
                 avgSeverity: ((stat._sum?.severityPercent || 0) / (stat._count?._all || 1))
@@ -298,7 +298,7 @@ export async function getUserPersonalData(userId: string): Promise<{
         reports: recentReports.slice(0, 10).map(r => ({
             id: r.id,
             createdAt: r.createdAt,
-            province: r.province,
+            province: r.provinceCode,
             pestName: r.pest.pestNameEn,
             plantName: r.plant.plantNameEn,
             status: r.status,
@@ -339,7 +339,7 @@ export async function exportUserReportsToCSV() {
         const date = r.createdAt.toISOString().split('T')[0];
         const escape = (text: string | null) => text ? `"${text.replace(/"/g, '""')}"` : "";
         return [
-            r.id, date, escape(r.province),
+            r.id, date, escape(r.provinceCode),
             escape(r.pest.pestNameEn), escape(r.plant.plantNameEn),
             r.status, escape(r.rejectionReason)
         ].join(",");

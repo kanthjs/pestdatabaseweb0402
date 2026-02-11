@@ -25,7 +25,7 @@ export async function getUserReports() {
     // Use email to match reports - more reliable for ownership
     // This handles cases where user ID might differ between auth and database
     const userEmail = user.email;
-    
+
     if (!userEmail) {
         throw new Error("User email not found");
     }
@@ -46,7 +46,7 @@ export async function getUserReports() {
         select: {
             id: true,
             reportedAt: true,
-            province: true,
+            provinceCode: true,
             status: true,
             rejectionReason: true,
             imageUrls: true,
@@ -62,7 +62,7 @@ export async function getUserReports() {
     return reports.map(r => ({
         id: r.id,
         reportedAt: r.reportedAt,
-        province: r.province,
+        province: r.provinceCode,
         pestName: r.pest.pestNameEn,
         status: r.status,
         rejectionReason: r.rejectionReason,
