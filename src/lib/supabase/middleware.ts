@@ -1,6 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
 
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
@@ -35,51 +34,18 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser();
 
-    // Protected routes configuration
-    const protectedRoutes = [
-        { path: "/dashboard/admin", roles: ["ADMIN"] },
-        { path: "/review", roles: ["EXPERT", "ADMIN"] },
-        { path: "/admin", roles: ["ADMIN"] },
-    ];
-
-    // Check if current route is protected
-    const matchedRoute = protectedRoutes.find((route) =>
-        request.nextUrl.pathname.startsWith(route.path)
+    // Protected paths - only check authentication here
+    // Role-based access control is handled within each page's server actions
+    const protectedPaths = ["/dashboard/admin", "/review", "/admin"];
+    const isProtected = protectedPaths.some((path) =>
+        request.nextUrl.pathname.startsWith(path)
     );
 
-    if (matchedRoute) {
-        // Not authenticated - redirect to login
-        if (!user) {
-            const url = request.nextUrl.clone();
-            url.pathname = "/login";
-            url.searchParams.set("redirectTo", request.nextUrl.pathname);
-            return NextResponse.redirect(url);
-        }
-
-        // Check role permissions
-        try {
-            const userProfile = await prisma.userProfile.findFirst({
-                where: {
-                    OR: [
-                        { id: user.id },
-                        { email: user.email || "" },
-                    ],
-                },
-                select: { role: true },
-            });
-
-            const userRole = userProfile?.role || "USER";
-
-            if (!matchedRoute.roles.includes(userRole)) {
-                const url = request.nextUrl.clone();
-                url.pathname = "/unauthorized";
-                return NextResponse.redirect(url);
-            }
-        } catch {
-            const url = request.nextUrl.clone();
-            url.pathname = "/unauthorized";
-            return NextResponse.redirect(url);
-        }
+    if (isProtected && !user) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/login";
+        url.searchParams.set("redirectTo", request.nextUrl.pathname);
+        return NextResponse.redirect(url);
     }
 
     return supabaseResponse;
