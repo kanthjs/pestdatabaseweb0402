@@ -82,12 +82,28 @@ export function LocationStep({ provinces, formData, setFormData }: LocationStepP
                             className="w-full h-12 rounded-xl border-border bg-background text-primary hover:bg-muted/50"
                             onClick={() => {
                                 if (navigator.geolocation) {
-                                    navigator.geolocation.getCurrentPosition((pos) => {
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            latitude: pos.coords.latitude,
-                                            longitude: pos.coords.longitude,
-                                        }));
+                                    navigator.geolocation.getCurrentPosition(async (pos) => {
+                                        const { latitude, longitude } = pos.coords;
+                                        setFormData((prev) => ({ ...prev, latitude, longitude }));
+
+                                        try {
+                                            const res = await fetch(
+                                                `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+                                                { headers: { "Accept-Language": "en" } }
+                                            );
+                                            const data = await res.json();
+                                            const stateName = data.address?.state || data.address?.county;
+                                            if (stateName) {
+                                                const matched = provinces.find(
+                                                    (p) => p.provinceNameEn.toLowerCase() === stateName.toLowerCase()
+                                                );
+                                                if (matched) {
+                                                    setFormData((prev) => ({ ...prev, provinceCode: matched.provinceCode }));
+                                                }
+                                            }
+                                        } catch {
+                                            // Silently fail — user can still select manually
+                                        }
                                     });
                                 }
                             }}

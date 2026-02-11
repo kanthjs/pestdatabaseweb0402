@@ -123,6 +123,7 @@ export default function SurveyFormClient({
     const [authLoading, setAuthLoading] = useState(true);
     const [autoFilled, setAutoFilled] = useState(false);
     const [isLocating, setIsLocating] = useState(false);
+    const [locationStatus, setLocationStatus] = useState<string>("");
     const router = useRouter();
     const pathname = usePathname();
 
@@ -189,48 +190,47 @@ export default function SurveyFormClient({
                     longitude,
                 }));
 
-                // 2. Reverse Geocoding to identify Province
+                // 2. Reverse Geocoding to identify Province (client-side fetch to avoid server IP blocks)
                 try {
-                    // Using OpenStreetMap Nominatim API with Thai language preference
-                    const response = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1&accept-language=th`
+                    setLocationStatus("กำลังระบุจังหวัด...");
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
+                        { headers: { "Accept-Language": "th,en;q=0.9" } }
                     );
-                    const data = await response.json();
 
-                    if (data && data.address) {
-                        // Nominatim returns 'state' for province, or 'city' for Bangkok sometimes
-                        const stateName = data.address.state || data.address.province || data.address.city;
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-                        if (stateName) {
-                            // Helper to normalize strings for comparison (remove common prefixes/suffixes)
-                            const normalize = (str: string) =>
-                                str ? str.toLowerCase().replace(/จังหวัด|province|islands|city of/g, "").replace(/\s+/g, "").trim() : "";
+                    const data = await res.json();
+                    // Nominatim returns 'state' for province, or 'city' for Bangkok
+                    const stateName = data.address?.state || data.address?.province || data.address?.city;
 
-                            const target = normalize(stateName);
+                    if (stateName) {
+                        const normalize = (str: string) =>
+                            str ? str.toLowerCase().replace(/จังหวัด|province|islands|city of/g, "").replace(/\s+/g, "").trim() : "";
 
-                            // Find matching province in props
-                            const matchedProvince = provinces.find(p => {
-                                const th = p.provinceNameTh ? normalize(p.provinceNameTh) : "";
-                                const en = normalize(p.provinceNameEn);
-                                // Check for partial matches to handle variations
-                                return th === target || en === target ||
-                                    (th && target.includes(th)) || (th && th.includes(target)) ||
-                                    target.includes(en) || en.includes(target);
-                            });
+                        const target = normalize(stateName);
 
-                            if (matchedProvince) {
-                                setFormData((prev) => ({
-                                    ...prev,
-                                    provinceCode: matchedProvince.provinceCode
-                                }));
-                            } else {
-                                // Fallback: try to just alert the user if strict match fails, but let them choose
-                                console.warn("Could not auto-match province:", stateName);
-                            }
+                        const matchedProvince = provinces.find(p => {
+                            const th = p.provinceNameTh ? normalize(p.provinceNameTh) : "";
+                            const en = normalize(p.provinceNameEn);
+                            return th === target || en === target ||
+                                (th && target.includes(th)) || (th && th.includes(target)) ||
+                                target.includes(en) || en.includes(target);
+                        });
+
+                        if (matchedProvince) {
+                            setFormData((prev) => ({ ...prev, provinceCode: matchedProvince.provinceCode }));
+                            setLocationStatus(`พบตำแหน่งในจังหวัด: ${matchedProvince.provinceNameTh || matchedProvince.provinceNameEn}`);
+                        } else {
+                            console.warn("Could not auto-match province:", stateName);
+                            setLocationStatus(`ไม่สามารถระบุจังหวัดจาก: ${stateName}`);
                         }
+                    } else {
+                        setLocationStatus("ระบุตำแหน่งแล้ว (ไม่พบข้อมูลจังหวัด)");
                     }
                 } catch (error) {
                     console.error("Error reverse geocoding:", error);
+                    setLocationStatus("เกิดข้อผิดพลาดในการระบุจังหวัด");
                 } finally {
                     setIsLocating(false);
                 }
@@ -351,59 +351,8 @@ export default function SurveyFormClient({
 
     return (
         <div className="bg-background text-foreground min-h-screen flex flex-col font-sans transition-colors duration-300">
-            {/* Header */}
-            <header className="sticky top-0 z-50 flex items-center justify-between border-b border-border bg-background/95 backdrop-blur-sm px-6 py-4 lg:px-10">
-                <Link href="/" className="flex items-center gap-4">
-                    <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                        <span className="material-icons-outlined text-2xl">agriculture</span>
-                    </div>
-                    <h2 className="text-lg font-bold tracking-tight text-primary font-display">
-                        เครือข่ายเฝ้าระวังภัยศัตรูข้าว
-                    </h2>
-                </Link>
-                <div className="hidden md:flex flex-1 justify-end gap-8 items-center">
-                    <nav className="flex items-center gap-6">
-                        <Link
-                            className="text-sm font-medium text-primary hover:opacity-80 transition-colors"
-                            href="/survey"
-                        >
-                            รายงาน
-                        </Link>
-                        <Link
-                            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-                            href="/dashboard"
-                        >
-                            จัดการข้อมูล
-                        </Link>
-                    </nav>
-                    <Separator orientation="vertical" className="h-8 border-border" />
-                    <ThemeToggle />
-                    {/* Show user info or login link */}
-                    {!authLoading && (
-                        user ? (
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary/5 border border-primary/10">
-                                <span className="material-icons-outlined text-primary text-lg">person</span>
-                                <span className="text-sm font-medium text-primary truncate max-w-[120px]">
-                                    {user.email?.split("@")[0]}
-                                </span>
-                            </div>
-                        ) : (
-                            <Link
-                                href={`/login?redirectTo=${pathname}`}
-                                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-                            >
-                                เข้าสู่ระบบ
-                            </Link>
-                        )
-                    )}
-                </div>
-                <button className="md:hidden p-2 text-muted-foreground">
-                    <span className="material-icons-outlined text-2xl">menu</span>
-                </button>
-            </header>
-
             {/* Main Content */}
-            <main className="flex flex-1 flex-col items-center px-4 py-8 md:px-8 lg:py-12">
+            <main className="flex flex-1 flex-col items-center px-4 py-0 md:px-12 lg:py-12">
                 {/* Main Progress Tracker */}
                 <div className="max-w-4xl mx-auto w-full px-6 pt-12">
                     <div className="flex justify-between mb-8 overflow-x-auto pb-2 scrollbar-hide">
@@ -534,6 +483,12 @@ export default function SurveyFormClient({
                                                     </>
                                                 )}
                                             </Button>
+
+                                            {locationStatus && (
+                                                <p className={`text-xs text-center animate-in fade-in duration-300 ${locationStatus.includes('ผิดพลาด') ? 'text-destructive' : 'text-primary font-medium'}`}>
+                                                    {locationStatus}
+                                                </p>
+                                            )}
 
                                             {/* Map Integration */}
                                             {(formData.latitude !== 0 || formData.longitude !== 0) && (

@@ -146,7 +146,6 @@ export async function submitPestReport(data: PestReportSubmission) {
             },
         });
 
-        revalidatePath("/dashboard");
         revalidatePath("/my-reports");
         return { success: true, reportId: report.id, autoApproved: isExpert };
     } catch (error) {
@@ -154,3 +153,31 @@ export async function submitPestReport(data: PestReportSubmission) {
         return { success: false, error: "Failed to submit report" };
     }
 }
+
+/**
+ * Perform reverse geocoding on the server to avoid CORS issues and comply with Nominatim policy
+ */
+export async function reverseGeocode(lat: number, lon: number) {
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1&accept-language=th`,
+            {
+                headers: {
+                    "User-Agent": "PestDatabaseWeb/1.0 (Contact: admin@example.com)",
+                    "Accept-Language": "th,en;q=0.9",
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`Nominatim API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return { success: true, data };
+    } catch (error) {
+        logError("Reverse geocoding failed:", error);
+        return { success: false, error: "Failed to resolve address" };
+    }
+}
+
