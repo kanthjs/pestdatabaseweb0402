@@ -16,9 +16,9 @@ const legalLinks = [
 ];
 
 const contactInfo = [
-  { icon: "email", text: "contact@ricepestnet.go.th" },
-  { icon: "phone", text: "0-XXXX-XXXX" },
-  { icon: "location_on", text: "กรุงเทพมหานคร, ประเทศไทย" },
+  { icon: "email", text: "kanthanawit.j@rice.mail.go.th" },
+  { icon: "phone", text: "0-2579-1688" },
+  { icon: "location_on", text: "ศูนย์วิจัยข้าวปทุมธานี, ปทุมธานี" },
 ];
 
 export function LandingFooter() {
@@ -35,6 +35,7 @@ export function LandingFooter() {
                   alt="RicePestNet Logo"
                   fill
                   className="object-contain"
+                  sizes="40px"
                 />
               </div>
               <span className="font-bold text-xl">
@@ -104,7 +105,7 @@ export function LandingFooter() {
               © {new Date().getFullYear()} Rice Pest Survey Network. สงวนลิขสิทธิ์.
             </p>
             <p className="text-primary-foreground/50 text-sm">
-              สร้างด้วยความมุ่งมั่นเพื่อความมั่นคงทางอาหารของประเทศไทย
+              สร้างโดย นายกันต์ธณวิชญ์ ใจสงฆ์ (ศูนย์วิจัยข้าวปทุมธานี)
             </p>
           </div>
         </div>

@@ -29,12 +29,12 @@ export function LandingHero({
       {/* รูปภาพพื้นหลัง (Hero Image) เพื่อสร้างมู้ดและโทนของเว็บไซต์เกษตรกร */}
       <div className="relative w-full h-[50vh] lg:h-[60vh]">
         <Image
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsFTNo1gJGqSi6iL3lMZUfIdag7qxOmev-BjWfiH9LwzM3UKa4uV4eIl2FUr3wuiYRCwj_RuROSiDIaMGDIU4nv6s14883dDchR1J6ubGZi8fliP69GGtgOkEVbTcKhxYp0kYcnTJy6Lf4sCiOLr_iXiYK1b7Wu8mUw0vKj7W8usXBSOxzr8gFqiz0wijRnilqrNkbUXzAb5J6ckRAQXeMuUm4BE4rGGm55Oqbf7Lag27D8m4f5jidpWbPfG0z9cttY982wKpTIhyd"
+          src="/cover.jpg"
           alt="ทุ่งนาข้าวสีเขียวขจี"
           fill
           className="object-cover"
           priority
-          unoptimized
+          sizes="100vw"
         />
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />

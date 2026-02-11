@@ -93,6 +93,7 @@ export default function Navbar() {
                                 fill
                                 className="object-contain"
                                 priority
+                                sizes="40px"
                             />
                         </div>
                         <span className="font-display font-bold text-xl tracking-tight text-primary">

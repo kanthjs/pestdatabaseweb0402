@@ -26,11 +26,11 @@ export function NetworkRole() {
           {/* Left Column - Image */}
           <div className="relative h-[400px] lg:h-[500px] rounded-3xl overflow-hidden shadow-xl order-2 lg:order-1">
             <Image
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsFTNo1gJGqSi6iL3lMZUfIdag7qxOmev-BjWfiH9LwzM3UKa4uV4eIl2FUr3wuiYRCwj_RuROSiDIaMGDIU4nv6s14883dDchR1J6ubGZi8fliP69GGtgOkEVbTcKhxYp0kYcnTJy6Lf4sCiOLr_iXiYK1b7Wu8mUw0vKj7W8usXBSOxzr8gFqiz0wijRnilqrNkbUXzAb5J6ckRAQXeMuUm4BE4rGGm55Oqbf7Lag27D8m4f5jidpWbPfG0z9cttY982wKpTIhyd"
+              src="/cover.jpg"
               alt="การทำงานร่วมกันในเครือข่าย"
               fill
               className="object-cover"
-              unoptimized
+              sizes="(max-width: 1024px) 100vw, 50vw"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent" />
           </div>

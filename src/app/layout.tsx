@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: "Safeguarding Rice Harvests Together - เครือข่ายเฝ้าระวังศัตรูพืชข้าวแห่งประเทศไทย",
   icons: {
     icon: [
-      { url: "/logo.png", sizes: "any" },
+      { url: "/favicon.ico", sizes: "any" },
     ],
     apple: [
       { url: "/logo.png" },

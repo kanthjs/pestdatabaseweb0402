@@ -183,10 +183,10 @@ export default function TermsPage() {
                                         <strong>ระบบเครือข่ายเฝ้าระวังภัยศัตรูข้าว (TRPMN)</strong>
                                     </p>
                                     <p className="mb-2">
-                                        อีเมล: contact@ricepestnet.go.th
+                                        อีเมล: kanthanawit.j@rice.mail.go.th
                                     </p>
                                     <p>
-                                        โทรศัพท์: 0-XXXX-XXXX
+                                        โทรศัพท์: 0-2579-1688
                                     </p>
                                 </div>
                             </div>

@@ -16,6 +16,7 @@ export default function SignupPage() {
                                 fill
                                 className="object-contain"
                                 priority
+                                sizes="64px"
                             />
                         </div>
                         <span className="font-display font-bold text-2xl text-primary">

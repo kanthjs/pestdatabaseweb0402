@@ -1,5 +1,6 @@
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata = {
     title: "เกี่ยวกับเรา | TRPMN",
@@ -20,9 +21,6 @@ export default function AboutPage() {
                     </h1>
                     <p className="text-xl md:text-2xl text-primary-foreground/90 font-light max-w-2xl mx-auto leading-relaxed mb-4">
                         เครือข่ายเฝ้าระวังภัยศัตรูข้าว
-                    </p>
-                    <p className="text-lg md:text-xl text-primary-foreground/80 font-medium">
-                        (Thai Rice Pest Monitoring Network - TRPMN)
                     </p>
                     <div className="mt-8 inline-block px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20">
                         <p className="text-white font-medium italic">
@@ -50,9 +48,14 @@ export default function AboutPage() {
                                 จากการศึกษาเราพบความจริงที่สำคัญว่า การสร้างฐานข้อมูลการระบาดของศัตรูข้าวให้ครอบคลุมทั่วประเทศนั้น <span className="text-primary font-semibold">&quot;ลำพังเพียงหน่วยงานภาครัฐเพียงหน่วยงานเดียวอาจไม่เพียงพอ&quot;</span> ทั้งในแง่ของความต่อเนื่องของข้อมูล และความครอบคลุมของพื้นที่ที่มีอยู่อย่างมหาศาล
                             </p>
                         </div>
-                        <div className="bg-muted rounded-3xl p-8 aspect-video flex items-center justify-center relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors"></div>
-                            <span className="material-icons-outlined text-9xl text-primary/20">analytics</span>
+                        <div className="relative rounded-3xl overflow-hidden aspect-video">
+                            <Image
+                                src="/about1.jpg"
+                                alt="การวิเคราะห์ข้อมูลศัตรูพืช"
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                            />
                         </div>
                     </div>
 
@@ -70,9 +73,14 @@ export default function AboutPage() {
                                 โดยเน้นการมีส่วนร่วมของสมาชิกในเครือข่าย ไม่ว่าจะเป็นเกษตรกรในพื้นที่ หรือเจ้าหน้าที่จากภาคส่วนต่างๆ ที่ร่วมแรงร่วมใจกันแลกเปลี่ยนข้อมูลสถานการณ์จริงจากแปลงนา
                             </p>
                         </div>
-                        <div className="md:order-1 bg-muted rounded-3xl p-8 aspect-video flex items-center justify-center relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors"></div>
-                            <span className="material-icons-outlined text-9xl text-primary/20">groups</span>
+                        <div className="md:order-1 relative rounded-3xl overflow-hidden aspect-video">
+                            <Image
+                                src="/about2.jpg"
+                                alt="การทำงานร่วมกันในเครือข่าย"
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                            />
                         </div>
                     </div>
 
@@ -90,9 +98,14 @@ export default function AboutPage() {
                                 เพื่อตรวจสอบและยืนยันความถูกต้องให้ได้มากที่สุด ก่อนที่จะส่งต่อความรู้และการแจ้งเตือนกลับไปยังสมาชิกในเครือข่าย
                             </p>
                         </div>
-                        <div className="bg-muted rounded-3xl p-8 aspect-video flex items-center justify-center relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors"></div>
-                            <span className="material-icons-outlined text-9xl text-primary/20">psychology</span>
+                        <div className="relative rounded-3xl overflow-hidden aspect-video">
+                            <Image
+                                src="/about3.jpg"
+                                alt="การตรวจสอบความถูกต้องโดยผู้เชี่ยวชาญ"
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                            />
                         </div>
                     </div>
                 </div>
@@ -146,6 +159,68 @@ export default function AboutPage() {
                             <p className="text-xl font-medium text-primary leading-relaxed italic">
                                 &quot;TRPMN จึงไม่ใช่แค่ระบบคอมพิวเตอร์ แต่คือเครือข่ายของ &apos;กลุ่มคน&apos; ที่ร่วมด้วยช่วยกันดูแลและปกป้องผลผลิตข้าวไทยให้ยั่งยืน&quot;
                             </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Developer Section */}
+            <section className="py-24 bg-background relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
+                <div className="max-w-5xl mx-auto px-4">
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4">ผู้พัฒนาเวปไซท์</h2>
+                        <div className="h-1.5 w-24 bg-primary mx-auto rounded-full"></div>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row items-center gap-12 bg-card p-8 md:p-12 rounded-[3rem] border border-border shadow-xl hover:shadow-2xl transition-all duration-500 group">
+                        <div className="relative w-48 h-48 md:w-64 md:h-64 flex-shrink-0">
+                            <div className="absolute inset-0 bg-primary/20 rounded-3xl rotate-6 group-hover:rotate-12 transition-transform duration-500"></div>
+                            <div className="relative w-full h-full rounded-3xl overflow-hidden border-4 border-white shadow-lg">
+                                <Image
+                                    src="/ME.jpg"
+                                    alt="นายกันต์ธณวิชญ์ ใจสงฆ์"
+                                    fill
+                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                    sizes="(max-width: 768px) 192px, 256px"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex-1 text-center md:text-left space-y-6">
+                            <div className="space-y-2">
+                                <h3 className="text-3xl font-bold text-foreground">
+                                    นายกันต์ธณวิชญ์ ใจสงฆ์
+                                </h3>
+                                <p className="text-xl text-primary font-semibold flex items-center justify-center md:justify-start gap-2">
+                                    <span className="material-icons-outlined text-primary">engineering</span>
+                                    นักวิชาการเกษตรชำนาญการพิเศษ
+                                </p>
+                                <p className="text-lg text-muted-foreground italic">
+                                    ศูนย์วิจัยข้าวปทุมธานี
+                                </p>
+                            </div>
+
+                            <p className="text-lg text-muted-foreground leading-relaxed">
+                                ผู้ริเริ่มเครือข่ายเฝ้าระวังภัยศัตรูข้าว (TRPMN) ด้วยความมุ่งมั่นที่จะนำนวัตกรรมดิจิทัลมาช่วยยกระดับการทำงานวิจัยและการแจ้งเตือนภัยให้เข้าถึงเกษตรกรได้อย่างแม่นยำและรวดเร็ว
+                            </p>
+
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                                <Link
+                                    href="#"
+                                    className="flex items-center gap-2 px-6 py-3 bg-muted hover:bg-primary hover:text-white rounded-2xl transition-all duration-300 font-medium"
+                                >
+                                    <span className="material-icons-outlined">language</span>
+                                    Personal Website (Coming Soon)
+                                </Link>
+                                <Link
+                                    href="mailto:kanthanawit.j@rice.mail.go.th"
+                                    className="flex items-center gap-2 px-6 py-3 border border-border hover:border-primary hover:text-primary rounded-2xl transition-all duration-300 font-medium"
+                                >
+                                    <span className="material-icons-outlined">email</span>
+                                    ติดต่อสอบถาม
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>
