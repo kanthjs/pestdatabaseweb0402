@@ -132,7 +132,7 @@ const pests = [
   { pestId: "PST025", pestNameTh: "โรคกาบใบเน่า", pestNameEn: "Sheath Rot", imageUrl: "http://www.knowledgebank.irri.org/images/stories/sheath-rot-4.jpg" },
   { pestId: "PST026", pestNameTh: "โรคเมล็ดด่าง", pestNameEn: "Dirty Panicle Disease", imageUrl: "https://www.lsuagcenter.com/~/media/system/1/7/1/d/171d1d505d596e81cff85dc550ed3e8a/bpb7.jpg?h=3872&la=en&w=2592" },
   { pestId: "PST027", pestNameTh: "โรคดอกกระถิน", pestNameEn: "False Smut", imageUrl: "http://www.knowledgebank.irri.org/images/stories/Factsheet_false-smut-002.jpg" },
-  { pestId: "PST030", pestNameTh: "โรคใบแถบแดง", pestNameEn: "Red Stripe", imageUrl: "http://www.knowledgebank.irri.org/images/stories/red-stripe.jpg" },
+  { pestId: "PST028", pestNameTh: "โรคใบแถบแดง", pestNameEn: "Red Stripe", imageUrl: "http://www.knowledgebank.irri.org/images/stories/red-stripe.jpg" },
   // { pestId: "PST005", pestNameTh: "หนอนกระทู้ข้าวโพดลายจุด", pestNameEn: "Fall Armyworm" },
   //  { pestId: "PST003", pestNameTh: "นกกระติ๊ดตะโพกขาว", pestNameEn: "White-rumped Munia" },
 ];

@@ -696,6 +696,7 @@ export default function SurveyFormClient({
                                                 <Input
                                                     type="number"
                                                     step="0.1"
+                                                    min="0"
                                                     placeholder="0.0"
                                                     className="h-12 pr-16 rounded-xl border-border bg-background focus:ring-primary/20"
                                                     value={formData.fieldAffectedArea || ""}
@@ -718,6 +719,8 @@ export default function SurveyFormClient({
                                             <div className="relative">
                                                 <Input
                                                     type="number"
+                                                    min="0"
+                                                    max="100"
                                                     placeholder="0"
                                                     title="Incidence percentage"
                                                     className="h-12 pr-12 rounded-xl border-border bg-background focus:ring-primary/20"
@@ -741,6 +744,8 @@ export default function SurveyFormClient({
                                             <div className="relative">
                                                 <Input
                                                     type="number"
+                                                    min="0"
+                                                    max="100"
                                                     placeholder="0"
                                                     title="Severity percentage"
                                                     className="h-12 pr-12 rounded-xl border-border bg-background focus:ring-primary/20"
