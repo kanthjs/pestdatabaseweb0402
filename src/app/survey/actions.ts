@@ -163,7 +163,8 @@ export async function reverseGeocode(lat: number, lon: number) {
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1&accept-language=th`,
             {
                 headers: {
-                    "User-Agent": "PestDatabaseWeb/1.0 (Contact: admin@example.com)",
+                    "User-Agent": "PestDatabaseApp/1.0 (https://pestdatabase-th.vercel.app)",
+                    "Referer": "https://pestdatabase-th.vercel.app",
                     "Accept-Language": "th,en;q=0.9",
                 }
             }
