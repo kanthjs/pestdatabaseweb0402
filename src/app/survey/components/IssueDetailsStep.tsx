@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,8 +14,26 @@ interface IssueDetailsStepProps {
 }
 
 export function IssueDetailsStep({ formData, setFormData, selectedFiles, setSelectedFiles }: IssueDetailsStepProps) {
+    const cameraInputRef = useRef<HTMLInputElement>(null);
+
     const handleInputChange = (field: keyof PestReportFormData, value: string | number) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const newFiles = Array.from(e.target.files);
+            const newUrls = newFiles.map(file => URL.createObjectURL(file));
+            setSelectedFiles(prev => [...prev, ...newFiles]);
+            setFormData(prev => ({
+                ...prev,
+                imageUrls: [...prev.imageUrls, ...newUrls],
+                imageCaptions: [...prev.imageCaptions, ...new Array(newUrls.length).fill("")]
+            }));
+
+            // Reset input value to allow selecting the same file again if needed
+            e.target.value = '';
+        }
     };
 
     return (
@@ -108,17 +127,15 @@ export function IssueDetailsStep({ formData, setFormData, selectedFiles, setSele
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Upload Button Area */}
-                            <div className="col-span-1 md:col-span-2">
+                            <div className="col-span-1 md:col-span-2 grid grid-cols-2 gap-4">
+                                {/* Regular File Upload */}
                                 <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-muted/30 hover:border-primary/50 transition-all group">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                         <div className="bg-primary/5 p-3 rounded-full mb-3 group-hover:bg-primary/10 transition-colors">
-                                            <span className="material-icons-outlined text-primary text-2xl">add_a_photo</span>
+                                            <span className="material-icons-outlined text-primary text-2xl">upload_file</span>
                                         </div>
-                                        <p className="mb-1 text-sm text-muted-foreground font-medium">
-                                            <span className="font-bold text-primary">Click to upload</span> or drag and drop
-                                        </p>
-                                        <p className="text-xs text-muted-foreground/70">
-                                            SVG, PNG, JPG or GIF (max. 5MB)
+                                        <p className="mb-1 text-sm text-muted-foreground font-medium text-center">
+                                            <span className="font-bold text-primary">Upload</span> Files
                                         </p>
                                     </div>
                                     <input
@@ -126,20 +143,32 @@ export function IssueDetailsStep({ formData, setFormData, selectedFiles, setSele
                                         className="hidden"
                                         multiple
                                         accept="image/*"
-                                        onChange={(e) => {
-                                            if (e.target.files && e.target.files.length > 0) {
-                                                const newFiles = Array.from(e.target.files);
-                                                const newUrls = newFiles.map(file => URL.createObjectURL(file));
-                                                setSelectedFiles(prev => [...prev, ...newFiles]);
-                                                setFormData(prev => ({
-                                                    ...prev,
-                                                    imageUrls: [...prev.imageUrls, ...newUrls],
-                                                    imageCaptions: [...prev.imageCaptions, ...new Array(newUrls.length).fill("")]
-                                                }));
-                                            }
-                                        }}
+                                        onChange={handleFileSelect}
                                     />
                                 </label>
+
+                                {/* Camera Capture */}
+                                <div
+                                    onClick={() => cameraInputRef.current?.click()}
+                                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-muted/30 hover:border-primary/50 transition-all group"
+                                >
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <div className="bg-primary/5 p-3 rounded-full mb-3 group-hover:bg-primary/10 transition-colors">
+                                            <span className="material-icons-outlined text-primary text-2xl">photo_camera</span>
+                                        </div>
+                                        <p className="mb-1 text-sm text-muted-foreground font-medium text-center">
+                                            <span className="font-bold text-primary">Take</span> Photo
+                                        </p>
+                                    </div>
+                                    <input
+                                        ref={cameraInputRef}
+                                        type="file"
+                                        className="hidden"
+                                        accept="image/*"
+                                        capture="environment"
+                                        onChange={handleFileSelect}
+                                    />
+                                </div>
                             </div>
 
                             {/* Image Previews */}
