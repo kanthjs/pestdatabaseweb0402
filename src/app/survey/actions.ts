@@ -177,7 +177,10 @@ export async function reverseGeocode(lat: number, lon: number) {
         return { success: true, data };
     } catch (error) {
         logError("Reverse geocoding failed:", error);
-        return { success: false, error: "Failed to resolve address" };
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Failed to resolve address"
+        };
     }
 }
 

@@ -44,12 +44,34 @@ async function fix() {
         BEGIN
           IF NOT EXISTS (
             SELECT 1 FROM pg_policies 
-            WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Allow public insert for pestPics'
+            WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Allow authenticated insert for pestPics'
           ) THEN
-            CREATE POLICY "Allow public insert for pestPics" ON storage.objects FOR INSERT TO public WITH CHECK (bucket_id = 'pestPics');
+            CREATE POLICY "Allow authenticated insert for pestPics" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'pestPics');
           END IF;
         EXCEPTION WHEN OTHERS THEN
           RAISE NOTICE 'Could not create insert policy: %', SQLERRM;
+        END;
+
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_policies 
+            WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Allow authenticated update for pestPics'
+          ) THEN
+            CREATE POLICY "Allow authenticated update for pestPics" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'pestPics');
+          END IF;
+        EXCEPTION WHEN OTHERS THEN
+          RAISE NOTICE 'Could not create update policy: %', SQLERRM;
+        END;
+
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_policies 
+            WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Allow authenticated delete for pestPics'
+          ) THEN
+            CREATE POLICY "Allow authenticated delete for pestPics" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'pestPics');
+          END IF;
+        EXCEPTION WHEN OTHERS THEN
+          RAISE NOTICE 'Could not create delete policy: %', SQLERRM;
         END;
       END $$;
     `);

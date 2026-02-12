@@ -196,7 +196,12 @@ export default function SurveyFormClient({
                     setLocationStatus("กำลังระบุจังหวัด...");
                     const result = await reverseGeocode(latitude, longitude);
 
-                    if (!result.success) throw new Error(result.error);
+                    if (!result.success) {
+                        console.error("Reverse geocoding failed:", result.error);
+                        setLocationStatus(`ไม่สามารถระบุจังหวัดโดยอัตโนมัติ: ${result.error}`);
+                        setIsLocating(false);
+                        return;
+                    }
 
                     const data = result.data;
                     // Nominatim returns 'state' for province, or 'city' for Bangkok
