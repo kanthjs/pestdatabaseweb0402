@@ -106,7 +106,7 @@ export async function getCurrentUserInfo() {
         role,
         userId: profile?.id || user.id,
         userEmail: user.email || undefined,
-        userName: profile?.userName || user.email?.split("@")[0] || "User",
+        userName: profile?.firstName || user.email || "User",
     };
 }
 
