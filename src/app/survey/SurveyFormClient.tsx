@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Switch } from "@/components/ui/switch";
 import { createClient } from "@/lib/supabase/client";
-import { submitPestReport } from "./actions";
+import { submitPestReport, reverseGeocode } from "./actions";
 import { useRouter, usePathname } from "next/navigation";
 import { User } from "@supabase/supabase-js";
 
@@ -190,17 +190,14 @@ export default function SurveyFormClient({
                     longitude,
                 }));
 
-                // 2. Reverse Geocoding to identify Province (client-side fetch to avoid server IP blocks)
+                // 2. Reverse Geocoding to identify Province (via server action to set User-Agent and avoid CORS)
                 try {
                     setLocationStatus("กำลังระบุจังหวัด...");
-                    const res = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`,
-                        { headers: { "Accept-Language": "th,en;q=0.9" } }
-                    );
+                    const result = await reverseGeocode(latitude, longitude);
 
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    if (!result.success) throw new Error(result.error);
 
-                    const data = await res.json();
+                    const data = result.data;
                     // Nominatim returns 'state' for province, or 'city' for Bangkok
                     const stateName = data.address?.state || data.address?.province || data.address?.city;
 
