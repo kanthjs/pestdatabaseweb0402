@@ -134,15 +134,16 @@ export async function submitPestReport(data: PestReportSubmission) {
                 imageUrls: data.imageUrls,
                 imageCaptions: data.imageCaptions,
                 isAnonymous: data.isAnonymous,
-                reporterFirstName: data.isAnonymous ? null : data.reporterFirstName,
-                reporterLastName: data.isAnonymous ? null : data.reporterLastName,
-                reporterPhone: data.isAnonymous ? null : data.reporterPhone,
-                occupationRoles: data.isAnonymous ? null : data.reporterRole,
+                reporterFirstName: data.reporterFirstName || null,
+                reporterLastName: data.reporterLastName || null,
+                reporterPhone: data.reporterPhone || null,
+                occupationRoles: data.reporterRole || null,
                 status: reportStatus,
                 verifiedAt,
                 verifiedBy,
-                reporterUser: effectiveUserId ? { connect: { id: effectiveUserId } } : undefined,
-                reporterEmail: user?.email,
+                // Only connect to UserProfile if user is authenticated
+                ...(effectiveUserId && user ? { reporterUser: { connect: { id: effectiveUserId } } } : {}),
+                reporterEmail: user?.email || null,
             },
         });
 
