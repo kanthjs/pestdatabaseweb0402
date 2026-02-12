@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -124,6 +124,7 @@ export default function SurveyFormClient({
     const [autoFilled, setAutoFilled] = useState(false);
     const [isLocating, setIsLocating] = useState(false);
     const [locationStatus, setLocationStatus] = useState<string>("");
+    const cameraInputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
     const pathname = usePathname();
 
@@ -729,19 +730,15 @@ export default function SurveyFormClient({
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 {/* Upload Button Area */}
                                                 {selectedFiles.length < 2 && (
-                                                    <div className="col-span-1 md:col-span-2">
+                                                    <div className="col-span-1 md:col-span-2 grid grid-cols-2 gap-4">
+                                                        {/* Regular File Upload */}
                                                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-muted/30 hover:border-primary/50 transition-all group">
                                                             <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                                                 <div className="bg-primary/5 p-3 rounded-full mb-3 group-hover:bg-primary/10 transition-colors">
-                                                                    <span className="material-icons-outlined text-primary text-2xl">
-                                                                        add_a_photo
-                                                                    </span>
+                                                                    <span className="material-icons-outlined text-primary text-2xl">upload_file</span>
                                                                 </div>
-                                                                <p className="mb-1 text-sm text-muted-foreground font-medium">
-                                                                    <span className="font-bold text-primary">คลิกเพื่ออัปโหลด</span> หรือลากไฟล์มาวาง
-                                                                </p>
-                                                                <p className="text-xs text-muted-foreground/70">
-                                                                    PNG, JPG หรือ GIF (สูงสุด 5MB, ไม่เกิน 2 รูป)
+                                                                <p className="mb-1 text-sm text-muted-foreground font-medium text-center">
+                                                                    <span className="font-bold text-primary">อัปโหลด</span> ไฟล์
                                                                 </p>
                                                             </div>
                                                             <input
@@ -755,17 +752,54 @@ export default function SurveyFormClient({
                                                                         const remaining = 2 - selectedFiles.length;
                                                                         const filesToAdd = newFiles.slice(0, remaining);
                                                                         const newUrls = filesToAdd.map(file => URL.createObjectURL(file));
-
                                                                         setSelectedFiles(prev => [...prev, ...filesToAdd]);
                                                                         setFormData(prev => ({
                                                                             ...prev,
                                                                             imageUrls: [...prev.imageUrls, ...newUrls],
                                                                             imageCaptions: [...prev.imageCaptions, ...new Array(newUrls.length).fill("")]
                                                                         }));
+                                                                        e.target.value = '';
                                                                     }
                                                                 }}
                                                             />
                                                         </label>
+
+                                                        {/* Camera Capture */}
+                                                        <div
+                                                            onClick={() => cameraInputRef.current?.click()}
+                                                            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl cursor-pointer hover:bg-muted/30 hover:border-primary/50 transition-all group"
+                                                        >
+                                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                                <div className="bg-primary/5 p-3 rounded-full mb-3 group-hover:bg-primary/10 transition-colors">
+                                                                    <span className="material-icons-outlined text-primary text-2xl">photo_camera</span>
+                                                                </div>
+                                                                <p className="mb-1 text-sm text-muted-foreground font-medium text-center">
+                                                                    <span className="font-bold text-primary">ถ่าย</span> รูป
+                                                                </p>
+                                                            </div>
+                                                            <input
+                                                                ref={cameraInputRef}
+                                                                type="file"
+                                                                className="hidden"
+                                                                accept="image/*"
+                                                                capture="environment"
+                                                                onChange={(e) => {
+                                                                    if (e.target.files && e.target.files.length > 0) {
+                                                                        const newFiles = Array.from(e.target.files);
+                                                                        const remaining = 2 - selectedFiles.length;
+                                                                        const filesToAdd = newFiles.slice(0, remaining);
+                                                                        const newUrls = filesToAdd.map(file => URL.createObjectURL(file));
+                                                                        setSelectedFiles(prev => [...prev, ...filesToAdd]);
+                                                                        setFormData(prev => ({
+                                                                            ...prev,
+                                                                            imageUrls: [...prev.imageUrls, ...newUrls],
+                                                                            imageCaptions: [...prev.imageCaptions, ...new Array(newUrls.length).fill("")]
+                                                                        }));
+                                                                        e.target.value = '';
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </div>
                                                     </div>
                                                 )}
 
