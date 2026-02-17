@@ -123,8 +123,8 @@
 
   --radius: var(--radius);
 
-  --font-sans: var(--font-noto-sans-thai);
-  --font-display: var(--font-noto-sans-thai);
+  --font-sans: var(--font-ibm-plex-sans-thai);
+  --font-display: var(--font-ibm-plex-sans-thai);
 
   --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
 }
@@ -161,7 +161,7 @@
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: var(--font-noto-sans-thai), sans-serif;
+  font-family: var(--font-ibm-plex-sans-thai), sans-serif;
 }
 
 /* Headings use Forest Green (Primary) */
@@ -172,7 +172,7 @@ h4,
 h5,
 h6,
 .font-display {
-  font-family: var(--font-noto-sans-thai), sans-serif;
+  font-family: var(--font-ibm-plex-sans-thai), sans-serif;
   color: hsl(var(--primary));
 }
 

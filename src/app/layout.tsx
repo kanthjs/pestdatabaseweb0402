@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Noto_Sans_Thai } from "next/font/google"; // Import Noto Sans Thai
+import { IBM_Plex_Sans_Thai } from "next/font/google"; // Import IBM Plex Sans Thai
 import "./globals.css";
 
-const noto_sans_thai = Noto_Sans_Thai({
+const ibm_plex_sans_thai = IBM_Plex_Sans_Thai({
   subsets: ["thai", "latin"],
-  variable: "--font-noto-sans-thai",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-ibm-plex-sans-thai",
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -44,7 +44,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
       </head>
       <body
-        className={`${noto_sans_thai.variable} antialiased`}
+        className={`${ibm_plex_sans_thai.variable} antialiased`}
       >
         <QueryProvider>
           <ThemeProvider
