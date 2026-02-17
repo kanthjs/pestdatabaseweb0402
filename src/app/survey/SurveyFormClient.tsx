@@ -63,6 +63,7 @@ interface PestReportFormData {
     severityPercent: number;
     imageUrls: string[];
     imageCaptions: string[];
+    notes: string;
     isAnonymous: boolean;
     reporterFirstName: string;
     reporterLastName: string;
@@ -123,6 +124,7 @@ export default function SurveyFormClient({
         severityPercent: 0,
         imageUrls: [],
         imageCaptions: [],
+        notes: "",
         isAnonymous: false,
         reporterFirstName: "",
         reporterLastName: "",
@@ -953,6 +955,18 @@ export default function SurveyFormClient({
                                                     </div>
                                                 ))}
                                             </div>
+                                        </div>
+
+                                        {/* Notes Section */}
+                                        <div className="col-span-1 md:col-span-2 space-y-3">
+                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">หมายเหตุเพิ่มเติม</Label>
+                                            <textarea
+                                                placeholder="บันทึกข้อมูลเพิ่มเติม เช่น สถานการณ์ภาคสนาม วิธีการป้องกัน ข้อสังเกตอื่นๆ ที่ช่วยให้การประเมินแม่นยำขึ้น..."
+                                                className="w-full h-24 p-4 rounded-xl border border-border bg-background focus:ring-2 ring-primary/20 outline-none transition-all resize-none"
+                                                value={formData.notes}
+                                                onChange={(e) => handleInputChange("notes", e.target.value)}
+                                            />
+                                            <p className="text-xs text-muted-foreground">ไม่บังคับ - เพิ่มรายละเอียดใดๆ ที่จำเป็น</p>
                                         </div>
 
                                         {/* Tip Callout */}

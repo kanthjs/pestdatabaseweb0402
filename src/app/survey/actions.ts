@@ -19,6 +19,7 @@ interface PestReportSubmission {
     severityPercent: number;
     imageUrls: string[];
     imageCaptions: string[];
+    notes: string;
     isAnonymous: boolean;
     reporterFirstName: string;
     reporterLastName: string;
@@ -135,6 +136,7 @@ export async function submitPestReport(data: PestReportSubmission) {
                 severityPercent: data.severityPercent,
                 imageUrls: data.imageUrls,
                 imageCaptions: data.imageCaptions,
+                notes: data.notes || null,
                 isAnonymous: data.isAnonymous,
                 reporterFirstName: data.reporterFirstName || null,
                 reporterLastName: data.reporterLastName || null,

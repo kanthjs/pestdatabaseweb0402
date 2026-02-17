@@ -41,8 +41,7 @@ model Pest {
 model PlantGrowthStage {
   stageId     String  @id
   stageNameEn String
-  stageNameTh String?
-  notes       String?
+  stageNameTh String
 }
 
 // สถานะการขอเป็นผู้เชี่ยวชาญ
