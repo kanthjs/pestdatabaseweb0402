@@ -207,11 +207,11 @@ export default function AboutPage() {
 
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
                                 <Link
-                                    href="#"
+                                    href="https://kanthanawit.netlify.app"
                                     className="flex items-center gap-2 px-6 py-3 bg-muted hover:bg-primary hover:text-white rounded-2xl transition-all duration-300 font-medium"
                                 >
                                     <span className="material-icons-outlined">language</span>
-                                    Personal Website (Coming Soon)
+                                    เว็บไซต์ส่วนตัว
                                 </Link>
                                 <Link
                                     href="mailto:kanthanawit.j@rice.mail.go.th"
