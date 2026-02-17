@@ -9,7 +9,6 @@ const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
 
 const provinces = [
- [
   { id: 1, provinceNameTh: 'กรุงเทพมหานคร', provinceNameEn: 'Bangkok', region: 'กลาง', code: 'TH-10' },
   { id: 2, provinceNameTh: 'สมุทรปราการ', provinceNameEn: 'Samut Prakan', region: 'กลาง', code: 'TH-11' },
   { id: 3, provinceNameTh: 'นนทบุรี', provinceNameEn: 'Nonthaburi', region: 'กลาง', code: 'TH-12' },
@@ -99,7 +98,7 @@ const provinces = [
   { id: 75, provinceNameTh: 'นครราชสีมา', provinceNameEn: 'Nakhon Ratchasima', region: 'ตะวันออกเหนือ', code: 'TH-30' },
   { id: 76, provinceNameTh: 'บุรีรัมย์', provinceNameEn: 'Buri Ram', region: 'ตะวันออกเหนือ', code: 'TH-31' },
   { id: 77, provinceNameTh: 'สุรินทร์', provinceNameEn: 'Surin', region: 'ตะวันออกเหนือ', code: 'TH-32' }
-]
+];
 
 const plants = [
   { plantId: "PLT001", plantNameTh: "ข้าว", plantNameEn: "Rice", imageUrl: "/images/pests/rice.jpeg" },
@@ -137,6 +136,14 @@ const pests = [
   { pestId: "PST026", pestNameTh: "โรคเมล็ดด่าง", pestNameEn: "Dirty Panicle Disease", imageUrl: "/images/pests/dirty-panicle-disease.jpg" },
   { pestId: "PST027", pestNameTh: "โรคดอกกระถิน", pestNameEn: "False Smut", imageUrl: "/images/pests/Factsheet_false-smut-002.jpg" },
   { pestId: "PST028", pestNameTh: "โรคใบแถบแดง", pestNameEn: "Red Stripe", imageUrl: "/images/pests/red-stripe.jpg" },
+];
+
+export const plantStages = [
+  { stageId: "STG001", labelTH: "ต้นกล้า", labelEN: "Seedling" },
+  { stageId: "STG002", labelTH: "ข้าวแตกกอ", labelEN: "Tillering" },
+  { stageId: "STG003", labelTH: "ข้าวกำเนิดช่องดอก", labelEN: "Heading" },
+  { stageId: "STG004", labelTH: "ข้าวตั้งท้องออกรวง", labelEN: "Flowering" },
+  { stageId: "STG005", labelTH: "ข้าวสุกแก่ทางเมล็ด", labelEN: "Ripening" },
 ];
 
 export const occupationRoles = [
@@ -265,6 +272,25 @@ async function main() {
     })
   }
   console.log(`Seeded ${pests.length} pests`)
+
+  // Seed PlantGrowthStage
+  console.log('Seeding plant stages...')
+  for (const stage of plantStages) {
+    await prisma.plantGrowthStage.upsert({
+      where: { stageId: stage.stageId },
+      update: {
+        stageNameTh: stage.labelTH,
+        stageNameEn: stage.labelEN,
+      },
+      create: {
+        stageId: stage.stageId,
+        stageNameTh: stage.labelTH,
+        stageNameEn: stage.labelEN,
+      }
+    })
+  }
+  console.log(`Seeded ${plantStages.length} plant stages`)
+
 
   console.log('Seed ข้อมูล Master Data สำเร็จแล้ว!')
 }

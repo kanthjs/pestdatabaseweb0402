@@ -37,6 +37,14 @@ model Pest {
   pestReports PestReport[]
 }
 
+// ข้อมูลระยะเดินเติบโตของพืช
+model PlantGrowthStage {
+  stageId     String  @id
+  stageNameEn String
+  stageNameTh String?
+  notes       String?
+}
+
 // สถานะการขอเป็นผู้เชี่ยวชาญ
 enum ExpertStatus {
   NONE // ไม่ได้ขอ
@@ -105,8 +113,10 @@ model PestReport {
 
   // ข้อมูลเชิงปริมาณ (ใช้ Float เพื่อความแม่นยำในการคำนวณ)
   fieldAffectedArea Float // พื้นที่ที่ได้รับผลกระทบ (ไร่)
+  plantStage        String  @default("") // ระยะการเจริญเติบโตของพืช
   incidencePercent  Float // เปอร์เซ็นต์การระบาด (0-100)
   severityPercent   Float // เปอร์เซ็นต์ความรุนแรง (0-100)
+  notes             String? // หมายเหตุ
 
   // ข้อมูลพิกัด (Geospatial)
   latitude  Float

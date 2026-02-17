@@ -55,6 +55,7 @@ interface PestReportFormData {
     latitude: number;
     longitude: number;
     plantId: string;
+    plantGrowthStage: string;
     pestId: string;
     symptomOnSet: string;
     fieldAffectedArea: number;
@@ -82,10 +83,20 @@ const REPORTER_ROLES = [
     { id: "REP009", label: "ไม่ระบุ" },
 ];
 
-// 5 Step configuration
+// Plant Growth Stages
+const PLANT_GROWTH_STAGES = [
+    { id: "seedling", label: "ต้นกล้า / Seedling", image: "/images/plantGrowthStage/rcie_seedling.jpg" },
+    { id: "tillering", label: "การหยั่งรากและการแตกพัง / Tillering", image: "/images/plantGrowthStage/rice_tillering.jpg" },
+    { id: "booting", label: "การออกรวง / Booting", image: "/images/plantGrowthStage/rice_booting.jpg" },
+    { id: "flowering", label: "การออกดอก / Flowering", image: "/images/plantGrowthStage/rice_flowering.jpg" },
+    { id: "ripening", label: "การสุกผล / Ripening", image: "/images/plantGrowthStage/rice_ripening.jpg" },
+];
+
+// 6 Step configuration
 const STEPS = [
     { id: "location", label: "ตำแหน่งที่พบ", icon: "location_on" },
     { id: "plant", label: "ชนิดพืช", icon: "grass" },
+    { id: "growth", label: "ระยะเจริญเติบโต", icon: "nature" },
     { id: "pest", label: "ศัตรูข้าว", icon: "bug_report" },
     { id: "issue", label: "รายละเอียด", icon: "pest_control" },
     { id: "reporter", label: "ผู้รายงาน", icon: "person" },
@@ -104,6 +115,7 @@ export default function SurveyFormClient({
         latitude: 0,
         longitude: 0,
         plantId: "",
+        plantGrowthStage: "",
         pestId: "",
         symptomOnSet: new Date().toISOString().split("T")[0],
         fieldAffectedArea: 0,
@@ -208,24 +220,58 @@ export default function SurveyFormClient({
                     const stateName = data.address?.state || data.address?.province || data.address?.city;
 
                     if (stateName) {
-                        const normalize = (str: string) =>
-                            str ? str.toLowerCase().replace(/จังหวัด|province|islands|city of/g, "").replace(/\s+/g, "").trim() : "";
+                        // Improved normalization function with better Thai handling
+                        const normalize = (str: string) => {
+                            if (!str) return "";
+                            // Remove common prefixes/suffixes in Thai and English
+                            let normalized = str
+                                .toLowerCase()
+                                .replace(/จังหวัด|province|จ\.|city of|islands/gi, "")
+                                .trim();
+                            // Remove multiple spaces and normalize whitespace
+                            normalized = normalized.replace(/\s+/g, "");
+                            return normalized;
+                        };
 
                         const target = normalize(stateName);
+                        console.log(`Looking for province: "${stateName}" (normalized: "${target}")`);
 
-                        const matchedProvince = provinces.find(p => {
+                        // First, try exact match
+                        let matchedProvince = provinces.find(p => {
                             const th = p.provinceNameTh ? normalize(p.provinceNameTh) : "";
                             const en = normalize(p.provinceNameEn);
-                            return th === target || en === target ||
-                                (th && target.includes(th)) || (th && th.includes(target)) ||
-                                target.includes(en) || en.includes(target);
+                            if (th === target || en === target) {
+                                console.log(`Exact match found: ${p.provinceNameTh || p.provinceNameEn}`);
+                                return true;
+                            }
+                            return false;
                         });
+
+                        // If no exact match, try partial match
+                        if (!matchedProvince) {
+                            matchedProvince = provinces.find(p => {
+                                const th = p.provinceNameTh ? normalize(p.provinceNameTh) : "";
+                                const en = normalize(p.provinceNameEn);
+                                // Check if target is a substring or vice versa
+                                if (th && (target.includes(th) || th.includes(target))) {
+                                    console.log(`Partial match (Thai): ${p.provinceNameTh}`);
+                                    return true;
+                                }
+                                if (en && (target.includes(en) || en.includes(target))) {
+                                    console.log(`Partial match (English): ${p.provinceNameEn}`);
+                                    return true;
+                                }
+                                return false;
+                            });
+                        }
 
                         if (matchedProvince) {
                             setFormData((prev) => ({ ...prev, provinceCode: matchedProvince.provinceCode }));
                             setLocationStatus(`พบตำแหน่งในจังหวัด: ${matchedProvince.provinceNameTh || matchedProvince.provinceNameEn}`);
                         } else {
-                            console.warn("Could not auto-match province:", stateName);
+                            console.warn("Could not auto-match province:", stateName, "normalized:", target);
+                            // Show available provinces for debugging
+                            console.log("Available provinces:", provinces.map(p => ({ th: p.provinceNameTh, en: p.provinceNameEn, normalized: normalize(p.provinceNameTh || p.provinceNameEn) })));
                             setLocationStatus(`ไม่สามารถระบุจังหวัดจาก: ${stateName}`);
                         }
                     } else {
@@ -255,6 +301,10 @@ export default function SurveyFormClient({
         }
         if (currentStep === "plant" && !formData.plantId) {
             alert("Please select a plant / กรุณาเลือกชนิดพืช");
+            return;
+        }
+        if (currentStep === "growth" && !formData.plantGrowthStage) {
+            alert("Please select a plant growth stage / กรุณาเลือกระยะการเจริญของพืช");
             return;
         }
         if (currentStep === "pest" && !formData.pestId) {
@@ -310,12 +360,12 @@ export default function SurveyFormClient({
     const handleSubmit = async () => {
         if (isSubmitting) return;
 
-        if (!formData.provinceCode || !formData.plantId || !formData.pestId || selectedFiles.length === 0) {
+        if (!formData.provinceCode || !formData.plantId || !formData.plantGrowthStage || !formData.pestId || selectedFiles.length === 0) {
             if (selectedFiles.length === 0) {
                 alert("Please upload at least 1 photo / กรุณาแนบรูปภาพอย่างน้อย 1 รูป");
                 setCurrentStep("issue");
             } else {
-                alert("Please complete all required fields (Province, Plant, and Pest).");
+                alert("Please complete all required fields (Province, Plant, Growth Stage, and Pest).");
             }
             return;
         }
@@ -414,7 +464,7 @@ export default function SurveyFormClient({
                                     </div>
                                     <div>
                                         <CardTitle className="text-xl font-display text-primary">ข้อมูลตำแหน่งที่พบ</CardTitle>
-                                        <p className="text-sm text-muted-foreground mt-0.5">คุณพบศัตรูข้าวที่ไหน?</p>
+                                        <p className="text-sm text-muted-foreground mt-0.5">คุณพบศัตรูพืชที่ใด?</p>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="pt-8">
@@ -568,7 +618,55 @@ export default function SurveyFormClient({
                                 </CardContent>
                             </>
                         )}
-                        {/* ===== STEP 3: Pest ===== */}
+                        {/* ===== STEP 3: Plant Growth Stage ===== */}
+                        {currentStep === "growth" && (
+                            <>
+                                <CardHeader className="flex flex-row items-center gap-4 pb-4 border-b border-border">
+                                    <div className="bg-secondary/10 p-2.5 rounded-xl text-secondary">
+                                        <span className="material-icons-outlined text-2xl">nature</span>
+                                    </div>
+                                    <div>
+                                        <CardTitle className="text-xl font-display text-primary">ระยะการเจริญเติบโตของพืช</CardTitle>
+                                        <p className="text-sm text-muted-foreground mt-0.5">พืชอยู่ในระยะใด?</p>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="pt-8">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                        {PLANT_GROWTH_STAGES.map((stage) => (
+                                            <label key={stage.id} className="cursor-pointer group">
+                                                <input
+                                                    type="radio"
+                                                    name="growth"
+                                                    value={stage.id}
+                                                    checked={formData.plantGrowthStage === stage.id}
+                                                    onChange={() => handleInputChange("plantGrowthStage", stage.id)}
+                                                    className="peer sr-only"
+                                                />
+                                                <div className={`flex flex-col items-center justify-center p-2 rounded-2xl transition-all duration-300 transform peer-checked:scale-105 ${formData.plantGrowthStage === stage.id
+                                                    ? "text-primary"
+                                                    : "text-muted-foreground hover:text-primary"
+                                                    }`}>
+                                                    <div className={`size-32 md:size-40 rounded-lg overflow-hidden flex items-center justify-center mb-3 transition-all border-4 ${formData.plantGrowthStage === stage.id ? "border-primary shadow-xl shadow-primary/20" : "border-border group-hover:border-primary/50"}`}>
+                                                        <img
+                                                            src={stage.image}
+                                                            alt={stage.label}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                const target = e.target as HTMLImageElement;
+                                                                target.onerror = null;
+                                                                target.src = `https://placehold.co/300x300.png?text=${encodeURIComponent(stage.label)}`;
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <span className="text-sm font-bold text-center line-clamp-2">{stage.label}</span>
+                                                </div>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </>
+                        )}
+                        {/* ===== STEP 4: Pest ===== */}
                         {currentStep === "pest" && (
                             <>
                                 <CardHeader className="flex flex-row items-center gap-4 pb-4 border-b border-border">
@@ -576,8 +674,8 @@ export default function SurveyFormClient({
                                         <span className="material-icons-outlined text-2xl">bug_report</span>
                                     </div>
                                     <div>
-                                        <CardTitle className="text-xl font-display text-primary">ชนิดศัตรูข้าวและโรคข้าว</CardTitle>
-                                        <p className="text-sm text-muted-foreground mt-0.5">คุณพบศัตรูข้าวประเภทใด?</p>
+                                        <CardTitle className="text-xl font-display text-primary">ศัตรูข้าวและโรคข้าว</CardTitle>
+                                        <p className="text-sm text-muted-foreground mt-0.5">คุณพบศัตรูข้าวชนิดใด?</p>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="pt-8">
@@ -620,7 +718,7 @@ export default function SurveyFormClient({
                                 </CardContent>
                             </>
                         )}
-                        {/* ===== STEP 4: Issue ===== */}
+                        {/* ===== STEP 5: Issue ===== */}
                         {currentStep === "issue" && (
                             <>
                                 <CardHeader className="flex flex-row items-center gap-4 pb-4 border-b border-border">
@@ -636,7 +734,7 @@ export default function SurveyFormClient({
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
                                         {/* Symptom Onset Date */}
                                         <div className="col-span-1 space-y-3">
-                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">วันที่เริ่มพบระบาด</Label>
+                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">วันที่คาดว่าเริ่มการระบาด</Label>
                                             <Input
                                                 type="date"
                                                 className="h-12 rounded-xl border-border bg-background focus:ring-primary/20"
@@ -698,7 +796,7 @@ export default function SurveyFormClient({
 
                                         {/* Severity Percent */}
                                         <div className="col-span-1 space-y-3">
-                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">ระดับความรุนแรง (Severity)</Label>
+                                            <Label className="text-sm font-bold text-muted-foreground uppercase tracking-wider">เปอร์เซ็นต์ความรุนแรง (Severity)</Label>
                                             <div className="relative">
                                                 <Input
                                                     type="number"
@@ -878,7 +976,7 @@ export default function SurveyFormClient({
                                 </CardContent>
                             </>
                         )}
-                        {/* ===== STEP 5: Reporter ===== */}
+                        {/* ===== STEP 6: Reporter ===== */}
                         {currentStep === "reporter" && (
                             <>
                                 <CardHeader className="flex flex-row items-center gap-4 pb-4 border-b border-border">

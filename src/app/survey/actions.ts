@@ -11,6 +11,7 @@ interface PestReportSubmission {
     latitude: number;
     longitude: number;
     plantId: string;
+    plantGrowthStage: string;
     pestId: string;
     symptomOnSet: string;
     fieldAffectedArea: number;
@@ -126,6 +127,7 @@ export async function submitPestReport(data: PestReportSubmission) {
                 latitude: data.latitude,
                 longitude: data.longitude,
                 plant: { connect: { plantId: data.plantId } },
+                plantStage: data.plantGrowthStage,
                 pest: { connect: { pestId: data.pestId } },
                 symptomOnSet: new Date(data.symptomOnSet),
                 fieldAffectedArea: data.fieldAffectedArea,
