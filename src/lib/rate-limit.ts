@@ -38,10 +38,16 @@ const DEFAULT_CONFIG: RateLimitConfig = {
     windowMs: 60 * 1000, // 1 minute
 };
 
-// Stricter: 3 requests per 5 minutes (for auth)
+// Stricter: 3 requests per 5 minutes (for auth login)
 const AUTH_CONFIG: RateLimitConfig = {
     maxRequests: 3,
     windowMs: 5 * 60 * 1000, // 5 minutes
+};
+
+// Very strict: 1 signup per email per 1 hour (matches Supabase email limit)
+const SIGNUP_CONFIG: RateLimitConfig = {
+    maxRequests: 1,
+    windowMs: 60 * 60 * 1000, // 1 hour
 };
 
 // Moderate: 10 requests per minute (for API)
@@ -122,9 +128,10 @@ export function rateLimit(
 
     if (!result.allowed) {
         const resetDate = new Date(result.resetTime);
+        const timeStr = resetDate.toLocaleTimeString("th-TH");
         return {
             success: false,
-            error: `Rate limit exceeded. Please try again after ${resetDate.toLocaleTimeString()}`,
+            error: `ลองเพิ่มเติมได้อีก ${timeStr}`,
             remaining: 0,
             resetTime: result.resetTime,
         };
@@ -155,8 +162,11 @@ export function rateLimit(
  * ```
  */
 export const rateLimiters = {
-    // For login/signup - strict
+    // For login - strict (3 per 5 minutes)
     auth: (identifier: string) => rateLimit(identifier, AUTH_CONFIG),
+
+    // For signup - very strict (1 per hour, matches Supabase email limit)
+    signup: (identifier: string) => rateLimit(identifier, SIGNUP_CONFIG),
 
     // For survey submission - moderate
     survey: (identifier: string) => rateLimit(identifier, { maxRequests: 3, windowMs: 60 * 1000 }),

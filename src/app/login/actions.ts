@@ -71,7 +71,7 @@ export async function signup(formData: FormData) {
     const email = formData.get("email") as string;
 
     // Rate limiting check
-    const rateLimitResult = rateLimiters.auth(`signup:${email}`);
+    const rateLimitResult = rateLimiters.signup(`signup:${email}`);
     if (!rateLimitResult.success) {
         return { success: false, message: rateLimitResult.error };
     }
@@ -86,6 +86,20 @@ export async function signup(formData: FormData) {
     });
 
     if (error) {
+        // Handle Supabase email rate limit error
+        const errorMsg = error.message.toLowerCase();
+        const isRateLimited =
+            errorMsg.includes("rate limit") ||
+            errorMsg.includes("email rate limit") ||
+            (error as any).status === 429;
+
+        if (isRateLimited) {
+            return {
+                success: false,
+                message: "ขณะนี้ระบบส่งอีเมลยืนยันถึงขีดจำกัด กรุณารอสักครู่แล้วลองใหม่อีกครั้ง (ประมาณ 1 ชั่วโมง)",
+            };
+        }
+
         return { success: false, message: error.message };
     }
 
